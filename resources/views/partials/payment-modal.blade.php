@@ -758,9 +758,13 @@
         var canvas = document.createElement('canvas');
         canvas.width = viewport.width;
         canvas.height = viewport.height;
-        canvas.style.width = '100%'; canvas.style.height = 'auto';
         await page.render({ canvasContext: canvas.getContext('2d'), viewport: viewport }).promise;
-        return canvas.outerHTML;
+        // IMPORTANT: canvas pixel data does not survive outerHTML/innerHTML
+        // serialization. Export as a data URL and embed as an <img> so
+        // whichever innerHTML consumer picks this up (single-file path or
+        // multi-file stack) gets the actual rendered page, not an empty
+        // canvas of the right dimensions.
+        return '<img src="' + canvas.toDataURL('image/png') + '" alt="">';
     }
 
     // Lazy-load PDF.js if not already present (merge tool pre-loads it, but
