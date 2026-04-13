@@ -22,6 +22,22 @@
     $subscriptionPriceFormatted = $isEn
         ? number_format($subscriptionPrice, 2, '.', ',') . ' ' . $currency
         : number_format($subscriptionPrice, 2, ',', '.') . ' ' . $currency;
+
+    // Build JSON payloads for the inline <script> in PHP — using @json with
+    // multi-line array literals trips Blade's parser on nested __() calls.
+    $__spmJsMessages = json_encode([
+        'stripeLocale' => $loc,
+        'processing'   => __('payment.processing'),
+        'payButton'    => __('payment.pay_button', ['price' => $trialPriceFormatted]),
+        'errName'      => __('payment.err_name'),
+        'errEmail'     => __('payment.err_email'),
+        'errGeneric'   => __('payment.err_generic'),
+        'tcRequired'   => __('payment.tc_required'),
+    ], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
+    $__spmJsConfig = json_encode([
+        'stripeKey' => (string) config('services.stripe.key', ''),
+    ], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
+    $__spmFilesCountJson = json_encode(__('payment.files_count'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
 @endphp
 
 <div id="sofortpdf-payment-modal" class="spm-root" aria-hidden="true" role="dialog" aria-modal="true">
@@ -508,18 +524,9 @@
     if (!root) return;
 
     // --- i18n for JS-side messages -----------------------------------------
-    var __m = @json([
-        'stripeLocale'    => $loc,
-        'processing'      => __('payment.processing'),
-        'payButton'       => __('payment.pay_button', ['price' => $trialPriceFormatted]),
-        'errName'         => __('payment.err_name'),
-        'errEmail'        => __('payment.err_email'),
-        'errGeneric'      => __('payment.err_generic'),
-        'tcRequired'      => __('payment.tc_required'),
-    ]);
-    var __config = @json([
-        'stripeKey'        => (string) config('services.stripe.key', ''),
-    ]);
+    var __m = {!! $__spmJsMessages !!};
+    var __config = {!! $__spmJsConfig !!};
+    var __filesCountLabel = {!! $__spmFilesCountJson !!};
 
     // --- DOM refs ----------------------------------------------------------
     var previewWrap    = root.querySelector('[data-spm-preview]');
@@ -865,7 +872,7 @@
             var totalSize = files.reduce(function(sum, f) { return sum + (f.size || 0); }, 0);
             filenameEl.textContent = files[0].name;
             filesizeEl.textContent = formatSize(totalSize);
-            filecountEl.textContent = (@json(__('payment.files_count')) || '{n} files').replace('{n}', files.length);
+            filecountEl.textContent = (__filesCountLabel || '{n} files').replace('{n}', files.length);
             filecountEl.hidden = false;
             renderPreview(files).catch(function() { /* ignore */ });
         }
