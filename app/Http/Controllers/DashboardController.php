@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\ToolConfig;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -34,10 +35,42 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
+        // Stats for the welcome row (best-effort — if the shared DB is
+        // temporarily unreachable we degrade to zero rather than 500).
+        $stats = [
+            'this_month' => 0,
+            'total' => 0,
+            'top_tool' => null,
+        ];
+        try {
+            $stats['this_month'] = $user->conversionLogs()->sofortpdf()
+                ->where('created_at', '>=', now()->startOfMonth())
+                ->count();
+            $stats['total'] = $user->conversionLogs()->sofortpdf()->count();
+            $topRow = $user->conversionLogs()->sofortpdf()
+                ->selectRaw('tool_slug, COUNT(*) as n')
+                ->groupBy('tool_slug')
+                ->orderByDesc('n')
+                ->first();
+            if ($topRow) {
+                $stats['top_tool'] = str_replace('sofortpdf_', '', $topRow->tool_slug);
+            }
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
+        // Quick-access grid: first 6 enabled tools in the current locale.
+        $quickTools = collect(ToolConfig::allEnabled(app()->getLocale()))
+            ->take(6)
+            ->values()
+            ->all();
+
         return view('dashboard.index', [
             'user' => $user,
             'subscription' => $subscription,
             'recentConversions' => $recentConversions,
+            'stats' => $stats,
+            'quickTools' => $quickTools,
         ]);
     }
 
@@ -89,7 +122,7 @@ class DashboardController extends Controller
         $session = BillingPortalSession::create([
             'customer' => $user->stripe_customer_id,
             'return_url' => route('dashboard.billing'),
-            'locale' => 'de',
+            'locale' => app()->getLocale(),
         ]);
 
         return redirect($session->url);
@@ -109,7 +142,7 @@ class DashboardController extends Controller
             ->first();
 
         if (!$subscription) {
-            return redirect()->route('dashboard.billing')->with('error', 'Kein aktives Abonnement gefunden.');
+            return redirect()->route('dashboard.billing')->with('error', __('dashboard.flash_no_active_subscription'));
         }
 
         Stripe::setApiKey(config('services.stripe.secret'));
@@ -120,7 +153,7 @@ class DashboardController extends Controller
 
         $subscription->update(['status' => 'canceled']);
 
-        return redirect()->route('dashboard.billing')->with('success', 'Ihr Abonnement wurde gekündigt. Sie behalten Ihren Zugang bis zum Ende des aktuellen Abrechnungszeitraums.');
+        return redirect()->route('dashboard.billing')->with('success', __('dashboard.flash_subscription_canceled'));
     }
 
     /**
@@ -148,13 +181,13 @@ class DashboardController extends Controller
         ];
 
         $messages = [
-            'name.required' => 'Bitte geben Sie Ihren Namen ein.',
-            'email.required' => 'Bitte geben Sie Ihre E-Mail-Adresse ein.',
-            'email.email' => 'Bitte geben Sie eine gueltige E-Mail-Adresse ein.',
-            'email.unique' => 'Diese E-Mail-Adresse wird bereits verwendet.',
-            'current_password.required_with' => 'Bitte geben Sie Ihr aktuelles Passwort ein.',
-            'password.min' => 'Das neue Passwort muss mindestens 8 Zeichen lang sein.',
-            'password.confirmed' => 'Die Passwortbestaetigung stimmt nicht ueberein.',
+            'name.required' => __('dashboard.profile_val_name_required'),
+            'email.required' => __('dashboard.profile_val_email_required'),
+            'email.email' => __('dashboard.profile_val_email_invalid'),
+            'email.unique' => __('dashboard.profile_val_email_unique'),
+            'current_password.required_with' => __('dashboard.profile_val_current_pw_required'),
+            'password.min' => __('dashboard.profile_val_password_min'),
+            'password.confirmed' => __('dashboard.profile_val_password_confirmed'),
         ];
 
         if ($request->filled('password')) {
@@ -169,13 +202,13 @@ class DashboardController extends Controller
 
         if ($request->filled('password')) {
             if (!Hash::check($request->input('current_password'), $user->password)) {
-                return back()->withErrors(['current_password' => 'Das aktuelle Passwort ist nicht korrekt.']);
+                return back()->withErrors(['current_password' => __('dashboard.profile_val_current_pw_wrong')]);
             }
             $user->password = Hash::make($request->input('password'));
         }
 
         $user->save();
 
-        return redirect()->back()->with('success', 'Ihre Änderungen wurden gespeichert.');
+        return redirect()->back()->with('success', __('dashboard.flash_profile_saved'));
     }
 }

@@ -9,6 +9,33 @@ return [
 
     // Index / Overview
     'index_heading' => 'Overview',
+    'welcome_morning' => 'Good morning, :name',
+    'welcome_afternoon' => 'Good afternoon, :name',
+    'welcome_evening' => 'Good evening, :name',
+    'welcome_sub' => 'Welcome back to your personal space.',
+
+    'stat_this_month' => 'Conversions this month',
+    'stat_total' => 'Total conversions',
+    'stat_top_tool' => 'Most used tool',
+    'stat_none' => 'No activity yet',
+
+    'quick_access_heading' => 'Quick access',
+    'quick_access_sub' => 'Jump straight into a tool.',
+
+    // Flash messages (controller)
+    'flash_no_active_subscription' => 'No active subscription found.',
+    'flash_subscription_canceled' => 'Your subscription has been canceled. You will keep access until the end of the current billing period.',
+    'flash_profile_saved' => 'Your changes have been saved.',
+
+    // Profile validation
+    'profile_val_name_required' => 'Please enter your name.',
+    'profile_val_email_required' => 'Please enter your email address.',
+    'profile_val_email_invalid' => 'Please enter a valid email address.',
+    'profile_val_email_unique' => 'This email address is already in use.',
+    'profile_val_current_pw_required' => 'Please enter your current password.',
+    'profile_val_current_pw_wrong' => 'Your current password is incorrect.',
+    'profile_val_password_min' => 'The new password must be at least 8 characters long.',
+    'profile_val_password_confirmed' => 'The password confirmation does not match.',
     'subscription_status' => 'Subscription Status',
     'status_active' => 'Active',
     'status_trial' => 'Trial',

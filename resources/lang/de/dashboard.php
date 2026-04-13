@@ -9,6 +9,33 @@ return [
 
     // Index / Overview
     'index_heading' => 'Übersicht',
+    'welcome_morning' => 'Guten Morgen, :name',
+    'welcome_afternoon' => 'Guten Tag, :name',
+    'welcome_evening' => 'Guten Abend, :name',
+    'welcome_sub' => 'Willkommen zurück in Ihrem persönlichen Bereich.',
+
+    'stat_this_month' => 'Konvertierungen diesen Monat',
+    'stat_total' => 'Gesamte Konvertierungen',
+    'stat_top_tool' => 'Meistgenutztes Werkzeug',
+    'stat_none' => 'Noch keine Aktivität',
+
+    'quick_access_heading' => 'Schnellzugriff',
+    'quick_access_sub' => 'Direkt zu einem Werkzeug springen.',
+
+    // Flash messages (controller)
+    'flash_no_active_subscription' => 'Kein aktives Abonnement gefunden.',
+    'flash_subscription_canceled' => 'Ihr Abonnement wurde gekündigt. Sie behalten Ihren Zugang bis zum Ende des aktuellen Abrechnungszeitraums.',
+    'flash_profile_saved' => 'Ihre Änderungen wurden gespeichert.',
+
+    // Profile validation
+    'profile_val_name_required' => 'Bitte geben Sie Ihren Namen ein.',
+    'profile_val_email_required' => 'Bitte geben Sie Ihre E-Mail-Adresse ein.',
+    'profile_val_email_invalid' => 'Bitte geben Sie eine gültige E-Mail-Adresse ein.',
+    'profile_val_email_unique' => 'Diese E-Mail-Adresse wird bereits verwendet.',
+    'profile_val_current_pw_required' => 'Bitte geben Sie Ihr aktuelles Passwort ein.',
+    'profile_val_current_pw_wrong' => 'Das aktuelle Passwort ist nicht korrekt.',
+    'profile_val_password_min' => 'Das neue Passwort muss mindestens 8 Zeichen lang sein.',
+    'profile_val_password_confirmed' => 'Die Passwortbestätigung stimmt nicht überein.',
     'subscription_status' => 'Abonnement-Status',
     'status_active' => 'Aktiv',
     'status_trial' => 'Testphase',
