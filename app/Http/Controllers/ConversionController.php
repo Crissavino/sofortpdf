@@ -8,6 +8,7 @@ use App\Models\Download;
 use App\Services\ConversionServiceClient;
 use App\Services\PaywallBypass;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -20,6 +21,13 @@ class ConversionController extends Controller
             'tool' => 'required|string',
             'file_ids' => 'required|array|min:1',
         ]);
+
+        // /api/convert lives outside the localized route group, so SetLocale
+        // never runs here. Pull the locale the user picked from session and
+        // apply it manually — otherwise __() falls back to German and
+        // route() complains about the missing {locale} parameter.
+        $locale = $this->resolveLocale($request);
+        App::setLocale($locale);
 
         $tool = $request->input('tool');
         $uploadedFiles = session('upload_files', []);
@@ -95,14 +103,15 @@ class ConversionController extends Controller
             // shared database.
             $tokenInfo = $this->issueDownloadToken($user, $primaryPath, $originalName, $bypass);
 
-            // Clear session
+            // Clear session — but read the upload_tool first so we don't
+            // strip context the rest of the response might want later.
             session()->forget(['upload_files', 'upload_tool']);
 
             return response()->json([
                 'download_url' => $tokenInfo['download_url'],
-                'confirmation_url' => route('confirmation', ['t' => $tokenInfo['token']]),
+                'confirmation_url' => route('confirmation', ['locale' => $locale, 't' => $tokenInfo['token']]),
                 'filename' => $originalName,
-                'message' => 'Fertig! Ihre Datei ist bereit zum Herunterladen.',
+                'message' => __('tool.ready_for_download'),
             ]);
 
         } catch (ConversionServiceException $e) {
@@ -126,8 +135,34 @@ class ConversionController extends Controller
 
         } catch (\Exception $e) {
             Log::error("Conversion failed: {$e->getMessage()}", ['tool' => $tool, 'user' => $user?->id]);
-            return response()->json(['message' => 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.'], 500);
+            return response()->json(['message' => __('tool.error_generic')], 500);
         }
+    }
+
+    /**
+     * Best-effort locale detection for API requests that bypass SetLocale.
+     * Order: session → Referer URL → default. Always returns a supported locale.
+     */
+    private function resolveLocale(Request $request): string
+    {
+        $supported = (array) config('locales.supported', ['de', 'en']);
+        $default = (string) config('locales.default', 'de');
+
+        $candidate = (string) session('locale', '');
+        if (in_array($candidate, $supported, true)) {
+            return $candidate;
+        }
+
+        $referer = $request->headers->get('referer') ?: '';
+        if ($referer !== '') {
+            $path = parse_url($referer, PHP_URL_PATH) ?: '';
+            $first = trim(explode('/', ltrim($path, '/'))[0] ?? '', '/');
+            if (in_array($first, $supported, true)) {
+                return $first;
+            }
+        }
+
+        return $default;
     }
 
     /**
