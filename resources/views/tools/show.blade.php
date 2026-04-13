@@ -239,7 +239,7 @@
         inset: -2px;
         border-radius: inherit;
         box-shadow: 0 0 0 0 var(--pulse-color, rgba(59, 108, 245, 0.35));
-        animation: upload-pulse 2.6s var(--ease-out-expo) infinite;
+        animation: upload-pulse 1.3s var(--ease-out-expo) infinite;
         pointer-events: none;
     }
     @keyframes upload-pulse {
@@ -257,7 +257,7 @@
 
     /* ── Upload zone icon: gentle float ── */
     .icon-circle {
-        animation: icon-float 3.4s ease-in-out infinite;
+        animation: icon-float 1.7s ease-in-out infinite;
     }
     @keyframes icon-float {
         0%, 100% { transform: translateY(0); }
