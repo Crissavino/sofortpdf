@@ -93,13 +93,14 @@ class ConversionController extends Controller
             // downloads table; in payment-bypass mode (or guest) we keep
             // the mapping in cache to avoid the customer_id FK in the
             // shared database.
-            $downloadUrl = $this->issueDownloadToken($user, $primaryPath, $originalName, $bypass);
+            $tokenInfo = $this->issueDownloadToken($user, $primaryPath, $originalName, $bypass);
 
             // Clear session
             session()->forget(['upload_files', 'upload_tool']);
 
             return response()->json([
-                'download_url' => $downloadUrl,
+                'download_url' => $tokenInfo['download_url'],
+                'confirmation_url' => route('confirmation', ['t' => $tokenInfo['token']]),
                 'filename' => $originalName,
                 'message' => 'Fertig! Ihre Datei ist bereit zum Herunterladen.',
             ]);
@@ -130,17 +131,22 @@ class ConversionController extends Controller
     }
 
     /**
-     * Create a single-use download token. Falls back to a cache-backed
+     * Issue a single-use download token. Falls back to a cache-backed
      * mapping when there's no authenticated user (guest / bypass mode)
      * so we don't need to write a downloads row keyed on customer_id.
+     *
+     * @return array{token: string, download_url: string}
      */
-    private function issueDownloadToken($user, string $primaryPath, string $originalName, bool $bypass): string
+    private function issueDownloadToken($user, string $primaryPath, string $originalName, bool $bypass): array
     {
         // Logged-in user, normal flow
         if ($user && ! $bypass) {
             try {
                 $download = Download::createToken($user->id, $primaryPath, $originalName);
-                return route('download', $download->token);
+                return [
+                    'token' => $download->token,
+                    'download_url' => route('download', $download->token),
+                ];
             } catch (\Throwable $e) {
                 Log::warning('Download row insert failed, falling back to cache', ['error' => $e->getMessage()]);
             }
@@ -155,7 +161,10 @@ class ConversionController extends Controller
             'expires_at' => now()->addHours($ttlHours)->toIso8601String(),
         ], now()->addHours($ttlHours));
 
-        return route('download', $token);
+        return [
+            'token' => $token,
+            'download_url' => route('download', $token),
+        ];
     }
 
     private function generateOutputName(string $originalName, string $tool): string

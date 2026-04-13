@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\PaywallBypass;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class SignatureController extends Controller
 {
@@ -35,28 +38,50 @@ class SignatureController extends Controller
         // Apply signature using FPDI
         $outputPath = $this->applySignature($pdfPath, $sigPath, $request->input('positions'));
 
-        // Create download token
-        $download = \App\Models\Download::createToken(
-            $request->user()->id,
-            $outputPath,
-            'unterschrieben.pdf'
-        );
+        $user = $request->user();
+        $bypass = PaywallBypass::applies($request);
+        $originalName = 'unterschrieben.pdf';
 
-        // Log conversion
-        \App\Models\ConversionLog::create([
-            'customer_id' => $request->user()->id,
-            'tool_slug' => 'sofortpdf_sign',
-            'original_filename' => 'document.pdf',
-            'result_filename' => basename($outputPath),
-            'status' => 'completed',
-            'file_size' => filesize($outputPath),
-        ]);
+        // Log conversion (best-effort)
+        try {
+            \App\Models\ConversionLog::create([
+                'customer_id' => $user?->id,
+                'tool_slug' => 'sofortpdf_sign',
+                'original_filename' => 'document.pdf',
+                'result_filename' => basename($outputPath),
+                'status' => 'completed',
+                'file_size' => filesize($outputPath),
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('ConversionLog write failed (sign)', ['error' => $e->getMessage()]);
+        }
+
+        // Issue download token (DB for logged-in user, cache otherwise)
+        $token = null;
+        if ($user && ! $bypass) {
+            try {
+                $download = \App\Models\Download::createToken($user->id, $outputPath, $originalName);
+                $token = $download->token;
+            } catch (\Throwable $e) {
+                Log::warning('Sign Download row insert failed, falling back to cache', ['error' => $e->getMessage()]);
+            }
+        }
+        if (! $token) {
+            $token = Str::random(64);
+            $ttlHours = (int) config('sofortpdf.guest_download_ttl_hours', 4);
+            Cache::put('guest_download:' . $token, [
+                'file_path' => $outputPath,
+                'original_filename' => $originalName,
+                'expires_at' => now()->addHours($ttlHours)->toIso8601String(),
+            ], now()->addHours($ttlHours));
+        }
 
         // Clean up temp signature
         @unlink($sigPath);
 
         return response()->json([
-            'download_url' => route('download', $download->token),
+            'download_url' => route('download', $token),
+            'confirmation_url' => route('confirmation', ['t' => $token]),
             'message' => 'PDF erfolgreich unterzeichnet.',
         ]);
     }

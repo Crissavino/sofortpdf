@@ -521,6 +521,14 @@
 
             const result = await response.json();
 
+            // Redirect to the unified confirmation page (same UX as every
+            // other tool). Falls back to the inline download state if the
+            // server didn't return a confirmation_url.
+            if (result.confirmation_url) {
+                window.location.href = result.confirmation_url;
+                return;
+            }
+
             processingState.classList.add('hidden');
             downloadState.classList.remove('hidden');
             document.getElementById('download-link').href = result.download_url;

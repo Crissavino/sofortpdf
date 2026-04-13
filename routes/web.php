@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\ConfirmationController;
 use App\Http\Controllers\ConversionController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DownloadController;
@@ -172,6 +173,13 @@ Route::prefix('{locale}')
     Route::post('/checkout/create-subscription', [CheckoutController::class, 'createSubscription'])->name('checkout.create-subscription');
     Route::post('/checkout/confirm-payment', [CheckoutController::class, 'confirmPayment'])->name('checkout.confirm-payment');
     Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
+
+    /*
+    |----------------------------------------------------------------------
+    | Confirmation page (after every successful tool conversion)
+    |----------------------------------------------------------------------
+    */
+    Route::get('/confirmation', [ConfirmationController::class, 'show'])->name('confirmation');
 
     /*
     |----------------------------------------------------------------------

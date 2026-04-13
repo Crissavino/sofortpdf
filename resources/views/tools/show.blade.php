@@ -1173,14 +1173,22 @@
 
             var result = await convertRes.json();
 
-            // Switch to download state
+            // Redirect to the confirmation page. The page will trigger
+            // the download itself and offer a re-download button + a link
+            // to the user's account.
+            if (result.confirmation_url) {
+                window.location.href = result.confirmation_url;
+                return;
+            }
+
+            // Fallback: if no confirmation_url was returned (older API or
+            // future tool), use the inline download state we already have.
             processingState.classList.add('hidden');
             downloadState.classList.remove('hidden');
             document.getElementById('download-link').href = result.download_url;
 
             refreshIcons();
 
-            // Animate download card entry
             var downloadCard = document.getElementById('download-card');
             var checkIcon = document.getElementById('check-icon');
             requestAnimationFrame(function() {
