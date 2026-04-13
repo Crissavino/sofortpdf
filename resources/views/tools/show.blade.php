@@ -292,6 +292,132 @@
         100% { left: 100%; }
     }
 
+    /* ── Merge tool: thumbnail grid ── */
+    .merge-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.75rem;
+    }
+    @media (min-width: 640px) {
+        .merge-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+    }
+    @media (min-width: 768px) {
+        .merge-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    }
+    .merge-card {
+        position: relative;
+        background: #fff;
+        border: 1px solid rgb(226 232 240);
+        border-radius: 14px;
+        padding: 12px 12px 10px;
+        cursor: grab;
+        user-select: none;
+        transition: border-color 180ms var(--ease-out-expo),
+                    box-shadow   180ms var(--ease-out-expo),
+                    transform    180ms var(--ease-out-expo);
+    }
+    .merge-card:hover {
+        border-color: rgb(191 219 254);
+        box-shadow: 0 6px 18px -6px rgba(59, 108, 245, 0.18);
+    }
+    .merge-card:active,
+    .merge-card.sortable-chosen { cursor: grabbing; }
+    .merge-card.sortable-ghost {
+        opacity: 0.35;
+        background: #eef4ff;
+    }
+    .merge-thumb {
+        position: relative;
+        aspect-ratio: 3 / 4;
+        background: #f8fafc;
+        border-radius: 10px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .merge-thumb img,
+    .merge-thumb canvas {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+    .merge-thumb-placeholder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        color: #94a3b8;
+    }
+    .merge-thumb-ext {
+        font-family: inherit;
+        font-weight: 800;
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        padding: 2px 8px;
+        border-radius: 999px;
+        background: #e2e8f0;
+        color: #475569;
+        text-transform: uppercase;
+    }
+    .merge-thumb-ext.ext-doc,  .merge-thumb-ext.ext-docx { background:#dbeafe; color:#1d4ed8; }
+    .merge-thumb-ext.ext-xls,  .merge-thumb-ext.ext-xlsx { background:#d1fae5; color:#047857; }
+    .merge-thumb-ext.ext-ppt,  .merge-thumb-ext.ext-pptx { background:#ffedd5; color:#c2410c; }
+    .merge-thumb-ext.ext-jpg,  .merge-thumb-ext.ext-jpeg,
+    .merge-thumb-ext.ext-png                             { background:#ede9fe; color:#6d28d9; }
+    .merge-thumb-ext.ext-pdf                             { background:#fee2e2; color:#b91c1c; }
+    .merge-thumb-spinner {
+        width: 28px; height: 28px;
+        border: 2px solid #cbd5e1;
+        border-top-color: #3b6cf5;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .merge-order-badge {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        background: rgba(15, 23, 42, 0.85);
+        color: white;
+        font-size: 11px;
+        font-weight: 700;
+        border-radius: 999px;
+        padding: 2px 8px;
+        z-index: 2;
+        backdrop-filter: blur(4px);
+    }
+    .merge-remove {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: rgba(15, 23, 42, 0.7);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 2;
+        transition: background 160ms var(--ease-out-expo);
+    }
+    .merge-remove:hover { background: rgb(220, 38, 38); }
+    .merge-filename {
+        margin-top: 10px;
+        font-size: 12px;
+        color: #334155;
+        font-weight: 500;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .merge-filesize {
+        font-size: 11px;
+        color: #94a3b8;
+    }
+
     /* ── Reduced motion ── */
     @media (prefers-reduced-motion: reduce) {
         *, *::before, *::after {
@@ -307,11 +433,25 @@
         }
         .processing-card::before,
         .upload-zone-pulse::before,
-        .icon-circle {
+        .icon-circle,
+        .merge-thumb-spinner {
             animation: none !important;
         }
     }
 </style>
+
+@if ($tool === 'merge')
+    {{-- Merge tool needs PDF.js for PDF thumbnail rendering and SortableJS
+         for drag-drop reordering. Both loaded via CDN to avoid a build step. --}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+    <script>
+        if (window['pdfjs-dist/build/pdf']) {
+            window['pdfjs-dist/build/pdf'].GlobalWorkerOptions.workerSrc =
+                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
+    </script>
+@endif
 @endpush
 
 @section('content')
@@ -650,6 +790,11 @@
     const maxSizeMB = parseInt(zone.dataset.maxSize);
     const borderActiveClass = zone.dataset.borderActive;
 
+    // Merge tool renders a draggable thumbnail grid instead of the flat list.
+    const mergeMode = toolKey === 'merge';
+    let mergeSortable = null;
+    const previewCache = new Map(); // fileKey -> dataURL/objectURL (so we don't re-render on each reorder)
+
     let selectedFiles = [];
 
     /* ── Helpers ── */
@@ -734,6 +879,8 @@
             zone.classList.remove('hidden', 'state-exit');
             zone.style.opacity = '';
             zone.style.transform = '';
+            if (mergeSortable) { mergeSortable.destroy(); mergeSortable = null; }
+            previewCache.clear();
             return;
         }
 
@@ -747,6 +894,30 @@
         // Show file list
         fileListWrapper.classList.remove('hidden');
 
+        if (mergeMode) {
+            renderMergeGrid();
+        } else {
+            renderLinearList();
+        }
+
+        // Add more files button (shared)
+        if (allowMultiple && selectedFiles.length < maxFiles) {
+            addMoreArea.classList.remove('hidden');
+            addMoreArea.innerHTML =
+                '<button onclick="document.getElementById(\'file-input\').click()" class="btn-add-more w-full flex items-center justify-center gap-2 bg-white rounded-xl px-5 py-4 border border-dashed border-slate-200 hover:border-slate-300 text-sm text-slate-400 hover:text-slate-600" style="transition: border-color 200ms ease-out, color 200ms ease-out, transform 160ms cubic-bezier(0.23,1,0.32,1);">' +
+                    '<i data-lucide="plus" class="w-4 h-4"></i>' +
+                    __t.addAnotherFile +
+                '</button>';
+        } else {
+            addMoreArea.classList.add('hidden');
+            addMoreArea.innerHTML = '';
+        }
+
+        refreshIcons();
+    }
+
+    /* ── Linear list renderer (all tools except merge) ── */
+    function renderLinearList() {
         fileList.innerHTML = selectedFiles.map(function(f, idx) {
             return '<div class="file-card flex items-center justify-between bg-white rounded-xl px-5 py-4 border border-slate-100 shadow-sm" data-index="' + idx + '">' +
                 '<div class="flex items-center gap-3.5 min-w-0">' +
@@ -764,21 +935,6 @@
             '</div>';
         }).join('');
 
-        // Add more files button
-        if (allowMultiple && selectedFiles.length < maxFiles) {
-            addMoreArea.classList.remove('hidden');
-            addMoreArea.innerHTML =
-                '<button onclick="document.getElementById(\'file-input\').click()" class="btn-add-more w-full flex items-center justify-center gap-2 bg-white rounded-xl px-5 py-4 border border-dashed border-slate-200 hover:border-slate-300 text-sm text-slate-400 hover:text-slate-600" style="transition: border-color 200ms ease-out, color 200ms ease-out, transform 160ms cubic-bezier(0.23,1,0.32,1);">' +
-                    '<i data-lucide="plus" class="w-4 h-4"></i>' +
-                    __t.addAnotherFile +
-                '</button>';
-        } else {
-            addMoreArea.classList.add('hidden');
-            addMoreArea.innerHTML = '';
-        }
-
-        refreshIcons();
-
         // Stagger file cards in
         var cards = fileList.querySelectorAll('.file-card');
         cards.forEach(function(card, i) {
@@ -786,6 +942,128 @@
                 card.classList.add('visible');
             }, 50 * i + 50);
         });
+    }
+
+    /* ── Merge grid renderer ── */
+    function renderMergeGrid() {
+        // Rebuild from scratch every time. Previews are cached per file key
+        // so reorders/additions don't re-render existing PDFs.
+        fileList.classList.add('merge-grid');
+        fileList.innerHTML = '';
+
+        selectedFiles.forEach(function(f, idx) {
+            const fileKey = fileIdentity(f);
+            const card = document.createElement('div');
+            card.className = 'merge-card';
+            card.setAttribute('data-index', idx);
+            card.setAttribute('data-key', fileKey);
+
+            const ext = (f.name.split('.').pop() || '').toLowerCase();
+
+            card.innerHTML =
+                '<div class="merge-order-badge">' + (idx + 1) + '</div>' +
+                '<button type="button" class="merge-remove" aria-label="Remove" onmousedown="event.stopPropagation()" onclick="event.stopPropagation(); removeFile(' + idx + ')">' +
+                    '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>' +
+                '</button>' +
+                '<div class="merge-thumb" data-thumb>' +
+                    '<div class="merge-thumb-placeholder"><div class="merge-thumb-spinner"></div></div>' +
+                '</div>' +
+                '<p class="merge-filename" title="' + escapeHtml(f.name) + '">' + escapeHtml(f.name) + '</p>' +
+                '<p class="merge-filesize">' + formatSize(f.size) + '</p>';
+
+            fileList.appendChild(card);
+
+            const thumbEl = card.querySelector('[data-thumb]');
+            if (previewCache.has(fileKey)) {
+                thumbEl.innerHTML = previewCache.get(fileKey);
+            } else {
+                buildThumbnail(f, ext).then(function(html) {
+                    previewCache.set(fileKey, html);
+                    // Only replace if the card is still attached to the DOM
+                    if (thumbEl.isConnected) thumbEl.innerHTML = html;
+                });
+            }
+        });
+
+        // (Re)initialize SortableJS
+        if (mergeSortable) { mergeSortable.destroy(); }
+        if (typeof Sortable !== 'undefined') {
+            mergeSortable = Sortable.create(fileList, {
+                animation: 180,
+                easing: 'cubic-bezier(0.23, 1, 0.32, 1)',
+                ghostClass: 'sortable-ghost',
+                chosenClass: 'sortable-chosen',
+                onEnd: updateMergeOrderBadges,
+            });
+        }
+
+        updateMergeOrderBadges();
+    }
+
+    function updateMergeOrderBadges() {
+        if (!fileList) return;
+        fileList.querySelectorAll('.merge-card').forEach(function(card, i) {
+            const badge = card.querySelector('.merge-order-badge');
+            if (badge) badge.textContent = (i + 1);
+        });
+    }
+
+    // A stable-ish key for a File. Two File objects with identical
+    // (name, size, lastModified) share a preview.
+    function fileIdentity(f) {
+        return f.name + '|' + f.size + '|' + (f.lastModified || 0);
+    }
+
+    function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, function(c) {
+            return ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c];
+        });
+    }
+
+    async function buildThumbnail(file, ext) {
+        if (ext === 'pdf') {
+            try {
+                return await renderPdfThumbnail(file);
+            } catch (e) {
+                console.error('PDF thumbnail failed', e);
+                return placeholderThumbnail('pdf');
+            }
+        }
+        if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'].includes(ext)) {
+            return '<img src="' + URL.createObjectURL(file) + '" alt="">';
+        }
+        return placeholderThumbnail(ext);
+    }
+
+    function placeholderThumbnail(ext) {
+        return '<div class="merge-thumb-placeholder">' +
+                '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' +
+                '<span class="merge-thumb-ext ext-' + ext + '">' + (ext || 'file') + '</span>' +
+            '</div>';
+    }
+
+    async function renderPdfThumbnail(file) {
+        const pdfjs = window['pdfjs-dist/build/pdf'];
+        if (!pdfjs) throw new Error('pdfjs not loaded');
+
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
+        const page = await pdf.getPage(1);
+
+        // Target a reasonable thumbnail height (~240px at 2x device pixel ratio)
+        const unscaled = page.getViewport({ scale: 1 });
+        const targetHeight = 240;
+        const scale = targetHeight / unscaled.height;
+        const viewport = page.getViewport({ scale: scale * (window.devicePixelRatio || 1) });
+
+        const canvas = document.createElement('canvas');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        canvas.style.width = '100%';
+        canvas.style.height = 'auto';
+        const ctx = canvas.getContext('2d');
+        await page.render({ canvasContext: ctx, viewport }).promise;
+        return canvas.outerHTML;
     }
 
     /* ── Remove file ── */
@@ -836,8 +1114,19 @@
         btnSpinner.classList.remove('hidden');
         btnArrow.classList.add('hidden');
 
+        // For merge: respect the user's drag-drop order (DOM order) before upload.
+        var filesInSubmitOrder = selectedFiles;
+        if (mergeMode) {
+            var cards = fileList.querySelectorAll('.merge-card');
+            if (cards.length === selectedFiles.length) {
+                filesInSubmitOrder = Array.from(cards).map(function(card) {
+                    return selectedFiles[parseInt(card.getAttribute('data-index'), 10)];
+                }).filter(Boolean);
+            }
+        }
+
         var formData = new FormData();
-        selectedFiles.forEach(function(f) { formData.append('files[]', f); });
+        filesInSubmitOrder.forEach(function(f) { formData.append('files[]', f); });
         formData.append('tool', toolKey);
 
         try {

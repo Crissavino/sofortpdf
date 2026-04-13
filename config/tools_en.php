@@ -3,9 +3,9 @@
 return [
     'merge' => [
         'h1' => 'Merge PDF',
-        'h2' => 'Combine multiple PDF files online — fast and easy',
-        'description' => 'Combine multiple PDF files into one document online',
-        'meta_description' => 'Merge PDF — combine multiple PDF files into one document instantly online. Fast, secure, and no installation required.',
+        'h2' => 'Combine PDF, Word, Excel, PowerPoint, JPG and PNG into one document',
+        'description' => 'Combine PDF, Word, Excel, PowerPoint and images into one PDF',
+        'meta_description' => 'Merge PDF — combine PDF, Word, Excel, PowerPoint and images into one document instantly online. Fast, secure and no installation required.',
         'action_label' => 'Merge Files',
     ],
     'compress' => [
