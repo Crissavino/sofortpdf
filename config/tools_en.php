@@ -143,9 +143,9 @@ return [
     ],
     'ocr' => [
         'h1' => 'OCR — Recognize Text',
-        'h2' => 'Recognize text from scanned PDFs — OCR',
-        'description' => 'Recognize text from scanned PDF documents',
-        'meta_description' => 'OCR — recognize text from scanned PDF documents. Fast and online.',
+        'h2' => 'Extract text from scanned PDFs and images — OCR',
+        'description' => 'Extract text from scanned PDFs and images (JPG, PNG, TIFF, BMP, WebP, GIF)',
+        'meta_description' => 'OCR — extract text from scanned PDF documents and images (JPG, PNG, TIFF, BMP, WebP, GIF). Output is a searchable PDF. Fast and online.',
         'action_label' => 'Recognize Text',
     ],
     'remove-pages' => [
