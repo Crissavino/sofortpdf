@@ -83,10 +83,17 @@
 
         <div class="spm-body">
             {{-- ═════ LEFT: FILE PREVIEW + INCLUDED LIST ═════
-                 One consolidated card (preview + filename on top, included
-                 list below). Price/total lives exclusively in the right
-                 column to avoid duplicated figures. --}}
+                 Desktop: inline 5/12 column. Mobile: hidden until the
+                 "Show preview" toggle is tapped, then promoted to a full
+                 overlay sheet on top of the payment form (close button in
+                 the header returns to the form). --}}
             <div class="spm-left">
+                <div class="spm-left-header">
+                    <span>{{ __('payment.summary_title') }}</span>
+                    <button type="button" class="spm-left-close" data-spm-preview-toggle aria-label="{{ __('payment.close_button') }}">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+                    </button>
+                </div>
                 <div class="spm-preview-card">
                     <div class="spm-preview" data-spm-preview>
                         {{-- Corner ribbon badge — JS updates data-ext --}}
@@ -340,11 +347,50 @@
         white-space: nowrap;
         max-width: 40%;
     }
+    /* Mobile-only left-column header with close button (desktop hides it) */
+    .spm-left-header {
+        display: none;
+        position: sticky; top: 0;
+        padding: 14px 4px 12px;
+        background: #fff;
+        margin-bottom: 10px;
+        border-bottom: 1px solid #f1f5f9;
+        font-family: 'Cabinet Grotesk', system-ui, sans-serif;
+        font-size: 14px; font-weight: 700; color: #0f172a;
+        align-items: center; justify-content: space-between;
+        z-index: 2;
+    }
+    .spm-left-close {
+        width: 32px; height: 32px;
+        border-radius: 50%;
+        background: #f1f5f9; border: 0;
+        color: #475569;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer;
+        transition: background-color 160ms ease-out;
+    }
+    .spm-left-close:hover { background: #e2e8f0; }
+
     @media (max-width: 719px) {
         .spm-preview-toggle { display: inline-flex; }
         .spm-body { padding-top: 12px; }
         .spm-left { display: none; }
-        .spm-left.is-expanded { display: block; }
+        /* Expanded: overlay the whole panel so the form stays in place underneath */
+        .spm-left.is-expanded {
+            display: block;
+            position: absolute;
+            inset: 0;
+            z-index: 5;
+            background: #fff;
+            padding: 0 20px 20px;
+            overflow-y: auto;
+            animation: spm-left-slide 260ms var(--ease-out-expo);
+        }
+        .spm-left.is-expanded .spm-left-header { display: flex; }
+    }
+    @keyframes spm-left-slide {
+        from { opacity: 0; transform: translateY(16px); }
+        to   { opacity: 1; transform: translateY(0); }
     }
 
     /* ── LEFT COLUMN ── */
@@ -665,7 +711,8 @@
     var previewExt     = root.querySelector('[data-spm-preview-ext]');
     var previewRibbon  = root.querySelector('[data-spm-preview-ribbon]');
     var leftCol        = root.querySelector('.spm-left');
-    var toggleBtn      = root.querySelector('[data-spm-preview-toggle]');
+    var toggleBtns     = root.querySelectorAll('[data-spm-preview-toggle]');
+    var toggleBtn      = toggleBtns[0] || null; // the main trigger (above the body)
     var toggleLabel    = root.querySelector('[data-spm-toggle-label]');
     var toggleFilename = root.querySelector('[data-spm-toggle-filename]');
     var filenameEl     = root.querySelector('[data-spm-filename]');
@@ -1127,15 +1174,23 @@
         if (e.key === 'Escape' && root.classList.contains('spm-open')) close();
     });
 
-    // Mobile preview toggle — collapses the left column so the payment form
-    // is immediately visible. Hidden on desktop via CSS.
-    if (toggleBtn && leftCol) {
-        toggleBtn.addEventListener('click', function() {
-            var expanded = leftCol.classList.toggle('is-expanded');
-            toggleBtn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
-            if (toggleLabel) {
-                toggleLabel.textContent = expanded ? __toggleLabels.hide : __toggleLabels.show;
-            }
+    // Mobile preview toggle — opens the preview as an overlay on top of the
+    // payment form. Any element with data-spm-preview-toggle triggers it
+    // (the main button above the body and the close button inside the
+    // overlay header both share the attribute). Hidden on desktop via CSS.
+    if (leftCol && toggleBtns.length) {
+        toggleBtns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var expanded = leftCol.classList.toggle('is-expanded');
+                if (toggleBtn) toggleBtn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+                if (toggleLabel) {
+                    toggleLabel.textContent = expanded ? __toggleLabels.hide : __toggleLabels.show;
+                }
+                if (expanded) {
+                    // Scroll the overlay to the top so the preview is the first thing the user sees.
+                    leftCol.scrollTop = 0;
+                }
+            });
         });
     }
 
