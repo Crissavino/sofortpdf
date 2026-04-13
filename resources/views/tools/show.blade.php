@@ -449,10 +449,16 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
     <script>
-        if (window['pdfjs-dist/build/pdf']) {
-            window['pdfjs-dist/build/pdf'].GlobalWorkerOptions.workerSrc =
-                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-        }
+        // cdnjs's pdf.js exposes two globals: window['pdfjs-dist/build/pdf']
+        // (CommonJS name) and window.pdfjsLib. Either may be present or
+        // partially initialized — guard everything.
+        try {
+            var __pdfLib = window['pdfjs-dist/build/pdf'] || window.pdfjsLib;
+            if (__pdfLib && __pdfLib.GlobalWorkerOptions) {
+                __pdfLib.GlobalWorkerOptions.workerSrc =
+                    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+            }
+        } catch (e) { /* ignore */ }
     </script>
 @endif
 @endpush
@@ -1046,8 +1052,8 @@
     }
 
     async function renderPdfThumbnail(file) {
-        const pdfjs = window['pdfjs-dist/build/pdf'];
-        if (!pdfjs) throw new Error('pdfjs not loaded');
+        const pdfjs = window['pdfjs-dist/build/pdf'] || window.pdfjsLib;
+        if (!pdfjs || !pdfjs.getDocument) throw new Error('pdfjs not loaded');
 
         const arrayBuffer = await file.arrayBuffer();
         const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;

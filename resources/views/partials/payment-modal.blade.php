@@ -628,10 +628,10 @@
         if (ext === 'pdf') {
             try {
                 await ensurePdfJs();
-                if (window['pdfjs-dist/build/pdf']) {
+                if (window['pdfjs-dist/build/pdf'] || window.pdfjsLib) {
                     return await renderPdfPage1(file);
                 }
-            } catch (e) { /* fall through */ }
+            } catch (e) { /* fall through to placeholder */ }
         }
         return placeholderHtml(ext);
     }
@@ -651,7 +651,8 @@
     }
 
     async function renderPdfPage1(file) {
-        var pdfjs = window['pdfjs-dist/build/pdf'];
+        var pdfjs = window['pdfjs-dist/build/pdf'] || window.pdfjsLib;
+        if (!pdfjs || !pdfjs.getDocument) throw new Error('pdfjs not ready');
         var ab = await file.arrayBuffer();
         var pdf = await pdfjs.getDocument({ data: ab }).promise;
         var page = await pdf.getPage(1);
@@ -671,16 +672,19 @@
     // other tool pages don't). Uses the same CDN build + worker URL.
     var __pdfJsLoading = null;
     function ensurePdfJs() {
-        if (window['pdfjs-dist/build/pdf']) return Promise.resolve();
+        var existing = window['pdfjs-dist/build/pdf'] || window.pdfjsLib;
+        if (existing && existing.getDocument) return Promise.resolve();
         if (__pdfJsLoading) return __pdfJsLoading;
         __pdfJsLoading = new Promise(function(resolve, reject) {
             var s = document.createElement('script');
             s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
             s.onload = function() {
-                var pdfjs = window['pdfjs-dist/build/pdf'];
-                if (pdfjs && pdfjs.GlobalWorkerOptions) {
-                    pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-                }
+                try {
+                    var pdfjs = window['pdfjs-dist/build/pdf'] || window.pdfjsLib;
+                    if (pdfjs && pdfjs.GlobalWorkerOptions) {
+                        pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                    }
+                } catch (e) { /* non-fatal */ }
                 resolve();
             };
             s.onerror = function() { __pdfJsLoading = null; reject(new Error('PDF.js failed to load')); };
