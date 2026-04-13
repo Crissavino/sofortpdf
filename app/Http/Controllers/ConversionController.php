@@ -7,7 +7,9 @@ use App\Models\ConversionLog;
 use App\Models\Download;
 use App\Services\ConversionServiceClient;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class ConversionController extends Controller
 {
@@ -21,6 +23,7 @@ class ConversionController extends Controller
         $tool = $request->input('tool');
         $uploadedFiles = session('upload_files', []);
         $user = $request->user();
+        $bypass = config('sofortpdf.payment_bypass', false);
 
         if (empty($uploadedFiles)) {
             return response()->json(['message' => 'Keine Dateien gefunden. Bitte laden Sie erneut hoch.'], 422);
@@ -70,25 +73,32 @@ class ConversionController extends Controller
             $primaryPath = $isArray ? $resultPath[0] : $resultPath;
             $originalName = $this->generateOutputName($originalNames[0] ?? 'datei', $tool);
 
-            // Log conversion
-            ConversionLog::create([
-                'customer_id' => $user->id,
-                'tool_slug' => "sofortpdf_{$tool}",
-                'original_filename' => $originalNames[0] ?? 'unknown',
-                'result_filename' => basename($primaryPath),
-                'status' => 'completed',
-                'file_size' => file_exists($primaryPath) ? filesize($primaryPath) : 0,
-                'processing_time_ms' => $processingTime,
-            ]);
+            // Log conversion (best-effort; never block the response)
+            try {
+                ConversionLog::create([
+                    'customer_id' => $user?->id,
+                    'tool_slug' => "sofortpdf_{$tool}",
+                    'original_filename' => $originalNames[0] ?? 'unknown',
+                    'result_filename' => basename($primaryPath),
+                    'status' => 'completed',
+                    'file_size' => file_exists($primaryPath) ? filesize($primaryPath) : 0,
+                    'processing_time_ms' => $processingTime,
+                ]);
+            } catch (\Throwable $e) {
+                Log::warning('ConversionLog write failed', ['error' => $e->getMessage()]);
+            }
 
-            // Create download token
-            $download = Download::createToken($user->id, $primaryPath, $originalName);
+            // Issue a download token. With a logged-in user we use the
+            // downloads table; in payment-bypass mode (or guest) we keep
+            // the mapping in cache to avoid the customer_id FK in the
+            // shared database.
+            $downloadUrl = $this->issueDownloadToken($user, $primaryPath, $originalName, $bypass);
 
             // Clear session
             session()->forget(['upload_files', 'upload_tool']);
 
             return response()->json([
-                'download_url' => route('download', $download->token),
+                'download_url' => $downloadUrl,
                 'filename' => $originalName,
                 'message' => 'Fertig! Ihre Datei ist bereit zum Herunterladen.',
             ]);
@@ -96,22 +106,55 @@ class ConversionController extends Controller
         } catch (ConversionServiceException $e) {
             $processingTime = (int) ((microtime(true) - $startTime) * 1000);
 
-            ConversionLog::create([
-                'customer_id' => $user->id,
-                'tool_slug' => "sofortpdf_{$tool}",
-                'original_filename' => $originalNames[0] ?? 'unknown',
-                'result_filename' => '',
-                'status' => 'failed',
-                'error_message' => $e->getMessage(),
-                'processing_time_ms' => $processingTime,
-            ]);
+            try {
+                ConversionLog::create([
+                    'customer_id' => $user?->id,
+                    'tool_slug' => "sofortpdf_{$tool}",
+                    'original_filename' => $originalNames[0] ?? 'unknown',
+                    'result_filename' => '',
+                    'status' => 'failed',
+                    'error_message' => $e->getMessage(),
+                    'processing_time_ms' => $processingTime,
+                ]);
+            } catch (\Throwable $logErr) {
+                Log::warning('ConversionLog write failed', ['error' => $logErr->getMessage()]);
+            }
 
             return response()->json(['message' => $e->getMessage()], 500);
 
         } catch (\Exception $e) {
-            Log::error("Conversion failed: {$e->getMessage()}", ['tool' => $tool, 'user' => $user->id]);
+            Log::error("Conversion failed: {$e->getMessage()}", ['tool' => $tool, 'user' => $user?->id]);
             return response()->json(['message' => 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.'], 500);
         }
+    }
+
+    /**
+     * Create a single-use download token. Falls back to a cache-backed
+     * mapping when there's no authenticated user (guest / bypass mode)
+     * so we don't need to write a downloads row keyed on customer_id.
+     */
+    private function issueDownloadToken($user, string $primaryPath, string $originalName, bool $bypass): string
+    {
+        // Logged-in user, normal flow
+        if ($user && ! $bypass) {
+            try {
+                $download = Download::createToken($user->id, $primaryPath, $originalName);
+                return route('download', $download->token);
+            } catch (\Throwable $e) {
+                Log::warning('Download row insert failed, falling back to cache', ['error' => $e->getMessage()]);
+            }
+        }
+
+        // Guest / bypass / DB write failure → cache token
+        $token = Str::random(64);
+        $ttlHours = (int) config('sofortpdf.guest_download_ttl_hours', 4);
+        Cache::put('guest_download:' . $token, [
+            'file_path' => $primaryPath,
+            'original_filename' => $originalName,
+            'expires_at' => now()->addHours($ttlHours)->toIso8601String(),
+        ], now()->addHours($ttlHours));
+
+        return route('download', $token);
     }
 
     private function generateOutputName(string $originalName, string $tool): string

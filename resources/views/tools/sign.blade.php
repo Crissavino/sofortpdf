@@ -469,10 +469,12 @@
     btnSubmit.addEventListener('click', async () => {
         if (placedSignatures.length === 0 || !signatureDataUrl) return;
 
-        @guest
-            window.location.href = '/registrieren?return_to=' + encodeURIComponent(window.location.pathname);
-            return;
-        @endguest
+        @if (! config('sofortpdf.payment_bypass'))
+            @guest
+                window.location.href = '/registrieren?return_to=' + encodeURIComponent(window.location.pathname);
+                return;
+            @endguest
+        @endif
 
         btnSubmit.disabled = true;
         btnSubmitText.textContent = 'PDF wird unterschrieben\u2026';

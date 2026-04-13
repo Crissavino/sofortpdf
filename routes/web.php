@@ -39,7 +39,7 @@ Route::prefix('api')->group(function () {
     Route::post('/upload', [UploadController::class, 'store']);
 });
 
-Route::middleware(['auth', 'sofortpdf.subscribed'])->prefix('api')->group(function () {
+Route::middleware(['paywall'])->prefix('api')->group(function () {
     Route::post('/convert', [ConversionController::class, 'convert']);
     Route::post('/sign', [SignatureController::class, 'sign']);
 });
@@ -50,7 +50,7 @@ Route::middleware(['auth', 'sofortpdf.subscribed'])->prefix('api')->group(functi
 |--------------------------------------------------------------------------
 */
 Route::get('/download/{token}', [DownloadController::class, 'download'])
-     ->middleware('auth')
+     ->middleware('paywall')
      ->name('download');
 
 /*

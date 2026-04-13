@@ -1104,10 +1104,12 @@
     processBtn.addEventListener('click', async function() {
         if (selectedFiles.length === 0) return;
 
-        @guest
-            window.location.href = '/checkout/start?return_to=' + encodeURIComponent(window.location.pathname);
-            return;
-        @endguest
+        @if (! config('sofortpdf.payment_bypass'))
+            @guest
+                window.location.href = '/checkout/start?return_to=' + encodeURIComponent(window.location.pathname);
+                return;
+            @endguest
+        @endif
 
         processBtn.disabled = true;
         btnText.textContent = __t.processing;

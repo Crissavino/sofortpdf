@@ -64,6 +64,7 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'sofortpdf.subscribed' => \App\Http\Middleware\CheckSofortpdfSubscription::class,
+        'paywall' => \App\Http\Middleware\Paywall::class,
         'locale' => \App\Http\Middleware\SetLocale::class,
     ];
 }
