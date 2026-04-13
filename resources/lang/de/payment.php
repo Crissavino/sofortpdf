@@ -44,6 +44,8 @@ return [
     'files_count' => '{n} Dateien insgesamt',
     'show_preview' => 'Vorschau anzeigen',
     'hide_preview' => 'Vorschau ausblenden',
+    'back_to_form' => 'Zurück zum Formular',
+    'preview_title' => 'Ihre Datei',
 
     'err_card' => 'Karte wurde abgelehnt. Bitte versuchen Sie eine andere Karte.',
     'err_generic' => 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.',

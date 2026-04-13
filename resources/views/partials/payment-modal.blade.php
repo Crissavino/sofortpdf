@@ -89,10 +89,11 @@
                  the header returns to the form). --}}
             <div class="spm-left">
                 <div class="spm-left-header">
-                    <span>{{ __('payment.summary_title') }}</span>
-                    <button type="button" class="spm-left-close" data-spm-preview-toggle aria-label="{{ __('payment.close_button') }}">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+                    <button type="button" class="spm-left-back" data-spm-preview-toggle aria-label="{{ __('payment.back_to_form') }}">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg>
+                        <span>{{ __('payment.back_to_form') }}</span>
                     </button>
+                    <span class="spm-left-title">{{ __('payment.preview_title') }}</span>
                 </div>
                 <div class="spm-preview-card">
                     <div class="spm-preview" data-spm-preview>
@@ -347,29 +348,37 @@
         white-space: nowrap;
         max-width: 40%;
     }
-    /* Mobile-only left-column header with close button (desktop hides it) */
+    /* Mobile-only left-column header with back button (desktop hides it).
+       The header uses a back-arrow + label instead of an "×" so users
+       don't confuse it with the main modal's close button (which kills
+       the whole payment flow). */
     .spm-left-header {
         display: none;
         position: sticky; top: 0;
-        padding: 14px 4px 12px;
+        padding: 12px 0 10px;
         background: #fff;
         margin-bottom: 10px;
         border-bottom: 1px solid #f1f5f9;
-        font-family: 'Cabinet Grotesk', system-ui, sans-serif;
-        font-size: 14px; font-weight: 700; color: #0f172a;
         align-items: center; justify-content: space-between;
+        gap: 12px;
         z-index: 2;
     }
-    .spm-left-close {
-        width: 32px; height: 32px;
-        border-radius: 50%;
-        background: #f1f5f9; border: 0;
-        color: #475569;
-        display: flex; align-items: center; justify-content: center;
+    .spm-left-back {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 8px 12px 8px 8px;
+        border: 0; background: transparent;
+        color: #3b6cf5;
+        font-family: inherit; font-size: 13px; font-weight: 600;
         cursor: pointer;
+        border-radius: 999px;
         transition: background-color 160ms ease-out;
     }
-    .spm-left-close:hover { background: #e2e8f0; }
+    .spm-left-back:hover { background: #eef4ff; }
+    .spm-left-title {
+        font-family: 'Cabinet Grotesk', system-ui, sans-serif;
+        font-size: 14px; font-weight: 700; color: #0f172a;
+        padding-right: 4px;
+    }
 
     @media (max-width: 719px) {
         .spm-preview-toggle { display: inline-flex; }

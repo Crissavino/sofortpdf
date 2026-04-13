@@ -44,6 +44,8 @@ return [
     'files_count' => '{n} files total',
     'show_preview' => 'Show preview',
     'hide_preview' => 'Hide preview',
+    'back_to_form' => 'Back to form',
+    'preview_title' => 'Your file',
 
     'err_card' => 'Your card was declined. Please try another card.',
     'err_generic' => 'Something went wrong. Please try again.',
