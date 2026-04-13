@@ -11,9 +11,15 @@
 <aside class="hidden lg:block w-64 shrink-0">
     <nav class="sticky top-24 space-y-1">
         @foreach($navItems as $item)
+            @php
+                // Treat the demo route as if we were on the overview for
+                // sidebar-active styling purposes.
+                $isActive = request()->routeIs($item['route'])
+                    || ($item['route'] === 'dashboard.index' && request()->routeIs('dashboard.demo'));
+            @endphp
             <a href="{{ route($item['route']) }}"
                class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors
-                      {{ request()->routeIs($item['route']) ? 'bg-brand-50 text-brand-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
+                      {{ $isActive ? 'bg-brand-50 text-brand-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
                 <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">{!! $item['icon'] !!}</svg>
                 {{ $item['label'] }}
             </a>

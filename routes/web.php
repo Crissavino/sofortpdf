@@ -186,6 +186,13 @@ Route::prefix('{locale}')
     | Dashboard
     |----------------------------------------------------------------------
     */
+    // Public demo (gated by PAYMENT_BYPASS_IPS so only allowlisted IPs can
+    // hit it). Lets us preview the dashboard UI while the shared DB is
+    // unreachable — renders the index view with fake data, no login.
+    Route::get('/dashboard/demo', [DashboardController::class, 'demo'])
+         ->middleware(\App\Http\Middleware\Paywall::class)
+         ->name('dashboard.demo');
+
     Route::middleware('auth')->prefix('dashboard')->name('dashboard.')->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('index');
         Route::get('/downloads', [DashboardController::class, 'downloads'])->name('downloads');

@@ -14,7 +14,88 @@ class DashboardController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth');
+        // Skip auth only on the demo route; everything else requires login.
+        $this->middleware('auth')->except('demo');
+    }
+
+    /**
+     * Read-only demo view of the dashboard index, rendered with stub data.
+     * Gated in routes/web.php behind the paywall middleware so only
+     * allowlisted IPs (PAYMENT_BYPASS_IPS) can reach it. Lives here so
+     * we can showcase the /dashboard redesign without DB access.
+     */
+    public function demo()
+    {
+        $demoUser = new class {
+            public $name = 'Cristian Savino';
+            public $email = 'demo@sofortpdf.com';
+        };
+
+        $demoSubscription = new class {
+            public $status = 'trialing';
+            public $trial_ends_at;
+            public $current_period_end;
+            public function __construct()
+            {
+                $this->trial_ends_at     = now()->addDays(2);
+                $this->current_period_end = now()->addDays(2)->addMonth();
+            }
+        };
+
+        $demoConversions = collect([
+            (object) [
+                'created_at' => now()->subMinutes(12),
+                'tool_slug' => 'sofortpdf_pdf-to-word',
+                'original_filename' => 'annual-report-2025.pdf',
+                'status' => 'completed',
+                'result_filename' => 'demo-result.docx',
+            ],
+            (object) [
+                'created_at' => now()->subHours(2),
+                'tool_slug' => 'sofortpdf_merge',
+                'original_filename' => 'invoices-q3.pdf',
+                'status' => 'completed',
+                'result_filename' => 'demo-result.pdf',
+            ],
+            (object) [
+                'created_at' => now()->subDay(),
+                'tool_slug' => 'sofortpdf_compress',
+                'original_filename' => 'presentation-slides.pdf',
+                'status' => 'completed',
+                'result_filename' => 'demo-result.pdf',
+            ],
+            (object) [
+                'created_at' => now()->subDays(2),
+                'tool_slug' => 'sofortpdf_jpg-to-pdf',
+                'original_filename' => 'scanned-pages.jpg',
+                'status' => 'failed',
+                'result_filename' => null,
+            ],
+            (object) [
+                'created_at' => now()->subDays(4),
+                'tool_slug' => 'sofortpdf_rotate',
+                'original_filename' => 'receipt.pdf',
+                'status' => 'completed',
+                'result_filename' => 'demo-result.pdf',
+            ],
+        ]);
+
+        $quickTools = collect(ToolConfig::allEnabled(app()->getLocale()))
+            ->take(6)
+            ->values()
+            ->all();
+
+        return view('dashboard.index', [
+            'user' => $demoUser,
+            'subscription' => $demoSubscription,
+            'recentConversions' => $demoConversions,
+            'stats' => [
+                'this_month' => 12,
+                'total' => 87,
+                'top_tool' => 'pdf-to-word',
+            ],
+            'quickTools' => $quickTools,
+        ]);
     }
 
     /**
