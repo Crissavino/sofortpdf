@@ -533,10 +533,8 @@
     </section>
 @endsection
 
-@push('scripts')
-<script>
-(function() {
-    const __t = @json([
+@php
+    $jsMessages = [
         'onlyOneFile'      => __('tool.js_only_one_file'),
         'maxFiles'         => __('tool.js_max_files'),
         'fileTooLarge'     => __('tool.js_file_too_large'),
@@ -545,7 +543,12 @@
         'uploadFailed'     => __('tool.js_upload_failed'),
         'conversionFailed' => __('tool.js_conversion_failed'),
         'genericError'     => __('tool.error_generic'),
-    ]);
+    ];
+@endphp
+@push('scripts')
+<script>
+(function() {
+    const __t = @json($jsMessages);
     const zone = document.getElementById('upload-zone');
     const fileInput = document.getElementById('file-input');
     const fileListWrapper = document.getElementById('file-list-wrapper');
