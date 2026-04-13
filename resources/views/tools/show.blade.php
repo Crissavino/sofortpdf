@@ -1114,14 +1114,22 @@
         if (selectedFiles.length === 0) return;
 
         // Paywall gate — open the payment modal instead of redirecting,
-        // so the already-selected files + drag order stay intact.
+        // so the already-selected files + drag order stay intact. We
+        // resolve the current sort order here (same logic as below, but
+        // run before the upload so the modal sees the final array).
         if (window.sofortpdfPaywall && window.sofortpdfPaywall.needsPayment()
             && window.SofortpdfPaymentModal) {
-            // Pass all selected files (in their current sorted order) so
-            // the modal renders the full stack for merge, or a single
-            // preview for everything else.
+            var modalFiles = selectedFiles.slice();
+            if (mergeMode) {
+                var cards = fileList.querySelectorAll('.merge-card');
+                if (cards.length === selectedFiles.length) {
+                    modalFiles = Array.from(cards).map(function(card) {
+                        return selectedFiles[parseInt(card.getAttribute('data-index'), 10)];
+                    }).filter(Boolean);
+                }
+            }
             window.SofortpdfPaymentModal.open({
-                files: filesInSubmitOrder.length ? filesInSubmitOrder : selectedFiles,
+                files: modalFiles,
                 onSuccess: function() {
                     // Retry the conversion. The flag `__sofortpdfTrialJustPaid`
                     // is read below when the confirmation_url is built.
