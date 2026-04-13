@@ -48,6 +48,32 @@ return [
     'param_required_suffix' => '*',
     'param_required_error' => 'Bitte füllen Sie alle Pflichtfelder aus.',
 
+    'rotate_angle_label' => 'Drehwinkel',
+
+    'protect_password_label' => 'Passwort',
+    'protect_password_placeholder' => 'Starkes Passwort wählen',
+    'protect_password_hint' => 'Dieses Passwort wird beim Öffnen der PDF verlangt.',
+
+    'unlock_password_label' => 'Aktuelles Passwort',
+    'unlock_password_placeholder' => 'Passwort der PDF eingeben',
+    'unlock_password_hint' => 'Das Passwort, mit dem die PDF aktuell geschützt ist.',
+
+    'pages_placeholder' => 'z. B. 1-3, 5, 7-9',
+    'pages_hint' => 'Seitennummern oder Bereiche getrennt mit Kommas.',
+    'pages_remove_label' => 'Zu entfernende Seiten',
+    'pages_extract_label' => 'Zu extrahierende Seiten',
+
+    'ocr_language_label' => 'Sprache',
+    'ocr_language_hint' => 'Wählen Sie die Sprache des Textes im Dokument.',
+    'ocr_lang_deu' => 'Deutsch',
+    'ocr_lang_eng' => 'Englisch',
+    'ocr_lang_deu_eng' => 'Deutsch + Englisch',
+    'ocr_lang_spa' => 'Spanisch',
+    'ocr_lang_fra' => 'Französisch',
+    'ocr_lang_ita' => 'Italienisch',
+    'ocr_lang_por' => 'Portugiesisch',
+    'ocr_lang_nld' => 'Niederländisch',
+
     // Related
     'related_heading' => 'Weitere PDF-Tools',
 

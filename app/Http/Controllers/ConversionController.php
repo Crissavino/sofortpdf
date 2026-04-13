@@ -67,7 +67,7 @@ class ConversionController extends Controller
                 'ppt-to-pdf' => $client->officeToPdf($filePaths[0]),
                 'pdf-to-png' => $client->pdfToPng($filePaths[0]),
                 'png-to-pdf' => $client->pngToPdf($filePaths),
-                'ocr' => $client->ocrPdf($filePaths[0]),
+                'ocr' => $client->ocrPdf($filePaths[0], $request->input('language', 'deu+eng')),
                 'remove-pages' => $client->removePages($filePaths[0], $request->input('pages', '')),
                 'extract-pages' => $client->extractPages($filePaths[0], $request->input('pages', '')),
                 'html-to-pdf' => $client->htmlToPdf($request->input('html', '')),

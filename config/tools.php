@@ -169,6 +169,20 @@ return [
         'multiple' => false,
         'max_files' => 1,
         'action_label' => 'Drehen',
+        'params' => [
+            [
+                'key' => 'angle',
+                'type' => 'radio-pills',
+                'label_key' => 'tool.rotate_angle_label',
+                'required' => true,
+                'default' => '90',
+                'options' => [
+                    ['value' => '90',  'label' => '90°'],
+                    ['value' => '180', 'label' => '180°'],
+                    ['value' => '270', 'label' => '270°'],
+                ],
+            ],
+        ],
     ],
     'protect' => [
         'enabled' => env('TOOL_PROTECT_ENABLED', false),
@@ -183,6 +197,18 @@ return [
         'multiple' => false,
         'max_files' => 1,
         'action_label' => 'Schützen',
+        'params' => [
+            [
+                'key' => 'password',
+                'type' => 'password',
+                'label_key' => 'tool.protect_password_label',
+                'placeholder_key' => 'tool.protect_password_placeholder',
+                'hint_key' => 'tool.protect_password_hint',
+                'autocomplete' => 'new-password',
+                'required' => true,
+                'maxlength' => 128,
+            ],
+        ],
     ],
     'unlock' => [
         'enabled' => env('TOOL_UNLOCK_ENABLED', true),
@@ -197,6 +223,18 @@ return [
         'multiple' => false,
         'max_files' => 1,
         'action_label' => 'Entsperren',
+        'params' => [
+            [
+                'key' => 'password',
+                'type' => 'password',
+                'label_key' => 'tool.unlock_password_label',
+                'placeholder_key' => 'tool.unlock_password_placeholder',
+                'hint_key' => 'tool.unlock_password_hint',
+                'autocomplete' => 'current-password',
+                'required' => true,
+                'maxlength' => 128,
+            ],
+        ],
     ],
     'watermark' => [
         'enabled' => env('TOOL_WATERMARK_ENABLED', true),
@@ -307,6 +345,26 @@ return [
         'multiple' => false,
         'max_files' => 1,
         'action_label' => 'Text erkennen',
+        'params' => [
+            [
+                'key' => 'language',
+                'type' => 'select',
+                'label_key' => 'tool.ocr_language_label',
+                'hint_key' => 'tool.ocr_language_hint',
+                'required' => true,
+                'default' => 'deu+eng',
+                'options' => [
+                    ['value' => 'deu',        'label_key' => 'tool.ocr_lang_deu'],
+                    ['value' => 'eng',        'label_key' => 'tool.ocr_lang_eng'],
+                    ['value' => 'deu+eng',    'label_key' => 'tool.ocr_lang_deu_eng'],
+                    ['value' => 'spa',        'label_key' => 'tool.ocr_lang_spa'],
+                    ['value' => 'fra',        'label_key' => 'tool.ocr_lang_fra'],
+                    ['value' => 'ita',        'label_key' => 'tool.ocr_lang_ita'],
+                    ['value' => 'por',        'label_key' => 'tool.ocr_lang_por'],
+                    ['value' => 'nld',        'label_key' => 'tool.ocr_lang_nld'],
+                ],
+            ],
+        ],
     ],
     'remove-pages' => [
         'enabled' => env('TOOL_REMOVE_PAGES_ENABLED', true),
@@ -321,6 +379,17 @@ return [
         'multiple' => false,
         'max_files' => 1,
         'action_label' => 'Seiten entfernen',
+        'params' => [
+            [
+                'key' => 'pages',
+                'type' => 'text',
+                'label_key' => 'tool.pages_remove_label',
+                'placeholder_key' => 'tool.pages_placeholder',
+                'hint_key' => 'tool.pages_hint',
+                'required' => true,
+                'maxlength' => 100,
+            ],
+        ],
     ],
     'extract-pages' => [
         'enabled' => env('TOOL_EXTRACT_PAGES_ENABLED', true),
@@ -335,6 +404,17 @@ return [
         'multiple' => false,
         'max_files' => 1,
         'action_label' => 'Seiten extrahieren',
+        'params' => [
+            [
+                'key' => 'pages',
+                'type' => 'text',
+                'label_key' => 'tool.pages_extract_label',
+                'placeholder_key' => 'tool.pages_placeholder',
+                'hint_key' => 'tool.pages_hint',
+                'required' => true,
+                'maxlength' => 100,
+            ],
+        ],
     ],
     'html-to-pdf' => [
         'enabled' => env('TOOL_HTML_TO_PDF_ENABLED', false),

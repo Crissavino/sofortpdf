@@ -543,11 +543,47 @@
                                                   rows="3"
                                                   class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-600/20 focus:border-brand-600 transition-colors">{{ $default }}</textarea>
                                         @break
+                                    @case('select')
+                                        <select id="{{ $inputId }}"
+                                                data-tool-param="{{ $param['key'] }}"
+                                                @if($required) required @endif
+                                                class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-brand-600/20 focus:border-brand-600 transition-colors">
+                                            @foreach($param['options'] ?? [] as $opt)
+                                                @php
+                                                    $optLabel = isset($opt['label_key']) ? __($opt['label_key']) : ($opt['label'] ?? $opt['value']);
+                                                @endphp
+                                                <option value="{{ $opt['value'] }}" @if((string)($default ?? '') === (string)$opt['value']) selected @endif>{{ $optLabel }}</option>
+                                            @endforeach
+                                        </select>
+                                        @break
+                                    @case('radio-pills')
+                                        <div class="flex flex-wrap gap-2">
+                                            @foreach($param['options'] ?? [] as $opt)
+                                                @php
+                                                    $optId = $inputId . '-' . $opt['value'];
+                                                    $optLabel = isset($opt['label_key']) ? __($opt['label_key']) : ($opt['label'] ?? $opt['value']);
+                                                @endphp
+                                                <label for="{{ $optId }}"
+                                                       class="radio-pill inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-slate-200 text-sm text-slate-700 cursor-pointer hover:border-brand-300 hover:bg-brand-50 transition-colors">
+                                                    <input type="radio"
+                                                           id="{{ $optId }}"
+                                                           name="{{ $inputId }}"
+                                                           value="{{ $opt['value'] }}"
+                                                           data-tool-param="{{ $param['key'] }}"
+                                                           @if($required && $loop->first) required @endif
+                                                           @if((string)($default ?? '') === (string)$opt['value']) checked @endif
+                                                           class="w-4 h-4 text-brand-600 border-slate-300 focus:ring-brand-600/20">
+                                                    <span>{{ $optLabel }}</span>
+                                                </label>
+                                            @endforeach
+                                        </div>
+                                        @break
                                     @default
                                         <input type="{{ $param['type'] ?? 'text' }}"
                                                id="{{ $inputId }}"
                                                data-tool-param="{{ $param['key'] }}"
                                                @if(!empty($param['maxlength'])) maxlength="{{ $param['maxlength'] }}" @endif
+                                               @if(!empty($param['autocomplete'])) autocomplete="{{ $param['autocomplete'] }}" @endif
                                                @if($required) required @endif
                                                placeholder="{{ $placeholder }}"
                                                value="{{ $default }}"
@@ -1211,6 +1247,8 @@
         var toolParams = {};
         var missingRequired = false;
         document.querySelectorAll('[data-tool-param]').forEach(function(input) {
+            // For radio groups, only the checked option contributes.
+            if (input.type === 'radio' && !input.checked) return;
             var k = input.getAttribute('data-tool-param');
             var v = (input.value || '').trim();
             if (input.required && !v) {
@@ -1219,7 +1257,7 @@
             } else {
                 input.classList.remove('border-red-400', 'ring-2', 'ring-red-100');
             }
-            if (v) toolParams[k] = v;
+            if (v !== '') toolParams[k] = v;
         });
         if (missingRequired) {
             showError(__t.paramRequired);
