@@ -65,27 +65,39 @@
         }
     }
 
-    /* ═══════════ Logo shimmer ═══════════ */
+    /* ═══════════ Logo shimmer ═══════════
+       Overlay approach: the logo text stays normal; a highlight
+       gradient sweeps across it on hover. Avoids the half-transparent
+       bug that background-clip: text causes on elements with nested
+       colored spans (like sofort<span>pdf</span>). */
     .logo-shimmer {
+        position: relative;
+        display: inline-block;
+        overflow: hidden;
+    }
+    .logo-shimmer::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
         background: linear-gradient(110deg,
-            currentColor 0%, currentColor 40%,
-            rgba(255,255,255,0.9) 50%,
-            currentColor 60%, currentColor 100%);
-        background-size: 220% 100%;
-        background-position: 200% 0;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        transition: background-position 0s;
+            transparent 0%,
+            transparent 40%,
+            rgba(255, 255, 255, 0.85) 50%,
+            transparent 60%,
+            transparent 100%);
+        pointer-events: none;
     }
     @media (hover: hover) and (pointer: fine) {
-        a:hover .logo-shimmer {
-            animation: logo-shimmer-keyframe 900ms var(--ease-out-expo);
+        a:hover .logo-shimmer::after {
+            animation: logo-sweep 900ms var(--ease-out-expo);
         }
     }
-    @keyframes logo-shimmer-keyframe {
-        0%   { background-position: 200% 0; }
-        100% { background-position: -200% 0; }
+    @keyframes logo-sweep {
+        from { left: -100%; }
+        to   { left: 100%; }
     }
 
     /* ═══════════ Flash messages: slide-down + auto-fade ═══════════ */
@@ -115,11 +127,7 @@
             transition: none !important;
         }
         .nav-link::after { transition: none; }
-        .logo-shimmer {
-            background: none;
-            -webkit-text-fill-color: inherit;
-            color: inherit;
-        }
+        .logo-shimmer::after { display: none; }
         .flash-message {
             animation: none;
         }
@@ -127,80 +135,78 @@
 </style>
 
 <script>
-    // IntersectionObserver: adds .is-visible when element scrolls into view.
-    // Used by .observe-animate, .observe-slide-left, .observe-slide-right.
+    // All DOM-dependent setup must wait until the body is parsed — this
+    // partial is included inside <head>, so querying now returns nothing.
     (function() {
-        var els = document.querySelectorAll('.observe-animate, .observe-slide-left, .observe-slide-right');
-        if (!els.length) return;
+        function init() {
+            // IntersectionObserver: adds .is-visible when element scrolls into view.
+            // Used by .observe-animate, .observe-slide-left, .observe-slide-right.
+            var animEls = document.querySelectorAll('.observe-animate, .observe-slide-left, .observe-slide-right');
+            if (animEls.length) {
+                if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                    animEls.forEach(function(el) { el.classList.add('is-visible'); });
+                } else {
+                    var observer = new IntersectionObserver(function(entries) {
+                        entries.forEach(function(entry) {
+                            if (entry.isIntersecting) {
+                                var delay = parseInt(entry.target.getAttribute('data-delay') || '0', 10);
+                                setTimeout(function() {
+                                    entry.target.classList.add('is-visible');
+                                }, delay);
+                                observer.unobserve(entry.target);
+                            }
+                        });
+                    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+                    animEls.forEach(function(el) { observer.observe(el); });
+                }
+            }
 
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-            els.forEach(function(el) { el.classList.add('is-visible'); });
-            return;
+            // Flash messages: auto-dismiss after 5s
+            document.querySelectorAll('.flash-message').forEach(function(el) {
+                setTimeout(function() {
+                    el.classList.add('flash-dismissing');
+                    setTimeout(function() { el.remove(); }, 300);
+                }, 5000);
+            });
+
+            // Count-up animation: <span data-countup="1.50" data-decimals="2">1,50</span>
+            // Fires once when the element enters the viewport.
+            var countEls = document.querySelectorAll('[data-countup]');
+            if (countEls.length && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                function formatNumber(n, decimals, locale) {
+                    return n.toLocaleString(locale, {
+                        minimumFractionDigits: decimals,
+                        maximumFractionDigits: decimals,
+                    });
+                }
+                var countObs = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (!entry.isIntersecting) return;
+                        var el = entry.target;
+                        var target = parseFloat(el.dataset.countup);
+                        var decimals = parseInt(el.dataset.decimals || '0', 10);
+                        var locale = el.dataset.locale || document.documentElement.lang || 'de';
+                        var duration = 900;
+                        var start = performance.now();
+                        function tick(now) {
+                            var t = Math.min(1, (now - start) / duration);
+                            var eased = t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+                            var val = target * eased;
+                            el.textContent = formatNumber(val, decimals, locale);
+                            if (t < 1) requestAnimationFrame(tick);
+                        }
+                        requestAnimationFrame(tick);
+                        countObs.unobserve(el);
+                    });
+                }, { threshold: 0.5 });
+                countEls.forEach(function(el) { countObs.observe(el); });
+            }
         }
 
-        var observer = new IntersectionObserver(function(entries) {
-            entries.forEach(function(entry) {
-                if (entry.isIntersecting) {
-                    var delay = parseInt(entry.target.getAttribute('data-delay') || '0', 10);
-                    setTimeout(function() {
-                        entry.target.classList.add('is-visible');
-                    }, delay);
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
-
-        els.forEach(function(el) { observer.observe(el); });
-    })();
-
-    // Flash messages: auto-dismiss after 5s
-    (function() {
-        document.querySelectorAll('.flash-message').forEach(function(el) {
-            setTimeout(function() {
-                el.classList.add('flash-dismissing');
-                setTimeout(function() { el.remove(); }, 300);
-            }, 5000);
-        });
-    })();
-
-    // Count-up animation: <span data-countup="1.50" data-decimals="2">1,50</span>
-    // Fires once when the element enters the viewport.
-    (function() {
-        var els = document.querySelectorAll('[data-countup]');
-        if (!els.length) return;
-
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-        function formatNumber(n, decimals, locale) {
-            return n.toLocaleString(locale, {
-                minimumFractionDigits: decimals,
-                maximumFractionDigits: decimals,
-            });
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
         }
-
-        var obs = new IntersectionObserver(function(entries) {
-            entries.forEach(function(entry) {
-                if (!entry.isIntersecting) return;
-                var el = entry.target;
-                var target = parseFloat(el.dataset.countup);
-                var decimals = parseInt(el.dataset.decimals || '0', 10);
-                var locale = el.dataset.locale || document.documentElement.lang || 'de';
-                var duration = 900;
-                var start = performance.now();
-
-                function tick(now) {
-                    var t = Math.min(1, (now - start) / duration);
-                    // easeOutExpo
-                    var eased = t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
-                    var val = target * eased;
-                    el.textContent = formatNumber(val, decimals, locale);
-                    if (t < 1) requestAnimationFrame(tick);
-                }
-                requestAnimationFrame(tick);
-                obs.unobserve(el);
-            });
-        }, { threshold: 0.5 });
-
-        els.forEach(function(el) { obs.observe(el); });
     })();
 </script>
