@@ -239,12 +239,15 @@
         inset: -2px;
         border-radius: inherit;
         box-shadow: 0 0 0 0 var(--pulse-color, rgba(59, 108, 245, 0.35));
-        animation: upload-pulse 1.3s var(--ease-out-expo) infinite;
+        animation: upload-pulse 1.6s var(--ease-out-expo) infinite;
         pointer-events: none;
     }
     @keyframes upload-pulse {
+        /* The visible expansion occupies 90% of the cycle so the wave
+           looks as slow as before (~1.44s) while the interval between
+           pulses drops from 2.6s → 1.6s. */
         0%   { box-shadow: 0 0 0 0    var(--pulse-color, rgba(59, 108, 245, 0.35)); }
-        60%  { box-shadow: 0 0 0 14px rgba(59, 108, 245, 0); }
+        90%  { box-shadow: 0 0 0 14px rgba(59, 108, 245, 0); }
         100% { box-shadow: 0 0 0 0    rgba(59, 108, 245, 0); }
     }
     /* Pause pulse on hover, drag, or when a file is already loaded */
@@ -257,7 +260,7 @@
 
     /* ── Upload zone icon: gentle float ── */
     .icon-circle {
-        animation: icon-float 1.7s ease-in-out infinite;
+        animation: icon-float 2.6s ease-in-out infinite;
     }
     @keyframes icon-float {
         0%, 100% { transform: translateY(0); }
