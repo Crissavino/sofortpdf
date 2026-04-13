@@ -186,15 +186,17 @@
                             {{ __('layout.nav_all_tools') }}
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                         </button>
-                        <div class="absolute top-full left-0 mt-1 w-64 bg-white rounded-xl shadow-xl shadow-slate-200/50 border border-slate-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 py-2 z-50">
-                            @foreach(config('tools') as $key => $tool)
-                                @if($key !== 'aliases' && ($tool['enabled'] ?? false))
-                                    <a href="{{ \App\Services\LocaleHelper::toolUrl($key) }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 hover:text-brand-700 hover:bg-brand-50 transition-colors">
-                                        @include('partials.tool-icon', ['icon' => $tool['icon'], 'size' => 'w-5 h-5'])
-                                        {{ \App\Services\LocaleHelper::toolTitle($key) }}
-                                    </a>
-                                @endif
-                            @endforeach
+                        <div class="absolute top-full left-1/2 -translate-x-1/2 mt-1 w-[28rem] sm:w-[34rem] lg:w-[40rem] bg-white rounded-xl shadow-xl shadow-slate-200/50 border border-slate-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 p-2 z-50">
+                            <div class="grid grid-cols-2 lg:grid-cols-3 gap-x-1 gap-y-0.5">
+                                @foreach(config('tools') as $key => $tool)
+                                    @if($key !== 'aliases' && ($tool['enabled'] ?? false))
+                                        <a href="{{ \App\Services\LocaleHelper::toolUrl($key) }}" class="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-600 hover:text-brand-700 hover:bg-brand-50 rounded-lg transition-colors">
+                                            @include('partials.tool-icon', ['icon' => $tool['icon'], 'size' => 'w-5 h-5'])
+                                            <span class="truncate">{{ \App\Services\LocaleHelper::toolTitle($key) }}</span>
+                                        </a>
+                                    @endif
+                                @endforeach
+                            </div>
                         </div>
                     </div>
                 </div>
