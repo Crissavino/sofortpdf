@@ -158,6 +158,8 @@
     </script>
     -->
 
+    @include('partials.animations')
+
     @stack('head')
 </head>
 <body class="bg-white text-slate-800 antialiased min-h-screen flex flex-col">
@@ -173,14 +175,14 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
                         </svg>
                     </div>
-                    <span class="font-display font-bold text-lg text-slate-900">sofort<span class="text-brand-600">pdf</span></span>
+                    <span class="font-display font-bold text-lg text-slate-900 logo-shimmer">sofort<span class="text-brand-600">pdf</span></span>
                 </a>
 
                 {{-- Desktop nav --}}
                 @php $loc = app()->getLocale(); @endphp
                 <div class="hidden md:flex items-center gap-1">
                     <div class="relative group">
-                        <button class="flex items-center gap-1 px-3 py-2 text-sm font-medium text-slate-600 hover:text-brand-600 rounded-lg hover:bg-brand-50 transition-colors">
+                        <button class="nav-link flex items-center gap-1 px-3 py-2 text-sm font-medium text-slate-600 hover:text-brand-600 rounded-lg hover:bg-brand-50 transition-colors">
                             {{ __('layout.nav_all_tools') }}
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                         </button>
@@ -248,12 +250,12 @@
 
     {{-- Flash messages --}}
     @if(session('success'))
-        <div class="max-w-6xl mx-auto px-4 mt-4">
+        <div class="max-w-6xl mx-auto px-4 mt-4 flash-message">
             <div class="bg-emerald-50 text-emerald-700 px-4 py-3 rounded-lg text-sm border border-emerald-100">{{ session('success') }}</div>
         </div>
     @endif
     @if(session('error'))
-        <div class="max-w-6xl mx-auto px-4 mt-4">
+        <div class="max-w-6xl mx-auto px-4 mt-4 flash-message">
             <div class="bg-red-50 text-red-700 px-4 py-3 rounded-lg text-sm border border-red-100">{{ session('error') }}</div>
         </div>
     @endif

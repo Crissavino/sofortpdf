@@ -218,6 +218,80 @@
         }
     }
 
+    /* ── Tool page: entrance stagger ── */
+    .tool-stagger {
+        opacity: 0;
+        transform: translateY(14px) scale(0.98);
+        animation: tool-stagger-in 0.5s var(--ease-out-expo) forwards;
+        animation-delay: calc(var(--stagger, 0) * 80ms + 80ms);
+    }
+    @keyframes tool-stagger-in {
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* ── Upload zone idle pulse (halo) ── */
+    .upload-zone-pulse {
+        position: relative;
+    }
+    .upload-zone-pulse::before {
+        content: '';
+        position: absolute;
+        inset: -2px;
+        border-radius: inherit;
+        box-shadow: 0 0 0 0 var(--pulse-color, rgba(59, 108, 245, 0.35));
+        animation: upload-pulse 2.6s var(--ease-out-expo) infinite;
+        pointer-events: none;
+    }
+    @keyframes upload-pulse {
+        0%   { box-shadow: 0 0 0 0    var(--pulse-color, rgba(59, 108, 245, 0.35)); }
+        60%  { box-shadow: 0 0 0 14px rgba(59, 108, 245, 0); }
+        100% { box-shadow: 0 0 0 0    rgba(59, 108, 245, 0); }
+    }
+    /* Pause pulse on hover, drag, or when a file is already loaded */
+    .upload-zone-pulse:hover::before,
+    .upload-zone-pulse.drag-active::before,
+    .upload-zone-pulse.is-hidden::before {
+        animation-play-state: paused;
+        box-shadow: none;
+    }
+
+    /* ── Upload zone icon: gentle float ── */
+    .icon-circle {
+        animation: icon-float 3.4s ease-in-out infinite;
+    }
+    @keyframes icon-float {
+        0%, 100% { transform: translateY(0); }
+        50%      { transform: translateY(-4px); }
+    }
+    /* When drag-active, icon scale-up (already set elsewhere) wins via !important */
+    .upload-zone.drag-active .icon-circle {
+        animation: none;
+        transform: scale(1.08);
+    }
+
+    /* ── Processing: indeterminate progress bar ── */
+    .proc-progress {
+        position: relative;
+        height: 3px;
+        background: rgba(148, 163, 184, 0.15);
+        border-radius: 2px;
+        overflow: hidden;
+    }
+    .proc-progress::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -40%;
+        width: 40%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, #3b82f6, #8b5cf6, transparent);
+        animation: proc-progress-slide 1.4s var(--ease-out-expo) infinite;
+    }
+    @keyframes proc-progress-slide {
+        0%   { left: -40%; }
+        100% { left: 100%; }
+    }
+
     /* ── Reduced motion ── */
     @media (prefers-reduced-motion: reduce) {
         *, *::before, *::after {
@@ -225,13 +299,16 @@
             animation-iteration-count: 1 !important;
             transition-duration: 0.01ms !important;
         }
-        .state-enter, .file-card, .check-icon-enter {
+        .state-enter, .file-card, .check-icon-enter,
+        .tool-stagger {
             opacity: 1 !important;
             transform: none !important;
             filter: none !important;
         }
-        .processing-card::before {
-            animation: none;
+        .processing-card::before,
+        .upload-zone-pulse::before,
+        .icon-circle {
+            animation: none !important;
         }
     }
 </style>
@@ -245,17 +322,18 @@
         <div class="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-20">
             {{-- Headlines --}}
             <div class="text-center mb-10">
-                <h1 class="font-display font-extrabold text-4xl sm:text-5xl text-slate-900 tracking-tight leading-tight">
+                <h1 class="tool-stagger font-display font-extrabold text-4xl sm:text-5xl text-slate-900 tracking-tight leading-tight" style="--stagger: 0">
                     {{ $h1 }}
                 </h1>
-                <h2 class="mt-4 text-lg sm:text-xl text-slate-500 max-w-xl mx-auto leading-relaxed">
+                <h2 class="tool-stagger mt-4 text-lg sm:text-xl text-slate-500 max-w-xl mx-auto leading-relaxed" style="--stagger: 1">
                     {{ $h2 }}
                 </h2>
             </div>
 
             {{-- Upload Zone --}}
             <div id="upload-zone"
-                 class="upload-zone relative {{ $c['bg'] }} rounded-3xl border-2 border-dashed {{ $c['border'] }} min-h-[260px] flex flex-col items-center justify-center p-8 sm:p-12 text-center cursor-pointer"
+                 class="upload-zone upload-zone-pulse tool-stagger relative {{ $c['bg'] }} rounded-3xl border-2 border-dashed {{ $c['border'] }} min-h-[260px] flex flex-col items-center justify-center p-8 sm:p-12 text-center cursor-pointer"
+                 style="--stagger: 2"
                  style="--zone-ring-color: var(--tw-ring-color)"
                  data-accept="{{ $accept }}"
                  data-multiple="{{ $multiple ? 'true' : 'false' }}"
@@ -316,6 +394,7 @@
                         </div>
                         <p class="proc-text font-display font-bold text-xl text-slate-700">{{ __('tool.processing') }}</p>
                         <p class="text-sm text-slate-400 mt-2">{{ __('tool.please_wait') }}</p>
+                        <div class="proc-progress mt-6 max-w-xs mx-auto"></div>
                     </div>
                 </div>
             </div>
@@ -361,7 +440,7 @@
             </div>
 
             {{-- Trust signals --}}
-            <div class="mt-10">
+            <div class="tool-stagger mt-10" style="--stagger: 3">
                 @include('partials.trust-signals')
             </div>
         </div>
@@ -370,12 +449,12 @@
     {{-- ═══════ SECTION 6a: HOW IT WORKS ═══════ --}}
     <section class="bg-white py-16 sm:py-20">
         <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h3 class="font-display font-extrabold text-2xl sm:text-3xl text-slate-900 text-center mb-12">
+            <h3 class="observe-animate font-display font-extrabold text-2xl sm:text-3xl text-slate-900 text-center mb-12">
                 {{ __('tool.how_heading') }}
             </h3>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-6 relative">
                 {{-- Step 1 --}}
-                <div class="relative text-center">
+                <div class="observe-animate relative text-center" data-delay="0">
                     <div class="w-14 h-14 rounded-2xl {{ $c['step-bg'] }} flex items-center justify-center mx-auto mb-4">
                         <i data-lucide="upload-cloud" class="w-7 h-7 {{ $c['step-icon'] }}"></i>
                     </div>
@@ -387,7 +466,7 @@
                     <div class="step-connector" aria-hidden="true"></div>
                 </div>
                 {{-- Step 2 --}}
-                <div class="relative text-center">
+                <div class="observe-animate relative text-center" data-delay="120">
                     <div class="w-14 h-14 rounded-2xl {{ $c['step-bg'] }} flex items-center justify-center mx-auto mb-4">
                         <i data-lucide="zap" class="w-7 h-7 {{ $c['step-icon'] }}"></i>
                     </div>
@@ -399,7 +478,7 @@
                     <div class="step-connector" aria-hidden="true"></div>
                 </div>
                 {{-- Step 3 --}}
-                <div class="text-center">
+                <div class="observe-animate text-center" data-delay="240">
                     <div class="w-14 h-14 rounded-2xl {{ $c['step-bg'] }} flex items-center justify-center mx-auto mb-4">
                         <i data-lucide="download" class="w-7 h-7 {{ $c['step-icon'] }}"></i>
                     </div>
@@ -418,7 +497,7 @@
     {{-- ═══════ SECTION 6c: FAQ ═══════ --}}
     <section class="bg-slate-50 py-16 sm:py-20">
         <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h3 class="font-display font-extrabold text-2xl sm:text-3xl text-slate-900 text-center mb-10">
+            <h3 class="observe-animate font-display font-extrabold text-2xl sm:text-3xl text-slate-900 text-center mb-10">
                 {{ __('tool.faq_heading') }}
             </h3>
             <div class="space-y-3">
@@ -433,7 +512,7 @@
                     ];
                 @endphp
                 @foreach($faqs as $faq)
-                    <details class="group faq-item bg-white rounded-2xl border border-slate-100 overflow-hidden">
+                    <details class="observe-animate group faq-item bg-white rounded-2xl border border-slate-100 overflow-hidden" data-delay="{{ $loop->index * 60 }}">
                         <summary class="flex items-center justify-between cursor-pointer px-6 py-5 font-display font-bold text-slate-800 select-none list-none">
                             <span>{!! $faq['q'] !!}</span>
                             <i data-lucide="chevron-down" class="faq-chevron w-5 h-5 text-slate-400 flex-shrink-0 ml-4"></i>
@@ -454,7 +533,7 @@
     {{-- ═══════ SECTION 7: RELATED TOOLS ═══════ --}}
     <section class="bg-white py-16 sm:py-20">
         <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h3 class="font-display font-extrabold text-2xl sm:text-3xl text-slate-900 text-center mb-10">
+            <h3 class="observe-animate font-display font-extrabold text-2xl sm:text-3xl text-slate-900 text-center mb-10">
                 {{ __('tool.related_heading') }}
             </h3>
 
@@ -519,7 +598,8 @@
                             : config("tools_{$relLocale}.{$relKey}.description", $relConfig['description']);
                     @endphp
                     <a href="{{ $relUrl }}"
-                       class="group bg-white rounded-2xl border border-slate-100 p-5 {{ $relColor['border'] }} transition-all duration-200"
+                       class="observe-animate group bg-white rounded-2xl border border-slate-100 p-5 {{ $relColor['border'] }} transition-all duration-200"
+                       data-delay="{{ $loop->index * 70 }}"
                        style="transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);">
                         <div class="w-10 h-10 rounded-xl {{ $relColor['bg'] }} flex items-center justify-center mb-3">
                             @include('partials.tool-icon', ['icon' => $relConfig['icon'], 'size' => 'w-5 h-5'])

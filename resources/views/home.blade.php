@@ -196,7 +196,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 @foreach($testimonials as $testimonial)
-                    <div class="observe-animate bg-slate-50 rounded-2xl p-6 border border-slate-100" data-delay="{{ $loop->index * 80 }}">
+                    <div class="{{ $loop->index % 2 === 0 ? 'observe-slide-left' : 'observe-slide-right' }} bg-slate-50 rounded-2xl p-6 border border-slate-100" data-delay="{{ $loop->index * 80 }}">
                         {{-- Stars --}}
                         <div class="flex items-center gap-0.5 mb-4">
                             @for($i = 0; $i < 5; $i++)
@@ -306,7 +306,10 @@
             <div class="mt-10 inline-flex flex-col items-center bg-white/10 backdrop-blur-md rounded-3xl px-10 py-8 ring-1 ring-white/20">
                 <span class="text-brand-100 text-sm font-medium uppercase tracking-wider mb-2">{{ __('home.cta_try_now') }}</span>
                 <div class="flex items-baseline gap-1">
-                    <span class="font-display font-extrabold text-5xl sm:text-6xl text-white">1,50</span>
+                    <span class="font-display font-extrabold text-5xl sm:text-6xl text-white"
+                          data-countup="{{ config('services.stripe.trial_price', 1.5) }}"
+                          data-decimals="2"
+                          data-locale="{{ app()->getLocale() === 'de' ? 'de-DE' : 'en-US' }}">{{ app()->getLocale() === 'de' ? '1,50' : '1.50' }}</span>
                     <span class="font-display font-bold text-2xl text-brand-200">&euro;</span>
                 </div>
                 <span class="text-brand-200 text-sm mt-1">{{ __('home.cta_trial_days', ['days' => config('services.stripe.trial_days', 2)]) }}</span>
@@ -391,7 +394,7 @@
             box-shadow: 0 16px 48px -12px rgba(0,0,0,0.10), 0 4px 16px -4px rgba(0,0,0,0.06);
         }
         .tool-card:hover .tool-card-icon {
-            transform: scale(1.05);
+            transform: scale(1.08) rotate(-4deg);
         }
         .tool-card:hover .tool-card-arrow {
             opacity: 1;
@@ -414,18 +417,6 @@
     .tool-card:active {
         transform: scale(0.98) !important;
         transition-duration: 100ms;
-    }
-
-    /* ========= SCROLL-TRIGGERED ANIMATIONS ========= */
-    .observe-animate {
-        opacity: 0;
-        transform: translateY(16px) scale(0.96);
-        transition: opacity 0.45s cubic-bezier(0.23, 1, 0.32, 1),
-                    transform 0.45s cubic-bezier(0.23, 1, 0.32, 1);
-    }
-    .observe-animate.is-visible {
-        opacity: 1;
-        transform: translateY(0) scale(1);
     }
 
     /* Trust card hover */
@@ -461,11 +452,6 @@
             opacity: 1 !important;
             transform: none !important;
         }
-        .observe-animate {
-            opacity: 1 !important;
-            transform: none !important;
-            transition: none !important;
-        }
         *,
         *::before,
         *::after {
@@ -476,32 +462,3 @@
 </style>
 @endpush
 
-@push('scripts')
-<script>
-    // IntersectionObserver for scroll-triggered animations
-    (function() {
-        var els = document.querySelectorAll('.observe-animate');
-        if (!els.length) return;
-
-        // Respect reduced motion
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-            els.forEach(function(el) { el.classList.add('is-visible'); });
-            return;
-        }
-
-        var observer = new IntersectionObserver(function(entries) {
-            entries.forEach(function(entry) {
-                if (entry.isIntersecting) {
-                    var delay = parseInt(entry.target.getAttribute('data-delay') || '0', 10);
-                    setTimeout(function() {
-                        entry.target.classList.add('is-visible');
-                    }, delay);
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
-
-        els.forEach(function(el) { observer.observe(el); });
-    })();
-</script>
-@endpush
