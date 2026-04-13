@@ -1,7 +1,6 @@
 @extends('layouts.app')
 
 @section('content')
-@php $isEn = app()->getLocale() === 'en'; @endphp
 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
     <div class="flex gap-10">
         @include('dashboard.partials.sidebar')
@@ -15,34 +14,34 @@
                         <table class="w-full text-sm">
                             <thead>
                                 <tr class="border-b border-slate-100">
-                                    <th class="text-left font-medium text-slate-500 pb-3 pr-4">{{ $isEn ? 'Date' : 'Datum' }}</th>
+                                    <th class="text-left font-medium text-slate-500 pb-3 pr-4">{{ __('dashboard.col_date') }}</th>
                                     <th class="text-left font-medium text-slate-500 pb-3 pr-4">Tool</th>
-                                    <th class="text-left font-medium text-slate-500 pb-3 pr-4">{{ $isEn ? 'Filename' : 'Dateiname' }}</th>
-                                    <th class="text-left font-medium text-slate-500 pb-3 pr-4">Status</th>
-                                    <th class="text-left font-medium text-slate-500 pb-3">{{ $isEn ? 'Download Link' : 'Download-Link' }}</th>
+                                    <th class="text-left font-medium text-slate-500 pb-3 pr-4">{{ __('dashboard.col_filename') }}</th>
+                                    <th class="text-left font-medium text-slate-500 pb-3 pr-4">{{ __('dashboard.downloads_col_status') }}</th>
+                                    <th class="text-left font-medium text-slate-500 pb-3">{{ __('dashboard.downloads_col_link') }}</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-50">
                                 @foreach($conversions as $conversion)
                                     <tr>
-                                        <td class="py-3 pr-4 text-slate-600 whitespace-nowrap">{{ $conversion->created_at->format($isEn ? 'm/d/Y H:i' : 'd.m.Y H:i') }}</td>
+                                        <td class="py-3 pr-4 text-slate-600 whitespace-nowrap">{{ $conversion->created_at->format(__('dashboard.date_format')) }}</td>
                                         <td class="py-3 pr-4 text-slate-600">{{ str_replace('sofortpdf_', '', $conversion->tool_slug) }}</td>
                                         <td class="py-3 pr-4 text-slate-900 font-medium truncate max-w-[200px]">{{ $conversion->original_filename }}</td>
                                         <td class="py-3 pr-4">
                                             @if($conversion->status === 'completed')
                                                 <span class="inline-flex items-center gap-1 text-emerald-600">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                                                    {{ $isEn ? 'Done' : 'Fertig' }}
+                                                    {{ __('dashboard.conv_done') }}
                                                 </span>
                                             @elseif($conversion->status === 'failed')
                                                 <span class="inline-flex items-center gap-1 text-red-600">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                                                    {{ $isEn ? 'Failed' : 'Fehlgeschlagen' }}
+                                                    {{ __('dashboard.conv_failed') }}
                                                 </span>
                                             @else
                                                 <span class="inline-flex items-center gap-1 text-amber-600">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                                    {{ $isEn ? 'Processing' : 'In Bearbeitung' }}
+                                                    {{ __('dashboard.conv_processing') }}
                                                 </span>
                                             @endif
                                         </td>
@@ -50,7 +49,7 @@
                                             @if($conversion->status === 'completed' && $conversion->result_filename)
                                                 <a href="{{ url('/download/' . $conversion->result_filename) }}" class="inline-flex items-center gap-1.5 text-brand-600 hover:text-brand-700 font-medium transition-colors">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                                                    {{ $isEn ? 'Download' : 'Herunterladen' }}
+                                                    {{ __('dashboard.downloads_download') }}
                                                 </a>
                                             @else
                                                 <span class="text-slate-400">&mdash;</span>
@@ -70,10 +69,10 @@
                         <svg class="w-14 h-14 text-slate-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                         </svg>
-                        <h3 class="font-display font-bold text-slate-700 mb-1">{{ $isEn ? 'No downloads available' : 'Keine Downloads vorhanden' }}</h3>
-                        <p class="text-slate-500 text-sm mb-4">{{ $isEn ? 'You have not converted any files yet.' : 'Sie haben noch keine Dateien konvertiert.' }}</p>
+                        <h3 class="font-display font-bold text-slate-700 mb-1">{{ __('dashboard.downloads_empty_title') }}</h3>
+                        <p class="text-slate-500 text-sm mb-4">{{ __('dashboard.downloads_empty_desc') }}</p>
                         <a href="{{ route('home') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium rounded-lg shadow-sm shadow-brand-600/25 hover:shadow-brand-600/40 transition-all">
-                            {{ $isEn ? 'Try a tool now' : 'Jetzt ein Tool ausprobieren' }}
+                            {{ __('dashboard.try_tool_now') }}
                         </a>
                     </div>
                 @endif

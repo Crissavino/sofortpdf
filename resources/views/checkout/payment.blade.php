@@ -1,6 +1,14 @@
 @extends('layouts.app')
 
-@php $isEn = app()->getLocale() === 'en'; @endphp
+@php
+    $isEnLocale = app()->getLocale() === 'en';
+    $trialPriceFormatted = $isEnLocale
+        ? number_format($trialPrice, 2, '.', ',')
+        : number_format($trialPrice, 2, ',', '.');
+    $subscriptionPriceFormatted = $isEnLocale
+        ? number_format($subscriptionPrice, 2, '.', ',')
+        : number_format($subscriptionPrice, 2, ',', '.');
+@endphp
 
 @section('content')
 <div class="max-w-lg mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -12,20 +20,20 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
             </svg>
         </div>
-        <h1 class="font-display font-extrabold text-2xl text-slate-900">{{ $isEn ? 'Unlock now' : 'Jetzt freischalten' }}</h1>
-        <p class="text-slate-500 mt-2 text-sm">{{ $isEn ? $trialDays . ' days trial for only ' . number_format($trialPrice, 2, '.', ',') . ' &euro;' : $trialDays . ' Tage testen für nur ' . number_format($trialPrice, 2, ',', '.') . ' &euro;' }}</p>
+        <h1 class="font-display font-extrabold text-2xl text-slate-900">{{ __('checkout.payment_heading') }}</h1>
+        <p class="text-slate-500 mt-2 text-sm">{{ __('checkout.payment_subheading', ['days' => $trialDays, 'price' => $trialPriceFormatted]) }}</p>
     </div>
 
     {{-- Pricing card --}}
     <div class="bg-brand-50/50 border border-brand-100 rounded-xl p-4 mb-6">
         <div class="flex items-center justify-between">
             <div>
-                <p class="font-display font-bold text-slate-900 text-sm">sofortpdf Pro</p>
-                <p class="text-xs text-slate-500 mt-0.5">{{ $isEn ? 'All PDF tools — unlimited' : 'Alle PDF-Tools — unbegrenzt' }}</p>
+                <p class="font-display font-bold text-slate-900 text-sm">{{ __('checkout.plan_name') }}</p>
+                <p class="text-xs text-slate-500 mt-0.5">{{ __('checkout.plan_tagline') }}</p>
             </div>
             <div class="text-right">
-                <p class="font-display font-bold text-brand-700">{{ number_format($trialPrice, 2, ',', '.') }} &euro;</p>
-                <p class="text-xs text-slate-400">{{ $isEn ? 'then ' . number_format($subscriptionPrice, 2, '.', ',') . ' &euro;/month' : 'dann ' . number_format($subscriptionPrice, 2, ',', '.') . ' &euro;/Monat' }}</p>
+                <p class="font-display font-bold text-brand-700">{{ $trialPriceFormatted }} &euro;</p>
+                <p class="text-xs text-slate-400">{{ __('checkout.then_per_month', ['price' => $subscriptionPriceFormatted]) }}</p>
             </div>
         </div>
     </div>
@@ -37,15 +45,15 @@
         {{-- E-Mail-Adresse --}}
         @guest
         <div>
-            <label for="account-email" class="block text-sm font-medium text-slate-700 mb-1.5">{{ $isEn ? 'Email address' : 'E-Mail-Adresse' }}</label>
-            <input type="email" id="account-email" placeholder="{{ $isEn ? 'your@email.com' : 'ihre@email.de' }}" required
+            <label for="account-email" class="block text-sm font-medium text-slate-700 mb-1.5">{{ __('checkout.email_label') }}</label>
+            <input type="email" id="account-email" placeholder="{{ __('checkout.email_placeholder') }}" required
                    class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-brand-400 focus:ring-2 focus:ring-brand-100 transition-colors text-sm bg-white">
         </div>
 
         {{-- Vollstaendiger Name --}}
         <div>
-            <label for="account-name" class="block text-sm font-medium text-slate-700 mb-1.5">{{ $isEn ? 'Full name' : 'Vollständiger Name' }}</label>
-            <input type="text" id="account-name" placeholder="{{ $isEn ? 'John Doe' : 'Max Mustermann' }}" required
+            <label for="account-name" class="block text-sm font-medium text-slate-700 mb-1.5">{{ __('checkout.full_name_label') }}</label>
+            <input type="text" id="account-name" placeholder="{{ __('checkout.full_name_placeholder') }}" required
                    class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-brand-400 focus:ring-2 focus:ring-brand-100 transition-colors text-sm bg-white">
         </div>
 
@@ -54,21 +62,21 @@
 
         {{-- Karteninhaber --}}
         <div>
-            <label for="card-name" class="block text-sm font-medium text-slate-700 mb-1.5">{{ $isEn ? 'Cardholder' : 'Karteninhaber' }}</label>
-            <input type="text" id="card-name" placeholder="{{ $isEn ? 'John Doe' : 'Max Mustermann' }}" required
+            <label for="card-name" class="block text-sm font-medium text-slate-700 mb-1.5">{{ __('checkout.cardholder_label') }}</label>
+            <input type="text" id="card-name" placeholder="{{ __('checkout.cardholder_placeholder') }}" required
                    class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-brand-400 focus:ring-2 focus:ring-brand-100 transition-colors text-sm bg-white">
         </div>
 
         {{-- Kartennummer --}}
         <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1.5">{{ $isEn ? 'Card number' : 'Kartennummer' }}</label>
+            <label class="block text-sm font-medium text-slate-700 mb-1.5">{{ __('checkout.card_number_label') }}</label>
             <div id="card-number" class="stripe-element px-4 py-3 rounded-xl border border-slate-200 bg-white transition-colors"></div>
         </div>
 
         {{-- Ablaufdatum + CVC --}}
         <div class="grid grid-cols-2 gap-3">
             <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1.5">{{ $isEn ? 'Expiry date' : 'Ablaufdatum' }}</label>
+                <label class="block text-sm font-medium text-slate-700 mb-1.5">{{ __('checkout.expiry_label') }}</label>
                 <div id="card-expiry" class="stripe-element px-4 py-3 rounded-xl border border-slate-200 bg-white transition-colors"></div>
             </div>
             <div>
@@ -84,24 +92,16 @@
         <button type="submit" id="submit-btn"
                 class="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-display font-bold py-3.5 rounded-xl shadow-lg shadow-brand-600/25 hover:shadow-brand-600/40 transition-all text-sm disabled:opacity-50 disabled:cursor-not-allowed">
             <svg id="btn-lock" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-            <span id="btn-text">{{ $isEn ? 'Try now for ' . number_format($trialPrice, 2, '.', ',') . ' &euro;' : 'Jetzt für ' . number_format($trialPrice, 2, ',', '.') . ' &euro; testen' }}</span>
+            <span id="btn-text">{{ __('checkout.submit_try_now', ['price' => $trialPriceFormatted]) }}</span>
             <svg id="btn-spinner" class="hidden animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
         </button>
 
         <p class="text-xs text-center text-slate-400 leading-relaxed">
-            @if($isEn)
-                By clicking the button you agree to our
-                <a href="{{ route('agb') }}" class="underline hover:text-slate-600" target="_blank">Terms</a>.
-                Your trial ends after {{ $trialDays }} days.
-                After that, {{ number_format($subscriptionPrice, 2, '.', ',') }} &euro;/month will be charged.
-                Cancel anytime.
-            @else
-                Mit dem Klick auf den Button stimmen Sie unseren
-                <a href="{{ route('agb') }}" class="underline hover:text-slate-600" target="_blank">AGB</a> zu.
-                Ihr Testzeitraum endet nach {{ $trialDays }} Tagen.
-                Danach werden {{ number_format($subscriptionPrice, 2, ',', '.') }} &euro;/Monat berechnet.
-                Jederzeit kündbar.
-            @endif
+            {!! __('checkout.terms_disclaimer_html', [
+                'terms_url' => route('agb'),
+                'days' => $trialDays,
+                'price' => $subscriptionPriceFormatted,
+            ]) !!}
         </p>
     </form>
 
@@ -132,10 +132,19 @@
 @push('scripts')
 <script>
 (function() {
-    const __isEn = {{ $isEn ? 'true' : 'false' }};
+    const __t = @json([
+        'stripeLocale'   => $isEnLocale ? 'en' : 'de',
+        'processing'     => __('checkout.js_processing'),
+        'submitTryNow'   => __('checkout.js_submit_try_now', ['price' => $trialPriceFormatted]),
+        'errCardholder'  => __('checkout.js_err_cardholder'),
+        'errEmail'       => __('checkout.js_err_email'),
+        'errName'        => __('checkout.js_err_name'),
+        'errGeneric'     => __('checkout.js_err_generic'),
+    ]);
+
     const stripe = Stripe('{{ $stripeKey }}');
     const elements = stripe.elements({
-        locale: __isEn ? 'en' : 'de',
+        locale: __t.stripeLocale,
         fonts: [{ cssSrc: 'https://api.fontshare.com/v2/css?f[]=dm-sans@400,500&display=swap' }],
     });
 
@@ -188,9 +197,7 @@
 
     function setLoading(loading) {
         submitBtn.disabled = loading;
-        btnText.textContent = loading
-            ? (__isEn ? 'Processing\u2026' : 'Wird verarbeitet\u2026')
-            : (__isEn ? 'Try now for {{ number_format($trialPrice, 2, ".", ",") }} \u20AC' : 'Jetzt f\u00FCr {{ number_format($trialPrice, 2, ",", ".") }} \u20AC testen');
+        btnText.textContent = loading ? __t.processing : __t.submitTryNow;
         btnLock.classList.toggle('hidden', loading);
         btnSpinner.classList.toggle('hidden', !loading);
     }
@@ -201,7 +208,7 @@
 
         const cardName = document.getElementById('card-name').value.trim();
         if (!cardName) {
-            showError(__isEn ? 'Please enter the cardholder name.' : 'Bitte geben Sie den Namen des Karteninhabers ein.');
+            showError(__t.errCardholder);
             return;
         }
 
@@ -212,11 +219,11 @@
         const accountName = nameEl ? nameEl.value.trim() : '';
 
         if (emailEl && !accountEmail) {
-            showError(__isEn ? 'Please enter your email address.' : 'Bitte geben Sie Ihre E-Mail-Adresse ein.');
+            showError(__t.errEmail);
             return;
         }
         if (nameEl && !accountName) {
-            showError(__isEn ? 'Please enter your full name.' : 'Bitte geben Sie Ihren vollständigen Namen ein.');
+            showError(__t.errName);
             return;
         }
 
@@ -302,7 +309,7 @@
             }
 
         } catch (err) {
-            showError(__isEn ? 'An error occurred. Please try again.' : 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.');
+            showError(__t.errGeneric);
             setLoading(false);
         }
     });

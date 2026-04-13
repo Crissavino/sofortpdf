@@ -1,0 +1,71 @@
+<?php
+
+return [
+    // Sidebar
+    'nav_overview' => 'Übersicht',
+    'nav_downloads' => 'Downloads',
+    'nav_subscription' => 'Abonnement',
+    'nav_profile' => 'Profil',
+
+    // Index / Overview
+    'index_heading' => 'Übersicht',
+    'subscription_status' => 'Abonnement-Status',
+    'status_active' => 'Aktiv',
+    'status_trial' => 'Testphase',
+    'status_canceled' => 'Gekündigt',
+    'status_none' => 'Kein Abonnement',
+    'next_payment_on' => 'Nächste Zahlung am :date',
+    'trial_ends_on' => 'Testzeitraum endet am :date',
+    'access_until' => 'Zugang bis :date',
+    'subscribe_now' => 'Jetzt abonnieren',
+    'recent_conversions' => 'Letzte Konvertierungen',
+    'view_all' => 'Alle anzeigen',
+    'col_date' => 'Datum',
+    'col_filename' => 'Dateiname',
+    'conv_done' => 'Fertig',
+    'conv_failed' => 'Fehlgeschlagen',
+    'conv_processing' => 'In Bearbeitung',
+    'no_conversions' => 'Noch keine Konvertierungen vorhanden.',
+    'try_tool_now' => 'Jetzt ein Tool ausprobieren',
+    'date_format' => 'd.m.Y H:i',
+    'date_format_short' => 'd.m.Y',
+
+    // Billing
+    'billing_heading' => 'Abonnement',
+    'current_plan' => 'Aktueller Plan',
+    'plan_active_desc' => 'Ihr Abonnement ist aktiv.',
+    'next_payment_amount' => 'Nächste Zahlung am :date: ',
+    'plan_trial_label' => 'Testphase',
+    'plan_trial_desc' => 'Sie testen sofortpdf Pro kostenlos.',
+    'your_trial_ends_on' => 'Ihr Testzeitraum endet am :date',
+    'plan_canceled_label' => 'Gekündigt',
+    'plan_canceled_desc' => 'Ihr Abonnement wurde gekündigt.',
+    'plan_none_title' => 'Kein Abonnement',
+    'plan_none_desc' => 'Sie haben derzeit kein aktives Abonnement.',
+    'management' => 'Verwaltung',
+    'change_payment_method' => 'Zahlungsmethode ändern',
+    'cancel_subscription' => 'Abonnement kündigen',
+    'cancel_confirm_title' => 'Abonnement kündigen?',
+    'cancel_confirm_body' => 'Sind Sie sicher, dass Sie Ihr Abonnement kündigen möchten? Sie behalten Ihren Zugang bis zum Ende des aktuellen Abrechnungszeitraums.',
+    'go_back' => 'Abbrechen',
+    'yes_cancel_subscription' => 'Ja, Abonnement kündigen',
+
+    // Downloads
+    'downloads_col_status' => 'Status',
+    'downloads_col_link' => 'Download-Link',
+    'downloads_download' => 'Herunterladen',
+    'downloads_empty_title' => 'Keine Downloads vorhanden',
+    'downloads_empty_desc' => 'Sie haben noch keine Dateien konvertiert.',
+
+    // Profile
+    'profile_heading' => 'Profil',
+    'personal_info' => 'Persönliche Daten',
+    'label_name' => 'Name',
+    'label_email' => 'E-Mail-Adresse',
+    'change_password' => 'Passwort ändern',
+    'change_password_hint' => 'Lassen Sie die Felder leer, wenn Sie Ihr Passwort nicht ändern möchten.',
+    'current_password' => 'Aktuelles Passwort',
+    'new_password' => 'Neues Passwort',
+    'confirm_password' => 'Passwort bestätigen',
+    'save_changes' => 'Änderungen speichern',
+];

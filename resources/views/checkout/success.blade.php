@@ -1,8 +1,6 @@
 @extends('layouts.app')
 
-@php $isEn = app()->getLocale() === 'en'; @endphp
-
-@section('title', $isEn ? 'Thank you - sofortpdf' : 'Vielen Dank - sofortpdf')
+@section('title', __('checkout.success_title'))
 
 @section('content')
 <div class="container mx-auto max-w-2xl px-4 py-16">
@@ -14,24 +12,22 @@
         </div>
 
         <h1 class="text-3xl font-bold text-gray-900 mb-4">
-            {{ $isEn ? 'Thank you! Your trial has started.' : 'Vielen Dank! Ihr Testzeitraum hat begonnen.' }}
+            {{ __('checkout.success_heading') }}
         </h1>
 
         <p class="text-lg text-gray-600 mb-6">
-            {{ $isEn
-                ? 'You have ' . config('services.stripe.trial_days') . ' days to try all tools for free.'
-                : 'Sie haben ' . config('services.stripe.trial_days') . ' Tage Zeit, alle Tools kostenlos zu testen.' }}
+            {{ __('checkout.success_trial_info', ['days' => config('services.stripe.trial_days')]) }}
         </p>
 
         <p class="text-gray-500 mb-8">
-            {{ $isEn
-                ? 'After the trial period, your subscription will automatically continue at ' . number_format(config('services.stripe.subscription_price'), 2, '.', ',') . ' EUR per month. You can cancel at any time.'
-                : 'Nach Ablauf des Testzeitraums wird Ihr Abonnement automatisch zum Preis von ' . number_format(config('services.stripe.subscription_price'), 2, ',', '.') . ' € pro Monat fortgesetzt. Sie können jederzeit kündigen.' }}
+            {{ __('checkout.success_renewal_info', ['price' => app()->getLocale() === 'en'
+                ? number_format(config('services.stripe.subscription_price'), 2, '.', ',')
+                : number_format(config('services.stripe.subscription_price'), 2, ',', '.')]) }}
         </p>
 
         <a href="{{ route('home') }}"
            class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition duration-150 ease-in-out">
-            {{ $isEn ? 'Get started' : 'Jetzt loslegen' }}
+            {{ __('checkout.success_cta') }}
         </a>
     </div>
 </div>
