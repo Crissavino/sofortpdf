@@ -1104,7 +1104,7 @@
     processBtn.addEventListener('click', async function() {
         if (selectedFiles.length === 0) return;
 
-        @if (! config('sofortpdf.payment_bypass'))
+        @if (! \App\Services\PaywallBypass::applies(request()))
             @guest
                 window.location.href = '/checkout/start?return_to=' + encodeURIComponent(window.location.pathname);
                 return;

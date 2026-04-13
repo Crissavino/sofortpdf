@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Services\PaywallBypass;
 use Closure;
 use Illuminate\Http\Request;
 
@@ -16,7 +17,7 @@ class Paywall
 {
     public function handle(Request $request, Closure $next)
     {
-        if (config('sofortpdf.payment_bypass', false)) {
+        if (PaywallBypass::applies($request)) {
             return $next($request);
         }
 

@@ -6,6 +6,7 @@ use App\Exceptions\ConversionServiceException;
 use App\Models\ConversionLog;
 use App\Models\Download;
 use App\Services\ConversionServiceClient;
+use App\Services\PaywallBypass;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -23,7 +24,7 @@ class ConversionController extends Controller
         $tool = $request->input('tool');
         $uploadedFiles = session('upload_files', []);
         $user = $request->user();
-        $bypass = config('sofortpdf.payment_bypass', false);
+        $bypass = PaywallBypass::applies($request);
 
         if (empty($uploadedFiles)) {
             return response()->json(['message' => 'Keine Dateien gefunden. Bitte laden Sie erneut hoch.'], 422);
