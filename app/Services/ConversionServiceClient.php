@@ -48,7 +48,7 @@ class ConversionServiceClient
                 );
             }
 
-            $response = $request->post("{$this->baseUrl}/api/merge");
+            $response = $request->post("{$this->baseUrl}/api/pdf/merge");
 
             $this->ensureSuccessful($response);
 
@@ -86,7 +86,7 @@ class ConversionServiceClient
         try {
             $response = $this->httpClient()
                 ->attach('file', file_get_contents($filePath), basename($filePath))
-                ->post("{$this->baseUrl}/api/compress", [
+                ->post("{$this->baseUrl}/api/pdf/compress", [
                     'quality' => $quality,
                 ]);
 
@@ -112,6 +112,10 @@ class ConversionServiceClient
     /**
      * Convert a file from one format to another.
      *
+     * The service exposes a separate endpoint for every (from, to) pair;
+     * this method routes to the right one. Add new mappings here as the
+     * service adds endpoints.
+     *
      * @param  string  $filePath  Absolute path to source file
      * @param  string  $from      Source format (e.g. 'pdf', 'docx')
      * @param  string  $to        Target format (e.g. 'docx', 'pdf')
@@ -124,17 +128,28 @@ class ConversionServiceClient
         $startTime = microtime(true);
         $toolSlug = "sofortpdf_{$from}_to_{$to}";
 
+        $endpoint = $this->resolveConvertEndpoint($from, $to);
+        if ($endpoint === null) {
+            throw ConversionServiceException::conversionFailed("Konvertierung von {$from} nach {$to} wird nicht unterstützt.");
+        }
+
+        // Extension for the saved temp file. Some endpoints (pdf-to-png,
+        // pdf-to-jpg) stream a ZIP when the source has multiple pages.
+        $outputExt = match (true) {
+            $to === 'docx' => 'docx',
+            $to === 'xlsx' => 'xlsx',
+            $to === 'pptx' => 'pptx',
+            default => $to,
+        };
+
         try {
             $response = $this->httpClient()
                 ->attach('file', file_get_contents($filePath), basename($filePath))
-                ->post("{$this->baseUrl}/api/convert", [
-                    'from' => $from,
-                    'to' => $to,
-                ]);
+                ->post("{$this->baseUrl}{$endpoint}");
 
             $this->ensureSuccessful($response);
 
-            $outputPath = $this->saveTempFile($response->body(), $to);
+            $outputPath = $this->saveTempFile($response->body(), $outputExt);
 
             $this->logConversion($toolSlug, basename($filePath), basename($outputPath), 'success', null, filesize($filePath), $startTime);
 
@@ -168,7 +183,7 @@ class ConversionServiceClient
         try {
             $response = $this->httpClient()
                 ->attach('file', file_get_contents($filePath), basename($filePath))
-                ->post("{$this->baseUrl}/api/split", [
+                ->post("{$this->baseUrl}/api/pdf/split", [
                     'pages' => $pages,
                 ]);
 
@@ -225,7 +240,9 @@ class ConversionServiceClient
                 );
             }
 
-            $response = $request->post("{$this->baseUrl}/api/jpg-to-pdf");
+            // Service doesn't have a bulk jpg-to-pdf endpoint, but /api/pdf/merge
+            // accepts images and converts them internally before merging.
+            $response = $request->post("{$this->baseUrl}/api/pdf/merge");
 
             $this->ensureSuccessful($response);
 
@@ -262,7 +279,7 @@ class ConversionServiceClient
         try {
             $response = $this->httpClient()
                 ->attach('file', file_get_contents($filePath), basename($filePath))
-                ->post("{$this->baseUrl}/api/pdf-to-jpg");
+                ->post("{$this->baseUrl}/api/convert/pdf-to-jpg");
 
             $this->ensureSuccessful($response);
 
@@ -310,7 +327,7 @@ class ConversionServiceClient
         try {
             $response = $this->httpClient()
                 ->attach('file', file_get_contents($filePath), basename($filePath))
-                ->post("{$this->baseUrl}/pdf/rotate", [
+                ->post("{$this->baseUrl}/api/pdf/rotate", [
                     'angle' => $angle,
                 ]);
 
@@ -350,7 +367,10 @@ class ConversionServiceClient
         try {
             $response = $this->httpClient()
                 ->attach('file', file_get_contents($filePath), basename($filePath))
-                ->post("{$this->baseUrl}/pdf/protect", [
+                // TODO: conversion-service does not expose /api/pdf/protect yet.
+                // Keeping the call here for when the endpoint ships; the tool
+                // is feature-flagged off in config/tools.php in the meantime.
+                ->post("{$this->baseUrl}/api/pdf/protect", [
                     'password' => $password,
                 ]);
 
@@ -390,7 +410,7 @@ class ConversionServiceClient
         try {
             $response = $this->httpClient()
                 ->attach('file', file_get_contents($filePath), basename($filePath))
-                ->post("{$this->baseUrl}/pdf/unlock", [
+                ->post("{$this->baseUrl}/api/pdf/unlock", [
                     'password' => $password,
                 ]);
 
@@ -433,7 +453,7 @@ class ConversionServiceClient
         try {
             $response = $this->httpClient()
                 ->attach('file', file_get_contents($filePath), basename($filePath))
-                ->post("{$this->baseUrl}/pdf/watermark", [
+                ->post("{$this->baseUrl}/api/pdf/watermark", [
                     'text' => $text,
                     'fontSize' => $fontSize,
                     'opacity' => $opacity,
@@ -475,7 +495,7 @@ class ConversionServiceClient
         try {
             $response = $this->httpClient()
                 ->attach('file', file_get_contents($filePath), basename($filePath))
-                ->post("{$this->baseUrl}/convert/pdf-to-png");
+                ->post("{$this->baseUrl}/api/convert/pdf-to-png");
 
             $this->ensureSuccessful($response);
 
@@ -522,7 +542,7 @@ class ConversionServiceClient
         try {
             $response = $this->httpClient()
                 ->attach('file', file_get_contents($filePath), basename($filePath))
-                ->post("{$this->baseUrl}/convert/pdf-to-powerpoint");
+                ->post("{$this->baseUrl}/api/convert/pdf-to-powerpoint");
 
             $this->ensureSuccessful($response);
 
@@ -559,7 +579,7 @@ class ConversionServiceClient
         try {
             $response = $this->httpClient()
                 ->attach('file', file_get_contents($filePath), basename($filePath))
-                ->post("{$this->baseUrl}/convert/office-to-pdf");
+                ->post("{$this->baseUrl}/api/convert/office-to-pdf");
 
             $this->ensureSuccessful($response);
 
@@ -604,7 +624,10 @@ class ConversionServiceClient
                 );
             }
 
-            $response = $request->post("{$this->baseUrl}/convert/image-to-pdf");
+            // Service image-to-pdf accepts only a single file; for multiple
+            // images we submit to /api/pdf/merge which handles image→pdf
+            // internally and merges everything in order.
+            $response = $request->post("{$this->baseUrl}/api/pdf/merge");
 
             $this->ensureSuccessful($response);
 
@@ -642,7 +665,7 @@ class ConversionServiceClient
         try {
             $response = $this->httpClient()
                 ->attach('file', file_get_contents($filePath), basename($filePath))
-                ->post("{$this->baseUrl}/ocr/pdf", [
+                ->post("{$this->baseUrl}/api/ocr/pdf", [
                     'language' => $language,
                 ]);
 
@@ -682,7 +705,7 @@ class ConversionServiceClient
         try {
             $response = $this->httpClient()
                 ->attach('file', file_get_contents($filePath), basename($filePath))
-                ->post("{$this->baseUrl}/pdf/remove-pages", [
+                ->post("{$this->baseUrl}/api/pdf/remove-pages", [
                     'pages' => $pages,
                 ]);
 
@@ -722,7 +745,7 @@ class ConversionServiceClient
         try {
             $response = $this->httpClient()
                 ->attach('file', file_get_contents($filePath), basename($filePath))
-                ->post("{$this->baseUrl}/pdf/extract-pages", [
+                ->post("{$this->baseUrl}/api/pdf/extract-pages", [
                     'pages' => $pages,
                 ]);
 
@@ -761,7 +784,7 @@ class ConversionServiceClient
         try {
             $response = $this->httpClient()
                 ->attach('file', file_get_contents($filePath), basename($filePath))
-                ->post("{$this->baseUrl}/pdf/optimize");
+                ->post("{$this->baseUrl}/api/pdf/optimize");
 
             $this->ensureSuccessful($response);
 
@@ -797,7 +820,7 @@ class ConversionServiceClient
 
         try {
             $response = $this->httpClient()
-                ->post("{$this->baseUrl}/convert/html-to-pdf", [
+                ->post("{$this->baseUrl}/api/convert/html-to-pdf", [
                     'html' => $html,
                 ]);
 
@@ -826,6 +849,47 @@ class ConversionServiceClient
     protected function httpClient(): \Illuminate\Http\Client\PendingRequest
     {
         return Http::withToken($this->token)->timeout(120);
+    }
+
+    /**
+     * Resolve a (from, to) pair to the conversion-service endpoint path,
+     * or null if the combination isn't supported by the service.
+     */
+    protected function resolveConvertEndpoint(string $from, string $to): ?string
+    {
+        $from = strtolower($from);
+        $to = strtolower($to);
+
+        // Anything Office-like going to PDF uses the LibreOffice endpoint.
+        $officeFormats = ['doc', 'docx', 'odt', 'rtf', 'xls', 'xlsx', 'ods', 'csv', 'ppt', 'pptx', 'odp'];
+        if (in_array($from, $officeFormats, true) && $to === 'pdf') {
+            return '/api/convert/office-to-pdf';
+        }
+
+        $imageFormats = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'webp'];
+        if (in_array($from, $imageFormats, true) && $to === 'pdf') {
+            return '/api/convert/image-to-pdf';
+        }
+
+        return match ("{$from}->{$to}") {
+            'pdf->docx' => '/api/convert/pdf-to-word',
+            'pdf->xlsx' => '/api/convert/pdf-to-excel',
+            'pdf->pptx' => '/api/convert/pdf-to-powerpoint',
+            'pdf->jpg', 'pdf->jpeg' => '/api/convert/pdf-to-jpg',
+            'pdf->png' => '/api/convert/pdf-to-png',
+            'pdf->txt' => '/api/convert/pdf-to-text',
+            'pdf->epub' => '/api/convert/pdf-to-epub',
+            'pdf->mobi' => '/api/convert/pdf-to-mobi',
+            'epub->pdf' => '/api/convert/epub-to-pdf',
+            'heic->pdf' => '/api/convert/heic-to-pdf',
+            'heic->jpg', 'heic->jpeg' => '/api/convert/heic-to-jpg',
+            'svg->png' => '/api/convert/svg-to-png',
+            'webp->jpg', 'webp->jpeg' => '/api/convert/webp-to-jpg',
+            'webp->png' => '/api/convert/webp-to-png',
+            'jpg->webp', 'jpeg->webp' => '/api/convert/jpg-to-webp',
+            'png->webp' => '/api/convert/png-to-webp',
+            default => null,
+        };
     }
 
     /**
