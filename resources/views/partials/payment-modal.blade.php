@@ -54,6 +54,7 @@
                     <div class="spm-preview-meta">
                         <p class="spm-preview-name" data-spm-filename>&nbsp;</p>
                         <p class="spm-preview-size" data-spm-filesize>&nbsp;</p>
+                        <p class="spm-preview-count" data-spm-filecount hidden>&nbsp;</p>
                     </div>
                 </div>
 
@@ -283,6 +284,56 @@
     .spm-preview-size {
         font-size: 11px; color: #94a3b8; margin-top: 2px;
     }
+    .spm-preview-count {
+        font-size: 10px; color: #64748b; font-weight: 600;
+        margin-top: 2px;
+    }
+
+    /* Multi-file stacked previews (merge tool) */
+    .spm-preview.spm-preview-stack {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 6px;
+        padding: 10px;
+        align-items: stretch;
+        background: #fff;
+    }
+    .spm-preview-stack .spm-stack-item {
+        position: relative;
+        aspect-ratio: 3 / 4;
+        background: linear-gradient(180deg, #f8fafc 0%, #eef4ff 100%);
+        border-radius: 6px;
+        overflow: hidden;
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+    }
+    .spm-preview-stack .spm-stack-item img,
+    .spm-preview-stack .spm-stack-item canvas {
+        max-width: 100%; max-height: 100%;
+        object-fit: contain;
+    }
+    .spm-preview-stack .spm-stack-item .spm-stack-badge {
+        position: absolute; top: 3px; left: 3px;
+        background: rgba(15, 23, 42, 0.85);
+        color: #fff;
+        font-size: 9px; font-weight: 700;
+        padding: 1px 5px;
+        border-radius: 999px;
+        line-height: 1.2;
+    }
+    .spm-preview-stack .spm-stack-ext {
+        font-size: 8px; font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 1px 6px;
+        border-radius: 999px;
+        background: #e2e8f0; color: #475569;
+    }
+    .spm-preview-stack .spm-stack-more {
+        display: flex; align-items: center; justify-content: center;
+        font-size: 11px; font-weight: 700; color: #64748b;
+        background: #f1f5f9;
+    }
 
     .spm-summary {
         background: #fff;
@@ -475,6 +526,7 @@
     var previewExt     = root.querySelector('[data-spm-preview-ext]');
     var filenameEl     = root.querySelector('[data-spm-filename]');
     var filesizeEl     = root.querySelector('[data-spm-filesize]');
+    var filecountEl    = root.querySelector('[data-spm-filecount]');
     var form           = root.querySelector('#spm-form');
     var errorEl        = root.querySelector('#spm-error');
     var submitBtn      = root.querySelector('#spm-submit');
@@ -523,27 +575,58 @@
         if (submitSpinner) submitSpinner.hidden = !loading;
     }
 
-    // --- Preview builders (mirrored from merge grid) -----------------------
-    async function renderPreview(file, filename) {
-        if (!file) {
-            previewWrap.innerHTML = placeholderHtml(extensionFrom(filename));
+    // --- Preview builders --------------------------------------------------
+    async function renderPreview(files) {
+        // Single-file mode
+        if (files.length === 1) {
+            previewWrap.classList.remove('spm-preview-stack');
+            previewWrap.innerHTML = await buildSinglePreviewHtml(files[0]);
             return;
         }
-        var ext = extensionFrom(file.name || filename);
+
+        // Multi-file: stacked grid (up to 5 visible, extra as "+N" tile)
+        previewWrap.classList.add('spm-preview-stack');
+        var maxVisible = 5;
+        var visible = files.slice(0, maxVisible);
+        var remaining = files.length - visible.length;
+
+        previewWrap.innerHTML = visible.map(function(f, i) {
+            return '<div class="spm-stack-item" data-i="' + i + '">' +
+                        '<span class="spm-stack-badge">' + (i + 1) + '</span>' +
+                        '<div class="spm-stack-body">' +
+                            '<span class="spm-stack-ext">' + extensionFrom(f.name).toUpperCase() + '</span>' +
+                        '</div>' +
+                   '</div>';
+        }).join('') + (remaining > 0
+            ? '<div class="spm-stack-item spm-stack-more">+' + remaining + '</div>'
+            : '');
+
+        // Replace placeholders with real previews asynchronously
+        visible.forEach(function(f, i) {
+            buildSinglePreviewHtml(f).then(function(html) {
+                var tile = previewWrap.querySelector('[data-i="' + i + '"]');
+                if (!tile) return;
+                tile.innerHTML = '<span class="spm-stack-badge">' + (i + 1) + '</span>' + html;
+            }).catch(function() { /* keep placeholder */ });
+        });
+    }
+
+    async function buildSinglePreviewHtml(file) {
+        if (!file) return placeholderHtml('file');
+        var ext = extensionFrom(file.name);
 
         if (['jpg','jpeg','png','gif','webp','bmp'].indexOf(ext) !== -1) {
-            var url = URL.createObjectURL(file);
-            previewWrap.innerHTML = '<img src="' + url + '" alt="">';
-            return;
+            return '<img src="' + URL.createObjectURL(file) + '" alt="">';
         }
-        if (ext === 'pdf' && window['pdfjs-dist/build/pdf']) {
+        if (ext === 'pdf') {
             try {
-                var dataHtml = await renderPdfPage1(file);
-                previewWrap.innerHTML = dataHtml;
-                return;
+                await ensurePdfJs();
+                if (window['pdfjs-dist/build/pdf']) {
+                    return await renderPdfPage1(file);
+                }
             } catch (e) { /* fall through */ }
         }
-        previewWrap.innerHTML = placeholderHtml(ext);
+        return placeholderHtml(ext);
     }
 
     function placeholderHtml(ext) {
@@ -575,6 +658,49 @@
         canvas.style.width = '100%'; canvas.style.height = 'auto';
         await page.render({ canvasContext: canvas.getContext('2d'), viewport: viewport }).promise;
         return canvas.outerHTML;
+    }
+
+    // Lazy-load PDF.js if not already present (merge tool pre-loads it, but
+    // other tool pages don't). Uses the same CDN build + worker URL.
+    var __pdfJsLoading = null;
+    function ensurePdfJs() {
+        if (window['pdfjs-dist/build/pdf']) return Promise.resolve();
+        if (__pdfJsLoading) return __pdfJsLoading;
+        __pdfJsLoading = new Promise(function(resolve, reject) {
+            var s = document.createElement('script');
+            s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+            s.onload = function() {
+                var pdfjs = window['pdfjs-dist/build/pdf'];
+                if (pdfjs && pdfjs.GlobalWorkerOptions) {
+                    pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                }
+                resolve();
+            };
+            s.onerror = function() { __pdfJsLoading = null; reject(new Error('PDF.js failed to load')); };
+            document.head.appendChild(s);
+        });
+        return __pdfJsLoading;
+    }
+
+    // Transliterate non-Latin characters to Latin for Stripe billing name.
+    // Stripe rejects many characters; Greek, German, Romanian, Polish and
+    // Arabic speakers hit this often. Simplified from contract-kit.
+    function sanitizeStripeName(input) {
+        if (!input) return '';
+        // NFD decomposition + strip combining marks
+        var s = String(input).normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        // German
+        s = s.replace(/ß/g, 'ss')
+             .replace(/Ä/g, 'Ae').replace(/ä/g, 'ae')
+             .replace(/Ö/g, 'Oe').replace(/ö/g, 'oe')
+             .replace(/Ü/g, 'Ue').replace(/ü/g, 'ue');
+        // Romanian remnants (post-NFD) that NFD didn't strip
+        s = s.replace(/[Șș]/g, 's').replace(/[Țț]/g, 't');
+        // Polish
+        s = s.replace(/[Łł]/g, function(c) { return c === 'Ł' ? 'L' : 'l'; });
+        // Strip any remaining non-ASCII letters / numbers / space / . - '
+        s = s.replace(/[^\x20-\x7E]/g, '');
+        return s.trim();
     }
 
     // --- Stripe init (lazy) -------------------------------------------------
@@ -636,15 +762,18 @@
 
         setLoading(true);
         try {
+            var sanitizedCardName = sanitizeStripeName(cardName) || cardName;
+            var sanitizedAccountName = sanitizeStripeName(accountName) || accountName;
+
             var pm = await stripe.createPaymentMethod({
                 type: 'card',
                 card: cardNumberEl,
-                billing_details: { name: cardName, email: accountEmail || undefined },
+                billing_details: { name: sanitizedCardName, email: accountEmail || undefined },
             });
             if (pm.error) { showError(pm.error.message); setLoading(false); return; }
 
             var payload = { payment_method_id: pm.paymentMethod.id };
-            if (accountName) payload.name = accountName;
+            if (sanitizedAccountName) payload.name = sanitizedAccountName;
             if (accountEmail) payload.email = accountEmail;
             @auth
                 // /checkout/create-subscription requires email/name even for
@@ -700,6 +829,14 @@
         onSuccessCb = options.onSuccess || null;
         onCloseCb = options.onClose || null;
 
+        // Normalize: accept either `file` singular or `files` array.
+        var files = [];
+        if (Array.isArray(options.files)) {
+            files = options.files.filter(Boolean);
+        } else if (options.file) {
+            files = [options.file];
+        }
+
         // Reset UI
         hideError();
         setLoading(false);
@@ -708,11 +845,30 @@
         if (nameInput)  nameInput.value  = options.defaultName  || '';
         if (emailInput) emailInput.value = options.defaultEmail || '';
 
-        // Preview + filename
-        filenameEl.textContent = options.filename || '';
-        filesizeEl.textContent = options.fileSize ? formatSize(options.fileSize) : '';
-        previewExt.textContent = (extensionFrom(options.filename || '') || 'file').toUpperCase();
-        renderPreview(options.file || null, options.filename || '').catch(function() { /* ignore */ });
+        // Label: single file → name + size. Multi → "First-file.pdf + N more".
+        if (files.length === 0) {
+            filenameEl.textContent = options.filename || '';
+            filesizeEl.textContent = options.fileSize ? formatSize(options.fileSize) : '';
+            filecountEl.hidden = true;
+            previewWrap.classList.remove('spm-preview-stack');
+            previewWrap.innerHTML =
+                '<div class="spm-preview-placeholder">' +
+                    '<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' +
+                    '<span class="spm-preview-ext">' + (extensionFrom(options.filename || '') || 'FILE').toUpperCase() + '</span>' +
+                '</div>';
+        } else if (files.length === 1) {
+            filenameEl.textContent = files[0].name;
+            filesizeEl.textContent = formatSize(files[0].size);
+            filecountEl.hidden = true;
+            renderPreview(files).catch(function() { /* ignore */ });
+        } else {
+            var totalSize = files.reduce(function(sum, f) { return sum + (f.size || 0); }, 0);
+            filenameEl.textContent = files[0].name;
+            filesizeEl.textContent = formatSize(totalSize);
+            filecountEl.textContent = (@json(__('payment.files_count')) || '{n} files').replace('{n}', files.length);
+            filecountEl.hidden = false;
+            renderPreview(files).catch(function() { /* ignore */ });
+        }
 
         root.classList.add('spm-open');
         root.setAttribute('aria-hidden', 'false');

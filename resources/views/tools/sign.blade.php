@@ -472,12 +472,8 @@
         if (window.sofortpdfPaywall && window.sofortpdfPaywall.needsPayment()
             && window.SofortpdfPaymentModal) {
             window.SofortpdfPaymentModal.open({
-                file: pdfFile,
-                filename: pdfFile ? pdfFile.name : 'document.pdf',
-                fileSize: pdfFile ? pdfFile.size : 0,
-                onSuccess: function() {
-                    btnSubmit.click();
-                },
+                files: pdfFile ? [pdfFile] : [],
+                onSuccess: function() { btnSubmit.click(); },
             });
             return;
         }

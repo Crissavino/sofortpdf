@@ -37,6 +37,7 @@ return [
 
     'bank_statement' => ':name will appear on your bank statement.',
     'close_button' => 'Close',
+    'files_count' => '{n} files total',
 
     'err_card' => 'Your card was declined. Please try another card.',
     'err_generic' => 'Something went wrong. Please try again.',

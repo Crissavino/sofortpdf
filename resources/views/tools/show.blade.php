@@ -1108,11 +1108,11 @@
         // so the already-selected files + drag order stay intact.
         if (window.sofortpdfPaywall && window.sofortpdfPaywall.needsPayment()
             && window.SofortpdfPaymentModal) {
-            var firstFile = filesInSubmitOrder[0] || selectedFiles[0];
+            // Pass all selected files (in their current sorted order) so
+            // the modal renders the full stack for merge, or a single
+            // preview for everything else.
             window.SofortpdfPaymentModal.open({
-                file: firstFile,
-                filename: firstFile ? firstFile.name : '',
-                fileSize: firstFile ? firstFile.size : 0,
+                files: filesInSubmitOrder.length ? filesInSubmitOrder : selectedFiles,
                 onSuccess: function() {
                     // Retry the conversion. The flag `__sofortpdfTrialJustPaid`
                     // is read below when the confirmation_url is built.
