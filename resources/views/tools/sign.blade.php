@@ -1,5 +1,20 @@
 @extends('layouts.app')
 
+@php
+    $maxUploadMb = (int) env('MAX_UPLOAD_SIZE_MB', 50);
+    // Build JS message payload in PHP to avoid Blade parser issues with
+    // nested __() calls inside directives / inline arrays.
+    $signJsMessages = [
+        'errFileTooLarge'    => __('sign.err_file_too_large', ['size' => $maxUploadMb]),
+        'errNotPdf'          => __('sign.err_not_pdf'),
+        'errSignFailed'      => __('sign.err_sign_failed'),
+        'errGeneric'         => __('sign.error_generic'),
+        'submit'             => __('sign.submit'),
+        'submitting'         => __('sign.submitting'),
+        'pageIndicator'      => __('sign.page_indicator', ['current' => '__CURRENT__', 'total' => '__TOTAL__']),
+    ];
+@endphp
+
 @section('content')
     <section class="relative overflow-hidden">
         {{-- Background --}}
@@ -23,9 +38,9 @@
                     </svg>
                 </div>
 
-                <p class="font-display font-bold text-slate-700 mb-1">PDF hier ablegen oder klicken zum Ausw&auml;hlen</p>
+                <p class="font-display font-bold text-slate-700 mb-1">{{ __('sign.drop_or_click') }}</p>
                 <p class="text-sm text-slate-400">
-                    Format: PDF &middot; Max. {{ env('MAX_UPLOAD_SIZE_MB', 50) }} MB
+                    {{ __('sign.format_hint', ['size' => $maxUploadMb]) }}
                 </p>
 
                 <input type="file" id="file-input" class="hidden" accept=".pdf">
@@ -40,11 +55,11 @@
                         <button id="btn-create-sig"
                                 class="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-display font-bold px-4 py-2 rounded-lg shadow-sm text-sm transition-colors">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
-                            Unterschrift erstellen
+                            {{ __('sign.create_signature') }}
                         </button>
                         <button id="btn-reset"
                                 class="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium px-4 py-2 rounded-lg text-sm transition-colors">
-                            Zur&uuml;cksetzen
+                            {{ __('sign.reset') }}
                         </button>
                     </div>
 
@@ -53,7 +68,7 @@
                         <button id="btn-prev-page" class="p-1.5 rounded-lg hover:bg-slate-100 disabled:opacity-30 transition-colors" disabled>
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                         </button>
-                        <span id="page-indicator" class="font-medium">Seite 1 von 1</span>
+                        <span id="page-indicator" class="font-medium">{{ __('sign.page_indicator', ['current' => 1, 'total' => 1]) }}</span>
                         <button id="btn-next-page" class="p-1.5 rounded-lg hover:bg-slate-100 disabled:opacity-30 transition-colors" disabled>
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                         </button>
@@ -62,7 +77,7 @@
 
                 {{-- Instruction --}}
                 <div id="placement-hint" class="hidden bg-brand-50 border border-brand-100 rounded-xl p-3 mb-4 text-center">
-                    <p class="text-sm text-brand-700 font-medium">Klicken Sie auf das Dokument, um die Unterschrift zu platzieren</p>
+                    <p class="text-sm text-brand-700 font-medium">{{ __('sign.placement_hint') }}</p>
                 </div>
 
                 {{-- PDF viewer --}}
@@ -78,7 +93,7 @@
                             class="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-display font-bold px-8 py-3.5 rounded-xl shadow-lg shadow-brand-600/25 hover:shadow-brand-600/40 transition-all text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                             disabled>
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                        <span id="btn-submit-text">Unterschreiben</span>
+                        <span id="btn-submit-text">{{ __('sign.submit') }}</span>
                         <svg id="btn-submit-spinner" class="hidden animate-spin-slow w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
                     </button>
                 </div>
@@ -87,8 +102,8 @@
             {{-- Processing state --}}
             <div id="processing-state" class="hidden mt-8 text-center">
                 <div class="w-12 h-12 rounded-full border-4 border-brand-200 border-t-brand-600 animate-spin-slow mx-auto mb-4"></div>
-                <p class="font-display font-bold text-slate-700">PDF wird unterschrieben&hellip;</p>
-                <p class="text-sm text-slate-400 mt-1">Bitte warten Sie einen Moment.</p>
+                <p class="font-display font-bold text-slate-700">{{ __('sign.processing_heading') }}</p>
+                <p class="text-sm text-slate-400 mt-1">{{ __('sign.processing_note') }}</p>
             </div>
 
             {{-- Download state --}}
@@ -96,18 +111,18 @@
                 <div class="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center mx-auto mb-4">
                     <svg class="w-8 h-8 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                 </div>
-                <p class="font-display font-bold text-slate-700">Fertig! Ihre unterschriebene PDF ist bereit zum Herunterladen.</p>
+                <p class="font-display font-bold text-slate-700">{{ __('sign.download_ready') }}</p>
                 <a id="download-link" href="#" class="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-display font-bold px-8 py-3.5 rounded-xl shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all text-sm mt-4">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                    Herunterladen
+                    {{ __('sign.download') }}
                 </a>
             </div>
 
             {{-- Error state --}}
             <div id="error-state" class="hidden mt-6">
                 <div class="bg-red-50 border border-red-100 rounded-xl p-4 text-center">
-                    <p class="text-sm text-red-600" id="error-message">Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.</p>
-                    <button onclick="window.signApp.reset()" class="text-sm text-red-500 underline mt-2">Erneut versuchen</button>
+                    <p class="text-sm text-red-600" id="error-message">{{ __('sign.error_generic') }}</p>
+                    <button onclick="window.signApp.reset()" class="text-sm text-red-500 underline mt-2">{{ __('sign.try_again') }}</button>
                 </div>
             </div>
 
@@ -123,31 +138,31 @@
 
         {{-- Modal content --}}
         <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6">
-            <h3 class="font-display font-bold text-xl text-slate-900 mb-4">Unterschrift zeichnen</h3>
+            <h3 class="font-display font-bold text-xl text-slate-900 mb-4">{{ __('sign.modal_heading') }}</h3>
 
             {{-- Signature canvas --}}
             <div class="bg-slate-50 rounded-xl border-2 border-dashed border-slate-200 p-1">
                 <canvas id="sig-pad-canvas" class="w-full rounded-lg" style="height: 200px; touch-action: none;"></canvas>
             </div>
 
-            <p class="text-xs text-slate-400 mt-2 text-center">Zeichnen Sie Ihre Unterschrift mit der Maus oder dem Finger</p>
+            <p class="text-xs text-slate-400 mt-2 text-center">{{ __('sign.modal_hint') }}</p>
 
             {{-- Modal buttons --}}
             <div class="flex items-center justify-between mt-5">
                 <button id="btn-sig-clear"
                         class="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 font-medium transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                    L&ouml;schen
+                    {{ __('sign.clear') }}
                 </button>
                 <div class="flex items-center gap-2">
                     <button id="btn-sig-cancel"
                             class="px-4 py-2 text-sm text-slate-500 hover:text-slate-700 font-medium transition-colors">
-                        Abbrechen
+                        {{ __('sign.cancel') }}
                     </button>
                     <button id="btn-sig-apply"
                             class="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-display font-bold px-5 py-2 rounded-lg shadow-sm text-sm transition-colors disabled:opacity-50"
                             disabled>
-                        &Uuml;bernehmen
+                        {{ __('sign.apply') }}
                     </button>
                 </div>
             </div>
@@ -165,10 +180,13 @@
 (function() {
     'use strict';
 
-    // ── PDF.js worker ──
+    var __t = {!! json_encode($signJsMessages, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!};
+    var __maxUploadMb = {{ $maxUploadMb }};
+
+    // PDF.js worker
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-    // ── DOM references ──
+    // DOM references
     const uploadZone      = document.getElementById('upload-zone');
     const fileInput        = document.getElementById('file-input');
     const signWorkspace    = document.getElementById('sign-workspace');
@@ -195,7 +213,7 @@
     const btnSigCancel     = document.getElementById('btn-sig-cancel');
     const btnSigApply      = document.getElementById('btn-sig-apply');
 
-    // ── State ──
+    // State
     let pdfFile = null;
     let pdfDoc = null;
     let pdfArrayBuffer = null;
@@ -208,7 +226,7 @@
     let placementMode = false;
     const SCALE = 1.5;
 
-    // ── Upload handling ──
+    // Upload handling
     uploadZone.addEventListener('click', () => fileInput.click());
     uploadZone.addEventListener('dragover', (e) => {
         e.preventDefault();
@@ -227,13 +245,13 @@
     });
 
     async function loadPdf(file) {
-        const maxSize = parseInt('{{ env("MAX_UPLOAD_SIZE_MB", 50) }}') * 1024 * 1024;
+        const maxSize = __maxUploadMb * 1024 * 1024;
         if (file.size > maxSize) {
-            showError('Die Datei ist zu gross. Maximale Dateigr\u00f6sse: {{ env("MAX_UPLOAD_SIZE_MB", 50) }} MB');
+            showError(__t.errFileTooLarge);
             return;
         }
         if (!file.name.toLowerCase().endsWith('.pdf')) {
-            showError('Bitte laden Sie eine PDF-Datei hoch.');
+            showError(__t.errNotPdf);
             return;
         }
 
@@ -253,7 +271,7 @@
         renderPage(currentPage);
     }
 
-    // ── PDF rendering ──
+    // PDF rendering
     async function renderPage(pageNum) {
         const page = await pdfDoc.getPage(pageNum);
         const viewport = page.getViewport({ scale: SCALE });
@@ -268,7 +286,9 @@
     }
 
     function updatePageNav() {
-        pageIndicator.textContent = 'Seite ' + currentPage + ' von ' + totalPages;
+        pageIndicator.textContent = __t.pageIndicator
+            .replace('__CURRENT__', currentPage)
+            .replace('__TOTAL__', totalPages);
         btnPrev.disabled = currentPage <= 1;
         btnNext.disabled = currentPage >= totalPages;
     }
@@ -280,7 +300,7 @@
         if (currentPage < totalPages) { currentPage++; updatePageNav(); renderPage(currentPage); }
     });
 
-    // ── Signature pad modal ──
+    // Signature pad modal
     btnCreateSig.addEventListener('click', openSigModal);
     btnSigCancel.addEventListener('click', closeSigModal);
     sigModalBackdrop.addEventListener('click', closeSigModal);
@@ -333,7 +353,7 @@
         pdfCanvas.style.cursor = 'crosshair';
     });
 
-    // ── Place signature on click ──
+    // Place signature on click
     pdfCanvas.addEventListener('click', (e) => {
         if (!placementMode || !signatureDataUrl) return;
 
@@ -371,7 +391,7 @@
         updateSubmitButton();
     });
 
-    // ── Render signature overlays ──
+    // Render signature overlays
     function renderSignatureOverlays() {
         sigOverlays.innerHTML = '';
 
@@ -454,7 +474,7 @@
         btnSubmit.disabled = placedSignatures.length === 0;
     }
 
-    // ── Reset ──
+    // Reset
     btnReset.addEventListener('click', () => {
         placedSignatures = [];
         signatureDataUrl = null;
@@ -465,7 +485,7 @@
         updateSubmitButton();
     });
 
-    // ── Submit ──
+    // Submit
     btnSubmit.addEventListener('click', async () => {
         if (placedSignatures.length === 0 || !signatureDataUrl) return;
 
@@ -479,7 +499,7 @@
         }
 
         btnSubmit.disabled = true;
-        btnSubmitText.textContent = 'PDF wird unterschrieben\u2026';
+        btnSubmitText.textContent = __t.submitting;
         btnSubmitSpinner.classList.remove('hidden');
 
         signWorkspace.classList.add('hidden');
@@ -518,7 +538,7 @@
 
             if (!response.ok) {
                 const err = await response.json();
-                throw new Error(err.message || 'Unterschreiben fehlgeschlagen.');
+                throw new Error(err.message || __t.errSignFailed);
             }
 
             const result = await response.json();
@@ -541,11 +561,11 @@
             document.getElementById('download-link').href = result.download_url;
 
         } catch (err) {
-            showError(err.message || 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.');
+            showError(err.message || __t.errGeneric);
         }
     });
 
-    // ── Helpers ──
+    // Helpers
     function arrayBufferToBase64(buffer) {
         let binary = '';
         const bytes = new Uint8Array(buffer);
@@ -561,11 +581,11 @@
         errorState.classList.remove('hidden');
         document.getElementById('error-message').textContent = message;
         btnSubmit.disabled = false;
-        btnSubmitText.textContent = 'Unterschreiben';
+        btnSubmitText.textContent = __t.submit;
         btnSubmitSpinner.classList.add('hidden');
     }
 
-    // ── Public API for reset from error state ──
+    // Public API for reset from error state
     window.signApp = {
         reset: function() {
             pdfFile = null;
@@ -588,7 +608,7 @@
             sigOverlays.innerHTML = '';
             pdfCanvas.style.cursor = 'default';
             btnSubmit.disabled = true;
-            btnSubmitText.textContent = 'Unterschreiben';
+            btnSubmitText.textContent = __t.submit;
             btnSubmitSpinner.classList.add('hidden');
         }
     };

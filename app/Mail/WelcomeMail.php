@@ -22,7 +22,7 @@ class WelcomeMail extends Mailable
 
     public function build(): self
     {
-        return $this->subject('Willkommen bei sofortpdf.com')
+        return $this->subject(__('email.welcome_subject'))
             ->view('emails.welcome');
     }
 }

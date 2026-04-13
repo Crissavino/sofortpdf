@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -28,11 +28,11 @@
                     <tr>
                         <td style="background-color: #f9fafb; padding: 24px 40px; border-top: 1px solid #e5e7eb;">
                             <p style="margin: 0 0 8px 0; font-size: 13px; color: #6b7280; text-align: center;">
-                                sofortpdf.com &mdash; Ihre Online-PDF-Tools
+                                {{ __('email.footer_tagline') }}
                             </p>
                             <p style="margin: 0; font-size: 12px; color: #9ca3af; text-align: center;">
-                                Sie erhalten diese E-Mail, weil Sie ein Konto bei sofortpdf.com haben.<br>
-                                <a href="{{ url('/') }}" style="color: #1a56db; text-decoration: underline;">sofortpdf.com besuchen</a>
+                                {{ __('email.footer_reason') }}<br>
+                                <a href="{{ url('/') }}" style="color: #1a56db; text-decoration: underline;">{{ __('email.footer_visit') }}</a>
                             </p>
                         </td>
                     </tr>

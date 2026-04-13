@@ -20,7 +20,7 @@ class PaymentFailedMail extends Mailable
 
     public function build(): self
     {
-        return $this->subject('Zahlung fehlgeschlagen — Aktion erforderlich')
+        return $this->subject(__('email.payment_failed_subject'))
             ->view('emails.payment-failed');
     }
 }

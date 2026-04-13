@@ -20,7 +20,7 @@ class SubscriptionActiveMail extends Mailable
 
     public function build(): self
     {
-        return $this->subject('Ihr Abonnement ist aktiv')
+        return $this->subject(__('email.subscription_active_subject'))
             ->view('emails.subscription-active');
     }
 }

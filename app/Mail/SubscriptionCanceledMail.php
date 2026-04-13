@@ -20,7 +20,7 @@ class SubscriptionCanceledMail extends Mailable
 
     public function build(): self
     {
-        return $this->subject('Ihr Abonnement wurde gekündigt')
+        return $this->subject(__('email.subscription_canceled_subject'))
             ->view('emails.subscription-canceled');
     }
 }

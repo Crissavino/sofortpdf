@@ -54,11 +54,13 @@
         </div>
 
         <div class="spm-body">
-            {{-- ═════ LEFT: FILE PREVIEW + SUMMARY ═════ --}}
+            {{-- ═════ LEFT: FILE PREVIEW + INCLUDED LIST ═════
+                 One consolidated card (preview + filename on top, included
+                 list below). Price/total lives exclusively in the right
+                 column to avoid duplicated figures. --}}
             <div class="spm-left">
                 <div class="spm-preview-card">
                     <div class="spm-preview" data-spm-preview>
-                        {{-- Placeholder shown until JS injects real preview --}}
                         <div class="spm-preview-placeholder">
                             <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -72,37 +74,28 @@
                         <p class="spm-preview-size" data-spm-filesize>&nbsp;</p>
                         <p class="spm-preview-count" data-spm-filecount hidden>&nbsp;</p>
                     </div>
-                </div>
 
-                <div class="spm-summary">
-                    <div class="spm-summary-row">
-                        <span class="spm-summary-label">{{ __('payment.summary_title') }}</span>
-                        <span class="spm-summary-value">{{ $trialPriceFormatted }}</span>
+                    <ul class="spm-included">
+                        <li><span class="spm-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>{{ __('payment.included_item_1') }}</li>
+                        <li><span class="spm-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>{{ __('payment.included_item_2') }}</li>
+                        <li><span class="spm-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>{{ __('payment.included_item_3', ['days' => $trialDays]) }}</li>
+                    </ul>
+
+                    <div class="spm-badges">
+                        <span class="spm-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>{{ __('payment.ssl_badge') }}</span>
+                        <span class="spm-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>{{ __('payment.guarantee_badge') }}</span>
                     </div>
-                    <div class="spm-summary-row spm-summary-total">
-                        <span>{{ __('payment.total_label') }}</span>
-                        <span class="spm-summary-price">{{ $trialPriceFormatted }}</span>
-                    </div>
-                    <p class="spm-summary-footnote">{{ __('payment.full_price_label', ['price' => $subscriptionPriceFormatted]) }}</p>
-                </div>
-
-                <ul class="spm-included">
-                    <li><span class="spm-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>{{ __('payment.included_item_1') }}</li>
-                    <li><span class="spm-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>{{ __('payment.included_item_2') }}</li>
-                    <li><span class="spm-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>{{ __('payment.included_item_3', ['days' => $trialDays]) }}</li>
-                </ul>
-
-                <div class="spm-badges">
-                    <span class="spm-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>{{ __('payment.ssl_badge') }}</span>
-                    <span class="spm-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>{{ __('payment.guarantee_badge') }}</span>
                 </div>
             </div>
 
             {{-- ═════ RIGHT: PAYMENT FORM ═════ --}}
             <div class="spm-right">
                 <div class="spm-price-header">
-                    <span class="spm-price-label">{{ __('payment.total_label') }}</span>
-                    <span class="spm-price-value">{{ $trialPriceFormatted }}</span>
+                    <div class="spm-price-header-row">
+                        <span class="spm-price-label">{{ __('payment.total_label') }}</span>
+                        <span class="spm-price-value">{{ $trialPriceFormatted }}</span>
+                    </div>
+                    <p class="spm-price-footnote">{{ __('payment.full_price_label', ['price' => $subscriptionPriceFormatted]) }}</p>
                 </div>
 
                 <form id="spm-form" class="spm-form" novalidate>
@@ -261,6 +254,9 @@
         border: 1px solid rgba(15, 23, 42, 0.06);
         border-radius: 14px;
         padding: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
     }
     .spm-preview {
         position: relative;
@@ -351,40 +347,16 @@
         background: #f1f5f9;
     }
 
-    .spm-summary {
-        background: #fff;
-        border: 1px solid rgba(15, 23, 42, 0.06);
-        border-radius: 14px;
-        padding: 14px;
-        margin-top: 12px;
-    }
-    .spm-summary-row {
-        display: flex; justify-content: space-between; align-items: center;
-        font-size: 13px; color: #475569;
-    }
-    .spm-summary-row + .spm-summary-row {
-        margin-top: 10px;
-        padding-top: 10px;
-        border-top: 1px solid #f1f5f9;
-    }
-    .spm-summary-total { font-size: 15px; font-weight: 700; color: #0f172a; }
-    .spm-summary-price { color: #059669; font-weight: 800; }
-    .spm-summary-footnote {
-        margin-top: 8px;
-        font-size: 11px; color: #94a3b8;
-        text-align: right;
-    }
-
     .spm-included {
-        list-style: none; padding: 12px 14px; margin: 12px 0 0;
+        list-style: none; padding: 10px 12px; margin: 0;
         background: #f8fafc;
-        border-radius: 14px;
+        border-radius: 10px;
     }
     .spm-included li {
         display: flex; align-items: center; gap: 8px;
         font-size: 12px; color: #334155;
     }
-    .spm-included li + li { margin-top: 8px; }
+    .spm-included li + li { margin-top: 7px; }
     .spm-check {
         flex: 0 0 16px; width: 16px; height: 16px;
         border-radius: 50%;
@@ -394,7 +366,7 @@
 
     .spm-badges {
         display: flex; gap: 14px; justify-content: center;
-        margin-top: 12px;
+        padding-top: 4px;
     }
     .spm-badge {
         display: inline-flex; align-items: center; gap: 4px;
@@ -407,8 +379,10 @@
         border: 1px solid rgba(16, 185, 129, 0.25);
         border-radius: 14px;
         padding: 12px 16px;
-        display: flex; justify-content: space-between; align-items: baseline;
         margin-bottom: 16px;
+    }
+    .spm-price-header-row {
+        display: flex; justify-content: space-between; align-items: baseline;
     }
     .spm-price-label {
         font-size: 12px; color: #047857; font-weight: 600;
@@ -416,6 +390,11 @@
     .spm-price-value {
         font-family: 'Cabinet Grotesk', system-ui, sans-serif;
         font-size: 24px; font-weight: 800; color: #059669;
+    }
+    .spm-price-footnote {
+        margin-top: 4px;
+        font-size: 11px; color: #047857;
+        opacity: 0.8;
     }
 
     .spm-form { display: flex; flex-direction: column; gap: 12px; }

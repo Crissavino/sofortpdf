@@ -20,7 +20,7 @@ class TrialStartedMail extends Mailable
 
     public function build(): self
     {
-        return $this->subject('Ihr Testzeitraum hat begonnen')
+        return $this->subject(__('email.trial_started_subject'))
             ->view('emails.trial-started');
     }
 }

@@ -20,7 +20,7 @@ class TrialEndingMail extends Mailable
 
     public function build(): self
     {
-        return $this->subject('Ihr Testzeitraum endet morgen')
+        return $this->subject(__('email.trial_ending_subject'))
             ->view('emails.trial-ending');
     }
 }
