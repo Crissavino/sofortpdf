@@ -1104,12 +1104,28 @@
     processBtn.addEventListener('click', async function() {
         if (selectedFiles.length === 0) return;
 
-        @if (! \App\Services\PaywallBypass::applies(request()))
-            @guest
-                window.location.href = '/checkout/start?return_to=' + encodeURIComponent(window.location.pathname);
-                return;
-            @endguest
-        @endif
+        // Paywall gate — open the payment modal instead of redirecting,
+        // so the already-selected files + drag order stay intact.
+        if (window.sofortpdfPaywall && window.sofortpdfPaywall.needsPayment()
+            && window.SofortpdfPaymentModal) {
+            var firstFile = filesInSubmitOrder[0] || selectedFiles[0];
+            window.SofortpdfPaymentModal.open({
+                file: firstFile,
+                filename: firstFile ? firstFile.name : '',
+                fileSize: firstFile ? firstFile.size : 0,
+                onSuccess: function() {
+                    // Retry the conversion. The flag `__sofortpdfTrialJustPaid`
+                    // is read below when the confirmation_url is built.
+                    processBtn.click();
+                },
+            });
+            // Unlock the button so the user can close the modal and try again.
+            processBtn.disabled = false;
+            btnText.textContent = '{{ $actionLabel }}';
+            btnSpinner.classList.add('hidden');
+            btnArrow.classList.remove('hidden');
+            return;
+        }
 
         processBtn.disabled = true;
         btnText.textContent = __t.processing;
@@ -1177,7 +1193,15 @@
             // the download itself and offer a re-download button + a link
             // to the user's account.
             if (result.confirmation_url) {
-                window.location.href = result.confirmation_url;
+                var confUrl = result.confirmation_url;
+                // First-payment marker (base64 of "paymentSuccess"). Appended
+                // only when the user just completed the trial payment in
+                // the payment modal.
+                if (window.__sofortpdfTrialJustPaid) {
+                    confUrl += (confUrl.indexOf('?') >= 0 ? '&' : '?') + 'cGF5bWVudFN1Y2Nlc3M=';
+                    try { delete window.__sofortpdfTrialJustPaid; } catch (e) { window.__sofortpdfTrialJustPaid = false; }
+                }
+                window.location.href = confUrl;
                 return;
             }
 

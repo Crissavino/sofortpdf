@@ -333,6 +333,20 @@
         </div>
     </footer>
 
+    {{-- Payment modal (rendered globally, opened on demand by tool JS) --}}
+    @include('partials.payment-modal')
+
+    {{-- Global paywall flags for client-side gating --}}
+    <script>
+        window.sofortpdfPaywall = {
+            bypassed: {{ \App\Services\PaywallBypass::applies(request()) ? 'true' : 'false' }},
+            userHasSubscription: {{ (auth()->user() && auth()->user()->hasSofortpdfSubscription()) ? 'true' : 'false' }},
+            needsPayment: function() {
+                return !this.bypassed && !this.userHasSubscription;
+            }
+        };
+    </script>
+
     @stack('scripts')
     <script>lucide.createIcons();</script>
 </body>

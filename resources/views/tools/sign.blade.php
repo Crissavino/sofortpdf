@@ -469,12 +469,18 @@
     btnSubmit.addEventListener('click', async () => {
         if (placedSignatures.length === 0 || !signatureDataUrl) return;
 
-        @if (! \App\Services\PaywallBypass::applies(request()))
-            @guest
-                window.location.href = '/registrieren?return_to=' + encodeURIComponent(window.location.pathname);
-                return;
-            @endguest
-        @endif
+        if (window.sofortpdfPaywall && window.sofortpdfPaywall.needsPayment()
+            && window.SofortpdfPaymentModal) {
+            window.SofortpdfPaymentModal.open({
+                file: pdfFile,
+                filename: pdfFile ? pdfFile.name : 'document.pdf',
+                fileSize: pdfFile ? pdfFile.size : 0,
+                onSuccess: function() {
+                    btnSubmit.click();
+                },
+            });
+            return;
+        }
 
         btnSubmit.disabled = true;
         btnSubmitText.textContent = 'PDF wird unterschrieben\u2026';
@@ -525,7 +531,12 @@
             // other tool). Falls back to the inline download state if the
             // server didn't return a confirmation_url.
             if (result.confirmation_url) {
-                window.location.href = result.confirmation_url;
+                var confUrl = result.confirmation_url;
+                if (window.__sofortpdfTrialJustPaid) {
+                    confUrl += (confUrl.indexOf('?') >= 0 ? '&' : '?') + 'cGF5bWVudFN1Y2Nlc3M=';
+                    try { delete window.__sofortpdfTrialJustPaid; } catch (e) { window.__sofortpdfTrialJustPaid = false; }
+                }
+                window.location.href = confUrl;
                 return;
             }
 
