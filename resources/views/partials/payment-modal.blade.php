@@ -73,6 +73,14 @@
             </div>
         </div>
 
+        {{-- Mobile-only toggle: preview is hidden by default on small screens
+             so the payment form is immediately visible. Expands on tap. --}}
+        <button type="button" class="spm-preview-toggle" data-spm-preview-toggle aria-expanded="false">
+            <svg class="spm-toggle-chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            <span data-spm-toggle-label>{{ __('payment.show_preview') }}</span>
+            <span class="spm-toggle-filename" data-spm-toggle-filename></span>
+        </button>
+
         <div class="spm-body">
             {{-- ═════ LEFT: FILE PREVIEW + INCLUDED LIST ═════
                  One consolidated card (preview + filename on top, included
@@ -297,6 +305,46 @@
     }
     @media (min-width: 720px) {
         .spm-body { grid-template-columns: 5fr 7fr; gap: 28px; }
+    }
+
+    /* Mobile preview toggle (hidden on desktop) */
+    .spm-preview-toggle {
+        display: none;
+        width: calc(100% - 32px);
+        margin: 0 16px;
+        align-items: center; gap: 8px;
+        padding: 10px 14px;
+        background: #f1f5f9;
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        border-radius: 10px;
+        color: #334155;
+        font-size: 13px; font-weight: 600;
+        text-align: left;
+        cursor: pointer;
+        transition: background-color 160ms ease-out;
+    }
+    .spm-preview-toggle:hover { background: #e2e8f0; }
+    .spm-toggle-chev {
+        flex-shrink: 0;
+        transition: transform 200ms var(--ease-out-expo);
+    }
+    .spm-preview-toggle[aria-expanded="true"] .spm-toggle-chev {
+        transform: rotate(180deg);
+    }
+    .spm-toggle-filename {
+        margin-left: auto;
+        font-size: 11px; font-weight: 500;
+        color: #64748b;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 40%;
+    }
+    @media (max-width: 719px) {
+        .spm-preview-toggle { display: inline-flex; }
+        .spm-body { padding-top: 12px; }
+        .spm-left { display: none; }
+        .spm-left.is-expanded { display: block; }
     }
 
     /* ── LEFT COLUMN ── */
@@ -607,11 +655,19 @@
     var __m = {!! $__spmJsMessages !!};
     var __config = {!! $__spmJsConfig !!};
     var __filesCountLabel = {!! $__spmFilesCountJson !!};
+    var __toggleLabels = {!! json_encode([
+        'show' => __('payment.show_preview'),
+        'hide' => __('payment.hide_preview'),
+    ], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!};
 
     // --- DOM refs ----------------------------------------------------------
     var previewWrap    = root.querySelector('[data-spm-preview]');
     var previewExt     = root.querySelector('[data-spm-preview-ext]');
     var previewRibbon  = root.querySelector('[data-spm-preview-ribbon]');
+    var leftCol        = root.querySelector('.spm-left');
+    var toggleBtn      = root.querySelector('[data-spm-preview-toggle]');
+    var toggleLabel    = root.querySelector('[data-spm-toggle-label]');
+    var toggleFilename = root.querySelector('[data-spm-toggle-filename]');
     var filenameEl     = root.querySelector('[data-spm-filename]');
     var filesizeEl     = root.querySelector('[data-spm-filesize]');
     var filecountEl    = root.querySelector('[data-spm-filecount]');
@@ -1013,6 +1069,12 @@
         if (nameInput)  nameInput.value  = options.defaultName  || '';
         if (emailInput) emailInput.value = options.defaultEmail || '';
 
+        // Collapse the mobile preview by default — user taps the toggle to
+        // reveal it. Desktop ignores this class (CSS always shows .spm-left).
+        if (leftCol) leftCol.classList.remove('is-expanded');
+        if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'false');
+        if (toggleLabel) toggleLabel.textContent = __toggleLabels.show;
+
         // Label: single file → name + size. Multi → "First-file.pdf + N more".
         if (files.length === 0) {
             filenameEl.textContent = options.filename || '';
@@ -1029,6 +1091,7 @@
             filesizeEl.textContent = formatSize(files[0].size);
             filecountEl.hidden = true;
             if (previewRibbon) previewRibbon.textContent = (extensionFrom(files[0].name) || 'file').toUpperCase();
+            if (toggleFilename) toggleFilename.textContent = files[0].name;
             renderPreview(files).catch(function() { /* ignore */ });
         } else {
             var totalSize = files.reduce(function(sum, f) { return sum + (f.size || 0); }, 0);
@@ -1037,6 +1100,7 @@
             filecountEl.textContent = (__filesCountLabel || '{n} files').replace('{n}', files.length);
             filecountEl.hidden = false;
             if (previewRibbon) previewRibbon.textContent = files.length + '×';
+            if (toggleFilename) toggleFilename.textContent = files[0].name + ' +' + (files.length - 1);
             renderPreview(files).catch(function() { /* ignore */ });
         }
 
@@ -1062,6 +1126,18 @@
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape' && root.classList.contains('spm-open')) close();
     });
+
+    // Mobile preview toggle — collapses the left column so the payment form
+    // is immediately visible. Hidden on desktop via CSS.
+    if (toggleBtn && leftCol) {
+        toggleBtn.addEventListener('click', function() {
+            var expanded = leftCol.classList.toggle('is-expanded');
+            toggleBtn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+            if (toggleLabel) {
+                toggleLabel.textContent = expanded ? __toggleLabels.hide : __toggleLabels.show;
+            }
+        });
+    }
 
     // Public API
     window.SofortpdfPaymentModal = {
