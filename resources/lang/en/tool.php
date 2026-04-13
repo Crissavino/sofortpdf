@@ -41,6 +41,13 @@ return [
     'faq_mobile_q' => 'Does it work on mobile?',
     'faq_mobile_a' => 'Yes, sofortpdf.com works on all devices — desktop, tablet, and smartphone.',
 
+    // Tool-specific params (rendered above the action button)
+    'watermark_text_label' => 'Watermark text',
+    'watermark_text_placeholder' => 'e.g. CONFIDENTIAL',
+    'watermark_text_hint' => 'This text will be printed as a watermark on every page.',
+    'param_required_suffix' => '*',
+    'param_required_error' => 'Please fill in all required fields.',
+
     // Related
     'related_heading' => 'More PDF Tools',
 

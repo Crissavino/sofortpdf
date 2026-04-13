@@ -515,6 +515,52 @@
                 {{-- Add more files --}}
                 <div id="add-more-area" class="hidden mt-3"></div>
 
+                {{-- Tool-specific params (text / number / radio / select inputs
+                     driven by config('tools.{tool}.params')). Rendered only if
+                     the tool declares any. --}}
+                @if (! empty($toolConfig['params'] ?? []))
+                    <div id="tool-params" class="mt-6 space-y-4">
+                        @foreach ($toolConfig['params'] as $param)
+                            @php
+                                $inputId = 'tool-param-' . $param['key'];
+                                $label = $param['label_key'] ?? null ? __($param['label_key']) : ($param['label'] ?? $param['key']);
+                                $placeholder = $param['placeholder_key'] ?? null ? __($param['placeholder_key']) : ($param['placeholder'] ?? '');
+                                $hint = $param['hint_key'] ?? null ? __($param['hint_key']) : ($param['hint'] ?? '');
+                                $required = ! empty($param['required']);
+                                $default = $param['default'] ?? '';
+                            @endphp
+                            <div class="bg-white rounded-xl border border-slate-100 p-4">
+                                <label for="{{ $inputId }}" class="block text-sm font-medium text-slate-700 mb-1.5">
+                                    {{ $label }}@if($required)<span class="text-red-500 ml-0.5">{{ __('tool.param_required_suffix') }}</span>@endif
+                                </label>
+                                @switch($param['type'] ?? 'text')
+                                    @case('textarea')
+                                        <textarea id="{{ $inputId }}"
+                                                  data-tool-param="{{ $param['key'] }}"
+                                                  @if(!empty($param['maxlength'])) maxlength="{{ $param['maxlength'] }}" @endif
+                                                  @if($required) required @endif
+                                                  placeholder="{{ $placeholder }}"
+                                                  rows="3"
+                                                  class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-600/20 focus:border-brand-600 transition-colors">{{ $default }}</textarea>
+                                        @break
+                                    @default
+                                        <input type="{{ $param['type'] ?? 'text' }}"
+                                               id="{{ $inputId }}"
+                                               data-tool-param="{{ $param['key'] }}"
+                                               @if(!empty($param['maxlength'])) maxlength="{{ $param['maxlength'] }}" @endif
+                                               @if($required) required @endif
+                                               placeholder="{{ $placeholder }}"
+                                               value="{{ $default }}"
+                                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-600/20 focus:border-brand-600 transition-colors">
+                                @endswitch
+                                @if($hint)
+                                    <p class="mt-1.5 text-xs text-slate-400">{{ $hint }}</p>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+
                 {{-- Action button --}}
                 <div id="action-area" class="mt-8">
                     <button id="process-btn"
@@ -772,6 +818,7 @@
         'uploadFailed'     => __('tool.js_upload_failed'),
         'conversionFailed' => __('tool.js_conversion_failed'),
         'genericError'     => __('tool.error_generic'),
+        'paramRequired'    => __('tool.param_required_error'),
     ];
 @endphp
 @push('scripts')
@@ -1160,6 +1207,29 @@
             }
         }
 
+        // Collect tool-specific params (rendered from config.tools.<key>.params)
+        var toolParams = {};
+        var missingRequired = false;
+        document.querySelectorAll('[data-tool-param]').forEach(function(input) {
+            var k = input.getAttribute('data-tool-param');
+            var v = (input.value || '').trim();
+            if (input.required && !v) {
+                missingRequired = true;
+                input.classList.add('border-red-400', 'ring-2', 'ring-red-100');
+            } else {
+                input.classList.remove('border-red-400', 'ring-2', 'ring-red-100');
+            }
+            if (v) toolParams[k] = v;
+        });
+        if (missingRequired) {
+            showError(__t.paramRequired);
+            processBtn.disabled = false;
+            btnText.textContent = '{{ $actionLabel }}';
+            btnSpinner.classList.add('hidden');
+            btnArrow.classList.remove('hidden');
+            return;
+        }
+
         var formData = new FormData();
         filesInSubmitOrder.forEach(function(f) { formData.append('files[]', f); });
         formData.append('tool', toolKey);
@@ -1193,10 +1263,10 @@
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                 },
-                body: JSON.stringify({
+                body: JSON.stringify(Object.assign({
                     tool: toolKey,
                     file_ids: uploadData.file_ids,
-                }),
+                }, toolParams)),
             });
 
             if (!convertRes.ok) {

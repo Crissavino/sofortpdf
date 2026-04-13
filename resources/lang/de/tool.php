@@ -41,6 +41,13 @@ return [
     'faq_mobile_q' => 'Funktioniert es auf dem Handy?',
     'faq_mobile_a' => 'Ja, sofortpdf.com funktioniert auf allen Geräten — Desktop, Tablet und Smartphone.',
 
+    // Tool-specific params (rendered above the action button)
+    'watermark_text_label' => 'Wasserzeichen-Text',
+    'watermark_text_placeholder' => 'z. B. VERTRAULICH',
+    'watermark_text_hint' => 'Dieser Text wird als Wasserzeichen auf jede Seite gedruckt.',
+    'param_required_suffix' => '*',
+    'param_required_error' => 'Bitte füllen Sie alle Pflichtfelder aus.',
+
     // Related
     'related_heading' => 'Weitere PDF-Tools',
 

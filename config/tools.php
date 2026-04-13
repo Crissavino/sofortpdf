@@ -211,6 +211,18 @@ return [
         'multiple' => false,
         'max_files' => 1,
         'action_label' => 'Wasserzeichen hinzufügen',
+        'params' => [
+            [
+                'key' => 'text',
+                'type' => 'text',
+                'label_key' => 'tool.watermark_text_label',
+                'placeholder_key' => 'tool.watermark_text_placeholder',
+                'hint_key' => 'tool.watermark_text_hint',
+                'required' => true,
+                'maxlength' => 60,
+                'default' => 'CONFIDENTIAL',
+            ],
+        ],
     ],
     'page-numbers' => [
         'enabled' => env('TOOL_PAGE_NUMBERS_ENABLED', false),
