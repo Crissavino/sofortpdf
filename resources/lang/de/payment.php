@@ -1,6 +1,10 @@
 <?php
 
 return [
+    'step_1' => 'Formular ausfüllen',
+    'step_2' => 'Sichere Zahlung',
+    'step_3' => 'Dokument herunterladen',
+
     'heading' => 'Dokument verarbeiten',
     'subheading' => 'Schalten Sie alle PDF-Tools für :days Tage frei — nur :price',
 

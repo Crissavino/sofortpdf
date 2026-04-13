@@ -38,6 +38,11 @@
         'stripeKey' => (string) config('services.stripe.key', ''),
     ], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
     $__spmFilesCountJson = json_encode(__('payment.files_count'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
+
+    // Discount % for the strike-through: (full - trial) / full
+    $discountPct = ($subscriptionPrice > 0 && $subscriptionPrice > $trialPrice)
+        ? (int) round((($subscriptionPrice - $trialPrice) / $subscriptionPrice) * 100)
+        : 0;
 @endphp
 
 <div id="sofortpdf-payment-modal" class="spm-root" aria-hidden="true" role="dialog" aria-modal="true">
@@ -48,9 +53,24 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
         </button>
 
-        <div class="spm-header">
-            <h2 class="spm-title">{{ __('payment.heading') }}</h2>
-            <p class="spm-sub">{{ __('payment.subheading', ['days' => $trialDays, 'price' => $trialPriceFormatted]) }}</p>
+        {{-- Step progress bar (Form → Payment → Download) --}}
+        <div class="spm-steps">
+            <div class="spm-step is-current">
+                <span class="spm-step-dot">
+                    <svg class="spm-step-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </span>
+                <span class="spm-step-label">{{ __('payment.step_1') }}</span>
+            </div>
+            <span class="spm-step-bar"></span>
+            <div class="spm-step">
+                <span class="spm-step-dot">2</span>
+                <span class="spm-step-label">{{ __('payment.step_2') }}</span>
+            </div>
+            <span class="spm-step-bar"></span>
+            <div class="spm-step">
+                <span class="spm-step-dot">3</span>
+                <span class="spm-step-label">{{ __('payment.step_3') }}</span>
+            </div>
         </div>
 
         <div class="spm-body">
@@ -61,6 +81,8 @@
             <div class="spm-left">
                 <div class="spm-preview-card">
                     <div class="spm-preview" data-spm-preview>
+                        {{-- Corner ribbon badge — JS updates data-ext --}}
+                        <span class="spm-preview-ribbon" data-spm-preview-ribbon>PDF</span>
                         <div class="spm-preview-placeholder">
                             <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -91,11 +113,19 @@
             {{-- ═════ RIGHT: PAYMENT FORM ═════ --}}
             <div class="spm-right">
                 <div class="spm-price-header">
+                    @if ($discountPct > 0)
+                        <span class="spm-price-discount">-{{ $discountPct }}%</span>
+                    @endif
                     <div class="spm-price-header-row">
                         <span class="spm-price-label">{{ __('payment.total_label') }}</span>
-                        <span class="spm-price-value">{{ $trialPriceFormatted }}</span>
+                        <span class="spm-price-values">
+                            @if ($discountPct > 0)
+                                <span class="spm-price-strike">{{ $subscriptionPriceFormatted }}</span>
+                            @endif
+                            <span class="spm-price-value">{{ $trialPriceFormatted }}</span>
+                        </span>
                     </div>
-                    <p class="spm-price-footnote">{{ __('payment.full_price_label', ['price' => $subscriptionPriceFormatted]) }}</p>
+                    <p class="spm-price-footnote">{{ __('payment.full_price_label', ['price' => $subscriptionPriceFormatted]) }} &middot; {{ __('payment.promo_label') }}</p>
                 </div>
 
                 <form id="spm-form" class="spm-form" novalidate>
@@ -224,17 +254,38 @@
     }
     .spm-close:hover { background: #e2e8f0; }
 
-    .spm-header {
-        padding: 24px 28px 8px;
-        text-align: center;
+    /* Step progress */
+    .spm-steps {
+        display: flex; align-items: center; justify-content: center;
+        gap: 10px;
+        padding: 22px 28px 18px;
     }
-    .spm-title {
-        font-family: 'Cabinet Grotesk', system-ui, sans-serif;
-        font-size: 20px; font-weight: 800; color: #0f172a; letter-spacing: -0.01em;
+    .spm-step {
+        display: flex; align-items: center; gap: 8px;
+        color: #94a3b8; font-size: 12px; font-weight: 500;
     }
-    .spm-sub {
-        margin-top: 4px;
-        font-size: 13px; color: #64748b;
+    .spm-step.is-current { color: #0f172a; font-weight: 700; }
+    .spm-step-dot {
+        width: 26px; height: 26px;
+        border-radius: 50%;
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: 11px; font-weight: 700;
+        background: #f1f5f9; color: #94a3b8;
+        border: 1.5px solid transparent;
+    }
+    .spm-step.is-current .spm-step-dot {
+        background: #dcfce7; color: #047857;
+        border-color: #86efac;
+    }
+    .spm-step-icon { color: currentColor; }
+    .spm-step-bar {
+        width: 28px; height: 1.5px;
+        background: linear-gradient(to right, #cbd5e1 50%, transparent 50%);
+        background-size: 8px 100%;
+    }
+    @media (max-width: 640px) {
+        .spm-step-label { display: none; }
+        .spm-step-bar { width: 18px; }
     }
 
     .spm-body {
@@ -265,6 +316,36 @@
         border-radius: 10px;
         overflow: hidden;
         display: flex; align-items: center; justify-content: center;
+    }
+    .spm-preview-ribbon {
+        position: absolute;
+        top: 8px; right: 8px;
+        padding: 3px 8px;
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(4px);
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        border-radius: 6px;
+        font-size: 9px; font-weight: 800;
+        letter-spacing: 0.08em;
+        color: #334155;
+        text-transform: uppercase;
+        z-index: 2;
+    }
+    .spm-preview .spm-docx-preview {
+        width: 100%; height: 100%;
+        overflow: hidden;
+        background: #fff;
+    }
+    /* docx-preview outputs pages; shrink to fit */
+    .spm-preview .spm-docx-preview .docx-wrapper {
+        padding: 0; background: transparent;
+        overflow: hidden;
+    }
+    .spm-preview .spm-docx-preview .docx {
+        transform-origin: top left;
+        box-shadow: none !important;
+        margin: 0 !important;
+        background: #fff;
     }
     .spm-preview img,
     .spm-preview canvas {
@@ -375,11 +456,13 @@
 
     /* ── RIGHT COLUMN ── */
     .spm-price-header {
+        position: relative;
         background: linear-gradient(135deg, #ecfdf5 0%, #dcfce7 100%);
         border: 1px solid rgba(16, 185, 129, 0.25);
         border-radius: 14px;
         padding: 12px 16px;
         margin-bottom: 16px;
+        overflow: hidden;
     }
     .spm-price-header-row {
         display: flex; justify-content: space-between; align-items: baseline;
@@ -387,14 +470,32 @@
     .spm-price-label {
         font-size: 12px; color: #047857; font-weight: 600;
     }
+    .spm-price-values {
+        display: inline-flex; align-items: baseline; gap: 10px;
+    }
+    .spm-price-strike {
+        font-size: 13px; color: #64748b; text-decoration: line-through;
+        font-weight: 500;
+    }
     .spm-price-value {
         font-family: 'Cabinet Grotesk', system-ui, sans-serif;
         font-size: 24px; font-weight: 800; color: #059669;
     }
+    .spm-price-discount {
+        position: absolute;
+        top: 0; right: 0;
+        background: #dc2626;
+        color: #fff;
+        font-size: 10px; font-weight: 800;
+        letter-spacing: 0.04em;
+        padding: 3px 10px;
+        border-bottom-left-radius: 10px;
+        line-height: 1.3;
+    }
     .spm-price-footnote {
-        margin-top: 4px;
+        margin-top: 6px;
         font-size: 11px; color: #047857;
-        opacity: 0.8;
+        opacity: 0.85;
     }
 
     .spm-form { display: flex; flex-direction: column; gap: 12px; }
@@ -510,6 +611,7 @@
     // --- DOM refs ----------------------------------------------------------
     var previewWrap    = root.querySelector('[data-spm-preview]');
     var previewExt     = root.querySelector('[data-spm-preview-ext]');
+    var previewRibbon  = root.querySelector('[data-spm-preview-ribbon]');
     var filenameEl     = root.querySelector('[data-spm-filename]');
     var filesizeEl     = root.querySelector('[data-spm-filesize]');
     var filecountEl    = root.querySelector('[data-spm-filecount]');
@@ -563,10 +665,16 @@
 
     // --- Preview builders --------------------------------------------------
     async function renderPreview(files) {
+        // Keep the ribbon across renders — buildSinglePreviewHtml replaces
+        // the inner content only.
+        var ribbonHtml = previewRibbon ? previewRibbon.outerHTML : '';
+
         // Single-file mode
         if (files.length === 1) {
             previewWrap.classList.remove('spm-preview-stack');
-            previewWrap.innerHTML = await buildSinglePreviewHtml(files[0]);
+            previewWrap.innerHTML = ribbonHtml + await buildSinglePreviewHtml(files[0]);
+            // Re-bind the ref since we just replaced the DOM node.
+            previewRibbon = previewWrap.querySelector('[data-spm-preview-ribbon]');
             return;
         }
 
@@ -576,7 +684,7 @@
         var visible = files.slice(0, maxVisible);
         var remaining = files.length - visible.length;
 
-        previewWrap.innerHTML = visible.map(function(f, i) {
+        previewWrap.innerHTML = ribbonHtml + visible.map(function(f, i) {
             return '<div class="spm-stack-item" data-i="' + i + '">' +
                         '<span class="spm-stack-badge">' + (i + 1) + '</span>' +
                         '<div class="spm-stack-body">' +
@@ -586,6 +694,9 @@
         }).join('') + (remaining > 0
             ? '<div class="spm-stack-item spm-stack-more">+' + remaining + '</div>'
             : '');
+
+        // Re-bind ribbon ref after innerHTML replacement
+        previewRibbon = previewWrap.querySelector('[data-spm-preview-ribbon]');
 
         // Replace placeholders with real previews asynchronously
         visible.forEach(function(f, i) {
@@ -611,6 +722,11 @@
                     return await renderPdfPage1(file);
                 }
             } catch (e) { /* fall through to placeholder */ }
+        }
+        if (ext === 'docx') {
+            try {
+                return await renderDocxPreview(file);
+            } catch (e) { /* fall through */ }
         }
         return placeholderHtml(ext);
     }
@@ -670,6 +786,64 @@
             document.head.appendChild(s);
         });
         return __pdfJsLoading;
+    }
+
+    // Lazy-load docx-preview and render the first page of a .docx file
+    // into a detached container, returning its outerHTML string (same
+    // contract as renderPdfPage1).
+    var __docxLoading = null;
+    function ensureDocxPreview() {
+        if (window.docx && window.docx.renderAsync) return Promise.resolve();
+        if (__docxLoading) return __docxLoading;
+        __docxLoading = new Promise(function(resolve, reject) {
+            var deps = [
+                'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js',
+                'https://cdn.jsdelivr.net/npm/docx-preview@0.3.3/dist/docx-preview.min.js',
+            ];
+            var remaining = deps.length;
+            deps.forEach(function(src) {
+                var s = document.createElement('script');
+                s.src = src;
+                s.onload = function() { if (--remaining === 0) resolve(); };
+                s.onerror = function() { __docxLoading = null; reject(new Error('docx-preview failed to load')); };
+                document.head.appendChild(s);
+            });
+        });
+        return __docxLoading;
+    }
+    async function renderDocxPreview(file) {
+        await ensureDocxPreview();
+        if (!window.docx || !window.docx.renderAsync) throw new Error('docx not ready');
+        // Render into a detached host, then inline the result as the preview.
+        var host = document.createElement('div');
+        host.className = 'spm-docx-preview';
+        await window.docx.renderAsync(file, host, null, {
+            className: 'docx',
+            inWrapper: true,
+            ignoreWidth: false,
+            ignoreHeight: false,
+            ignoreFonts: true,
+            breakPages: true,
+            ignoreLastRenderedPageBreak: true,
+            experimental: false,
+            useBase64URL: false,
+        });
+        // Keep only the first page — docx-preview renders all pages.
+        var pages = host.querySelectorAll('.docx > section, .docx > .docx_page');
+        if (pages.length > 1) {
+            for (var i = 1; i < pages.length; i++) pages[i].remove();
+        }
+        // Auto-scale so the page fits the tile width.
+        requestAnimationFrame(function() {
+            var docEl = host.querySelector('.docx');
+            if (docEl && docEl.offsetWidth > 0 && previewWrap.offsetWidth > 0) {
+                var scale = (previewWrap.clientWidth - 8) / docEl.offsetWidth;
+                if (scale > 0 && scale < 1) {
+                    docEl.style.transform = 'scale(' + scale.toFixed(3) + ')';
+                }
+            }
+        });
+        return host.outerHTML;
     }
 
     // Transliterate non-Latin characters to Latin for Stripe billing name.
@@ -850,6 +1024,7 @@
             filenameEl.textContent = files[0].name;
             filesizeEl.textContent = formatSize(files[0].size);
             filecountEl.hidden = true;
+            if (previewRibbon) previewRibbon.textContent = (extensionFrom(files[0].name) || 'file').toUpperCase();
             renderPreview(files).catch(function() { /* ignore */ });
         } else {
             var totalSize = files.reduce(function(sum, f) { return sum + (f.size || 0); }, 0);
@@ -857,6 +1032,7 @@
             filesizeEl.textContent = formatSize(totalSize);
             filecountEl.textContent = (__filesCountLabel || '{n} files').replace('{n}', files.length);
             filecountEl.hidden = false;
+            if (previewRibbon) previewRibbon.textContent = files.length + '×';
             renderPreview(files).catch(function() { /* ignore */ });
         }
 

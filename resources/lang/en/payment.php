@@ -1,6 +1,10 @@
 <?php
 
 return [
+    'step_1' => 'Fill form',
+    'step_2' => 'Secure payment',
+    'step_3' => 'Download document',
+
     'heading' => 'Process document',
     'subheading' => 'Unlock all PDF tools for :days days — just :price',
 
