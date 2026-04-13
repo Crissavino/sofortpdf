@@ -540,8 +540,8 @@
     var submitText     = root.querySelector('#spm-submit-text');
     var submitLock     = root.querySelector('#spm-submit-lock');
     var submitSpinner  = root.querySelector('#spm-submit-spinner');
-    var nameInput      = root.querySelector('#spm-name');        // @guest only
-    var emailInput     = root.querySelector('#spm-email');       // @guest only
+    var nameInput      = root.querySelector('#spm-name');        // guest-only field
+    var emailInput     = root.querySelector('#spm-email');       // guest-only field
     var cardholder     = root.querySelector('#spm-cardholder');
     var tcCheckbox     = root.querySelector('#spm-tc');
 
