@@ -1,7 +1,6 @@
 @extends('layouts.app')
 
 @php
-    $isEn = app()->getLocale() === 'en';
     $colors = [
         'merge' => ['bg' => 'bg-blue-50', 'bg-light' => 'bg-blue-50/30', 'border' => 'border-blue-200', 'active' => 'border-blue-400', 'icon-bg' => 'bg-blue-100', 'icon' => 'text-blue-600', 'btn' => 'bg-blue-600 hover:bg-blue-700', 'ring' => 'ring-blue-200', 'gradient-from' => 'from-blue-50/40', 'dot' => 'bg-blue-500', 'step-bg' => 'bg-blue-50', 'step-icon' => 'text-blue-500', 'step-label' => 'text-blue-600'],
         'compress' => ['bg' => 'bg-amber-50', 'bg-light' => 'bg-amber-50/30', 'border' => 'border-amber-200', 'active' => 'border-amber-400', 'icon-bg' => 'bg-amber-100', 'icon' => 'text-amber-600', 'btn' => 'bg-amber-600 hover:bg-amber-700', 'ring' => 'ring-amber-200', 'gradient-from' => 'from-amber-50/40', 'dot' => 'bg-amber-500', 'step-bg' => 'bg-amber-50', 'step-icon' => 'text-amber-500', 'step-label' => 'text-amber-600'],
@@ -272,11 +271,11 @@
                 </div>
 
                 <p class="font-display font-bold text-lg text-slate-700 mb-2">
-                    {{ $isEn ? 'Drop file here or click to select' : 'Datei hier ablegen oder klicken zum Ausw&auml;hlen' }}
+                    {{ __('tool.drop_or_click') }}
                 </p>
                 <p class="text-sm text-slate-400">
-                    {{ $isEn ? 'Formats:' : 'Formate:' }} {{ str_replace('.', '', str_replace(',', ', ', $accept)) }} &middot; Max. {{ env('MAX_UPLOAD_SIZE_MB', 50) }} MB
-                    @if($multiple) &middot; {{ $isEn ? 'Up to ' . $maxFiles . ' files' : 'Bis zu ' . $maxFiles . ' Dateien' }} @endif
+                    {{ __('tool.formats_label') }} {{ str_replace('.', '', str_replace(',', ', ', $accept)) }} &middot; Max. {{ env('MAX_UPLOAD_SIZE_MB', 50) }} MB
+                    @if($multiple) &middot; {{ __('tool.up_to_files', ['n' => $maxFiles]) }} @endif
                 </p>
 
                 <input type="file" id="file-input" class="hidden" accept="{{ $accept }}" {{ $multiple ? 'multiple' : '' }}>
@@ -315,8 +314,8 @@
                             <div class="proc-dot"></div>
                             <div class="proc-dot"></div>
                         </div>
-                        <p class="proc-text font-display font-bold text-xl text-slate-700">{{ $isEn ? 'Processing&hellip;' : 'Wird verarbeitet&hellip;' }}</p>
-                        <p class="text-sm text-slate-400 mt-2">{{ $isEn ? 'Please wait a moment.' : 'Bitte warten Sie einen Moment.' }}</p>
+                        <p class="proc-text font-display font-bold text-xl text-slate-700">{{ __('tool.processing') }}</p>
+                        <p class="text-sm text-slate-400 mt-2">{{ __('tool.please_wait') }}</p>
                     </div>
                 </div>
             </div>
@@ -329,18 +328,18 @@
                         <div class="check-icon-enter w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center mx-auto mb-5" id="check-icon">
                             <i data-lucide="check" class="w-8 h-8 text-emerald-500"></i>
                         </div>
-                        <p class="font-display font-extrabold text-2xl text-slate-800 mb-2">{{ $isEn ? 'Done!' : 'Fertig!' }}</p>
-                        <p class="text-slate-500 mb-6">{{ $isEn ? 'Your file is ready for download.' : 'Ihre Datei ist bereit zum Herunterladen.' }}</p>
+                        <p class="font-display font-extrabold text-2xl text-slate-800 mb-2">{{ __('tool.done') }}</p>
+                        <p class="text-slate-500 mb-6">{{ __('tool.ready_for_download') }}</p>
                         <a id="download-link" href="#"
                            class="btn-download inline-flex items-center justify-center gap-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-display font-bold px-10 py-4 rounded-2xl shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 text-base"
                            style="transition: transform 160ms cubic-bezier(0.23,1,0.32,1), background-color 200ms ease-out, box-shadow 200ms ease-out;">
                             <i data-lucide="download" class="w-5 h-5"></i>
-                            {{ $isEn ? 'Download' : 'Herunterladen' }}
+                            {{ __('tool.download') }}
                         </a>
                         <div class="mt-5">
                             <button onclick="resetUpload()" class="text-sm text-slate-400 hover:text-slate-600 underline underline-offset-2"
                                     style="transition: color 200ms ease-out;">
-                                {{ $isEn ? 'Process another file' : 'Weitere Datei verarbeiten' }}
+                                {{ __('tool.process_another') }}
                             </button>
                         </div>
                     </div>
@@ -353,10 +352,10 @@
                     <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-3">
                         <i data-lucide="alert-circle" class="w-6 h-6 text-red-500"></i>
                     </div>
-                    <p class="text-sm text-red-600 font-medium" id="error-message">{{ $isEn ? 'An error occurred. Please try again.' : 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.' }}</p>
+                    <p class="text-sm text-red-600 font-medium" id="error-message">{{ __('tool.error_generic') }}</p>
                     <button onclick="resetUpload()" class="text-sm text-red-500 hover:text-red-700 underline underline-offset-2 mt-3"
                             style="transition: color 200ms ease-out;">
-                        {{ $isEn ? 'Try again' : 'Erneut versuchen' }}
+                        {{ __('tool.try_again') }}
                     </button>
                 </div>
             </div>
@@ -372,7 +371,7 @@
     <section class="bg-white py-16 sm:py-20">
         <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
             <h3 class="font-display font-extrabold text-2xl sm:text-3xl text-slate-900 text-center mb-12">
-                {{ $isEn ? 'How it works' : 'So funktioniert es' }}
+                {{ __('tool.how_heading') }}
             </h3>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-6 relative">
                 {{-- Step 1 --}}
@@ -380,10 +379,10 @@
                     <div class="w-14 h-14 rounded-2xl {{ $c['step-bg'] }} flex items-center justify-center mx-auto mb-4">
                         <i data-lucide="upload-cloud" class="w-7 h-7 {{ $c['step-icon'] }}"></i>
                     </div>
-                    <div class="font-display font-bold text-xs {{ $c['step-label'] }} uppercase tracking-wider mb-2">{{ $isEn ? 'Step 1' : 'Schritt 1' }}</div>
-                    <p class="font-display font-bold text-slate-800 mb-1">{{ $isEn ? 'Upload file' : 'Datei hochladen' }}</p>
+                    <div class="font-display font-bold text-xs {{ $c['step-label'] }} uppercase tracking-wider mb-2">{{ __('tool.step_label', ['n' => 1]) }}</div>
+                    <p class="font-display font-bold text-slate-800 mb-1">{{ __('tool.step1_title') }}</p>
                     <p class="text-sm text-slate-400 leading-relaxed">
-                        {{ $isEn ? 'Drag your file into the upload area or click to select.' : 'Ziehen Sie Ihre Datei in den Upload-Bereich oder klicken Sie zum Ausw&auml;hlen.' }}
+                        {{ __('tool.step1_desc') }}
                     </p>
                     <div class="step-connector" aria-hidden="true"></div>
                 </div>
@@ -392,10 +391,10 @@
                     <div class="w-14 h-14 rounded-2xl {{ $c['step-bg'] }} flex items-center justify-center mx-auto mb-4">
                         <i data-lucide="zap" class="w-7 h-7 {{ $c['step-icon'] }}"></i>
                     </div>
-                    <div class="font-display font-bold text-xs {{ $c['step-label'] }} uppercase tracking-wider mb-2">{{ $isEn ? 'Step 2' : 'Schritt 2' }}</div>
-                    <p class="font-display font-bold text-slate-800 mb-1">{{ $isEn ? 'Process automatically' : 'Automatisch verarbeiten' }}</p>
+                    <div class="font-display font-bold text-xs {{ $c['step-label'] }} uppercase tracking-wider mb-2">{{ __('tool.step_label', ['n' => 2]) }}</div>
+                    <p class="font-display font-bold text-slate-800 mb-1">{{ __('tool.step2_title') }}</p>
                     <p class="text-sm text-slate-400 leading-relaxed">
-                        {!! $isEn ? 'Our servers process your file in seconds&mdash;securely and reliably.' : 'Unsere Server verarbeiten Ihre Datei in Sekunden &mdash; sicher und zuverl&auml;ssig.' !!}
+                        {{ __('tool.step2_desc') }}
                     </p>
                     <div class="step-connector" aria-hidden="true"></div>
                 </div>
@@ -404,10 +403,10 @@
                     <div class="w-14 h-14 rounded-2xl {{ $c['step-bg'] }} flex items-center justify-center mx-auto mb-4">
                         <i data-lucide="download" class="w-7 h-7 {{ $c['step-icon'] }}"></i>
                     </div>
-                    <div class="font-display font-bold text-xs {{ $c['step-label'] }} uppercase tracking-wider mb-2">{{ $isEn ? 'Step 3' : 'Schritt 3' }}</div>
-                    <p class="font-display font-bold text-slate-800 mb-1">{{ $isEn ? 'Download' : 'Herunterladen' }}</p>
+                    <div class="font-display font-bold text-xs {{ $c['step-label'] }} uppercase tracking-wider mb-2">{{ __('tool.step_label', ['n' => 3]) }}</div>
+                    <p class="font-display font-bold text-slate-800 mb-1">{{ __('tool.step3_title') }}</p>
                     <p class="text-sm text-slate-400 leading-relaxed">
-                        {{ $isEn ? 'Download your finished file instantly. No waiting.' : 'Laden Sie Ihre fertige Datei sofort herunter. Keine Wartezeit.' }}
+                        {{ __('tool.step3_desc') }}
                     </p>
                 </div>
             </div>
@@ -420,20 +419,17 @@
     <section class="bg-slate-50 py-16 sm:py-20">
         <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
             <h3 class="font-display font-extrabold text-2xl sm:text-3xl text-slate-900 text-center mb-10">
-                {{ $isEn ? 'Frequently Asked Questions' : 'H&auml;ufig gestellte Fragen' }}
+                {{ __('tool.faq_heading') }}
             </h3>
             <div class="space-y-3">
                 @php
-                    $faqs = $isEn ? [
-                        ['q' => 'Is it secure to use?', 'a' => 'Yes. All files are transferred via an SSL-encrypted connection and automatically deleted after 1 hour.'],
-                        ['q' => 'Which file formats are supported?', 'a' => 'This tool supports the following formats: ' . str_replace('.', '', str_replace(',', ', ', $accept)) . '.'],
-                        ['q' => 'Is there a maximum file size?', 'a' => 'The maximum file size is ' . env('MAX_UPLOAD_SIZE_MB', 50) . ' MB per file.'],
-                        ['q' => 'Does it work on mobile?', 'a' => 'Yes, sofortpdf.com works on all devices&mdash;desktop, tablet, and smartphone.'],
-                    ] : [
-                        ['q' => 'Ist die Nutzung sicher?', 'a' => 'Ja. Alle Dateien werden &uuml;ber eine SSL-verschl&uuml;sselte Verbindung &uuml;bertragen und nach 1 Stunde automatisch gel&ouml;scht.'],
-                        ['q' => 'Welche Dateiformate werden unterst&uuml;tzt?', 'a' => 'Dieses Tool unterst&uuml;tzt folgende Formate: ' . str_replace('.', '', str_replace(',', ', ', $accept)) . '.'],
-                        ['q' => 'Gibt es eine maximale Dateigr&ouml;&szlig;e?', 'a' => 'Die maximale Dateigr&ouml;&szlig;e betr&auml;gt ' . env('MAX_UPLOAD_SIZE_MB', 50) . ' MB pro Datei.'],
-                        ['q' => 'Funktioniert es auf dem Handy?', 'a' => 'Ja, sofortpdf.com funktioniert auf allen Ger&auml;ten &mdash; Desktop, Tablet und Smartphone.'],
+                    $formatsList = str_replace('.', '', str_replace(',', ', ', $accept));
+                    $maxSize = env('MAX_UPLOAD_SIZE_MB', 50);
+                    $faqs = [
+                        ['q' => __('tool.faq_secure_q'),  'a' => __('tool.faq_secure_a')],
+                        ['q' => __('tool.faq_formats_q'), 'a' => __('tool.faq_formats_a', ['formats' => $formatsList])],
+                        ['q' => __('tool.faq_size_q'),   'a' => __('tool.faq_size_a', ['size' => $maxSize])],
+                        ['q' => __('tool.faq_mobile_q'), 'a' => __('tool.faq_mobile_a')],
                     ];
                 @endphp
                 @foreach($faqs as $faq)
@@ -459,7 +455,7 @@
     <section class="bg-white py-16 sm:py-20">
         <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
             <h3 class="font-display font-extrabold text-2xl sm:text-3xl text-slate-900 text-center mb-10">
-                {{ $isEn ? 'More PDF Tools' : 'Weitere PDF-Tools' }}
+                {{ __('tool.related_heading') }}
             </h3>
 
             @php
@@ -517,7 +513,10 @@
                         $relColor = $toolColorMap[$relConfig['icon']] ?? $defaultToolColor;
                         $relTitle = \App\Services\LocaleHelper::toolTitle($relKey);
                         $relUrl = \App\Services\LocaleHelper::toolUrl($relKey);
-                        $relDesc = $isEn ? (config("tools_en.{$relKey}.description", $relConfig['description'])) : $relConfig['description'];
+                        $relLocale = app()->getLocale();
+                        $relDesc = $relLocale === 'de'
+                            ? $relConfig['description']
+                            : config("tools_{$relLocale}.{$relKey}.description", $relConfig['description']);
                     @endphp
                     <a href="{{ $relUrl }}"
                        class="group bg-white rounded-2xl border border-slate-100 p-5 {{ $relColor['border'] }} transition-all duration-200"
@@ -537,17 +536,16 @@
 @push('scripts')
 <script>
 (function() {
-    const __isEn = {{ $isEn ? 'true' : 'false' }};
-    const __t = {
-        onlyOneFile: __isEn ? 'Only one file allowed.' : 'Nur eine Datei erlaubt.',
-        maxFiles: __isEn ? 'Maximum {n} files allowed at once.' : 'Maximal {n} Dateien gleichzeitig erlaubt.',
-        fileTooLarge: __isEn ? 'The file \u201c{name}\u201d is too large. Maximum file size: {size} MB' : 'Die Datei \u201e{name}\u201c ist zu gro\u00df. Maximale Dateigr\u00f6\u00dfe: {size} MB',
-        addAnotherFile: __isEn ? 'Add another file' : 'Weitere Datei hinzuf\u00fcgen',
-        processing: __isEn ? 'Processing\u2026' : 'Wird verarbeitet\u2026',
-        uploadFailed: __isEn ? 'Upload failed.' : 'Upload fehlgeschlagen.',
-        conversionFailed: __isEn ? 'Conversion failed.' : 'Konvertierung fehlgeschlagen.',
-        genericError: __isEn ? 'An error occurred. Please try again.' : 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.',
-    };
+    const __t = @json([
+        'onlyOneFile'      => __('tool.js_only_one_file'),
+        'maxFiles'         => __('tool.js_max_files'),
+        'fileTooLarge'     => __('tool.js_file_too_large'),
+        'addAnotherFile'   => __('tool.js_add_another'),
+        'processing'       => __('tool.processing'),
+        'uploadFailed'     => __('tool.js_upload_failed'),
+        'conversionFailed' => __('tool.js_conversion_failed'),
+        'genericError'     => __('tool.error_generic'),
+    ]);
     const zone = document.getElementById('upload-zone');
     const fileInput = document.getElementById('file-input');
     const fileListWrapper = document.getElementById('file-list-wrapper');

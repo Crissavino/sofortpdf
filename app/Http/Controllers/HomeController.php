@@ -3,17 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Services\ToolConfig;
+use Illuminate\Support\Facades\App;
 
 class HomeController extends Controller
 {
     public function index()
     {
-        $tools = ToolConfig::allEnabled();
+        $locale = App::getLocale();
+        $tools = ToolConfig::allEnabled($locale);
 
         return view('home', [
             'tools' => $tools,
-            'pageTitle' => 'Online PDF-Tools — Schnell & Sicher',
-            'metaDescription' => 'sofortpdf.com — Ihre Online-PDF-Tools. PDF zusammenfügen, komprimieren, umwandeln und mehr. Schnell, sicher und ohne Installation.',
+            'pageTitle' => __('home.meta_title'),
+            'metaDescription' => __('home.meta_description'),
             'slug' => '',
         ]);
     }

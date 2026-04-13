@@ -23,7 +23,7 @@ class ToolController extends Controller
         if (!($toolConfig['enabled'] ?? false)) {
             return view('tools.maintenance', [
                 'toolName' => $pageTitle ?: $toolConfig['name'],
-                'pageTitle' => ($pageTitle ?: $toolConfig['name']) . ' — Wartung',
+                'pageTitle' => ($pageTitle ?: $toolConfig['name']) . __('tool.maintenance_suffix'),
                 'metaDescription' => $toolConfig['meta_description'] ?? '',
                 'slug' => $request->path(),
             ]);
@@ -35,7 +35,7 @@ class ToolController extends Controller
         $h1 = $localeOverrides['h1'] ?? $toolConfig['h1'] ?? $pageTitle;
         $h2 = $localeOverrides['h2'] ?? $toolConfig['h2'] ?? $toolConfig['description'] ?? '';
         $metaDesc = $localeOverrides['meta_description'] ?? $toolConfig['meta_description'] ?? '';
-        $actionLabel = $localeOverrides['action_label'] ?? $toolConfig['action_label'] ?? 'Jetzt konvertieren';
+        $actionLabel = $localeOverrides['action_label'] ?? $toolConfig['action_label'] ?? __('tool.default_action_label');
         $description = $localeOverrides['description'] ?? $toolConfig['description'] ?? '';
 
         // Use localized title from locales config as fallback
@@ -43,8 +43,6 @@ class ToolController extends Controller
         if ($localizedTitle) {
             $h1 = $localeOverrides['h1'] ?? $localizedTitle;
         }
-
-        $pageTitleSuffix = $locale === 'en' ? ' — Instant & Online' : ' — Sofort & Online';
 
         // Choose view: sign tool has its own view
         $view = $tool === 'sign' ? 'tools.sign' : 'tools.show';
@@ -54,7 +52,7 @@ class ToolController extends Controller
             'toolConfig' => array_merge($toolConfig, $localeOverrides),
             'h1' => $h1,
             'h2' => $h2,
-            'pageTitle' => $h1 . $pageTitleSuffix,
+            'pageTitle' => $h1 . __('tool.title_suffix'),
             'metaDescription' => $metaDesc,
             'slug' => $request->path(),
             'canonical' => null,

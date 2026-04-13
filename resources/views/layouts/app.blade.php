@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -181,7 +181,7 @@
                 <div class="hidden md:flex items-center gap-1">
                     <div class="relative group">
                         <button class="flex items-center gap-1 px-3 py-2 text-sm font-medium text-slate-600 hover:text-brand-600 rounded-lg hover:bg-brand-50 transition-colors">
-                            {{ $loc === 'de' ? 'Alle Tools' : 'All Tools' }}
+                            {{ __('layout.nav_all_tools') }}
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                         </button>
                         <div class="absolute top-full left-0 mt-1 w-64 bg-white rounded-xl shadow-xl shadow-slate-200/50 border border-slate-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 py-2 z-50">
@@ -217,13 +217,13 @@
                     </div>
 
                     @auth
-                        <a href="{{ route('dashboard.index') }}" class="text-sm font-medium text-slate-600 hover:text-brand-600 px-3 py-2 rounded-lg hover:bg-brand-50 transition-colors">Dashboard</a>
+                        <a href="{{ route('dashboard.index') }}" class="text-sm font-medium text-slate-600 hover:text-brand-600 px-3 py-2 rounded-lg hover:bg-brand-50 transition-colors">{{ __('layout.nav_dashboard') }}</a>
                         <form method="POST" action="/{{ $loc }}/{{ config("locales.auth_slugs.{$loc}.logout") }}" class="inline">
                             @csrf
-                            <button type="submit" class="text-sm font-medium text-slate-400 hover:text-slate-600 px-3 py-2 transition-colors">{{ $loc === 'de' ? 'Abmelden' : 'Logout' }}</button>
+                            <button type="submit" class="text-sm font-medium text-slate-400 hover:text-slate-600 px-3 py-2 transition-colors">{{ __('layout.nav_logout') }}</button>
                         </form>
                     @else
-                        <a href="/{{ $loc }}/{{ config("locales.auth_slugs.{$loc}.login") }}" class="text-sm font-medium text-white bg-brand-600 hover:bg-brand-700 px-4 py-2 rounded-lg shadow-sm shadow-brand-600/25 hover:shadow-brand-600/40 transition-all">{{ $loc === 'de' ? 'Anmelden' : 'Login' }}</a>
+                        <a href="/{{ $loc }}/{{ config("locales.auth_slugs.{$loc}.login") }}" class="text-sm font-medium text-white bg-brand-600 hover:bg-brand-700 px-4 py-2 rounded-lg shadow-sm shadow-brand-600/25 hover:shadow-brand-600/40 transition-all">{{ __('layout.nav_login') }}</a>
                     @endauth
 
                     {{-- Mobile menu --}}
@@ -277,13 +277,13 @@
                         </div>
                         <span class="font-display font-bold text-white">sofort<span class="text-brand-400">pdf</span></span>
                     </div>
-                    <p class="text-sm text-slate-500 leading-relaxed">Ihre Online-PDF-Tools. Schnell, sicher und ohne Installation.</p>
+                    <p class="text-sm text-slate-500 leading-relaxed">{{ __('layout.footer_brand_tagline') }}</p>
                 </div>
 
                 @php $fLoc = app()->getLocale(); @endphp
                 {{-- Tools --}}
                 <div>
-                    <h4 class="font-display font-bold text-slate-200 text-sm mb-3">PDF-Tools</h4>
+                    <h4 class="font-display font-bold text-slate-200 text-sm mb-3">{{ __('layout.nav_tools') }}</h4>
                     <ul class="space-y-2 text-sm">
                         <li><a href="{{ \App\Services\LocaleHelper::toolUrl('merge') }}" class="hover:text-white transition-colors">{{ \App\Services\LocaleHelper::toolTitle('merge') }}</a></li>
                         <li><a href="{{ \App\Services\LocaleHelper::toolUrl('compress') }}" class="hover:text-white transition-colors">{{ \App\Services\LocaleHelper::toolTitle('compress') }}</a></li>
@@ -294,7 +294,7 @@
 
                 {{-- Convert --}}
                 <div>
-                    <h4 class="font-display font-bold text-slate-200 text-sm mb-3">{{ $fLoc === 'de' ? 'Umwandeln' : 'Convert' }}</h4>
+                    <h4 class="font-display font-bold text-slate-200 text-sm mb-3">{{ __('layout.nav_convert') }}</h4>
                     <ul class="space-y-2 text-sm">
                         <li><a href="{{ \App\Services\LocaleHelper::toolUrl('jpg-to-pdf') }}" class="hover:text-white transition-colors">{{ \App\Services\LocaleHelper::toolTitle('jpg-to-pdf') }}</a></li>
                         <li><a href="{{ \App\Services\LocaleHelper::toolUrl('word-to-pdf') }}" class="hover:text-white transition-colors">{{ \App\Services\LocaleHelper::toolTitle('word-to-pdf') }}</a></li>
@@ -305,24 +305,24 @@
 
                 {{-- Legal --}}
                 <div>
-                    <h4 class="font-display font-bold text-slate-200 text-sm mb-3">{{ $fLoc === 'de' ? 'Rechtliches' : 'Legal' }}</h4>
+                    <h4 class="font-display font-bold text-slate-200 text-sm mb-3">{{ __('layout.nav_legal') }}</h4>
                     <ul class="space-y-2 text-sm">
-                        <li><a href="/{{ $fLoc }}/{{ config("locales.legal_slugs.{$fLoc}.imprint") }}" class="hover:text-white transition-colors">{{ $fLoc === 'de' ? 'Impressum' : 'Imprint' }}</a></li>
-                        <li><a href="/{{ $fLoc }}/{{ config("locales.legal_slugs.{$fLoc}.privacy") }}" class="hover:text-white transition-colors">{{ $fLoc === 'de' ? 'Datenschutz' : 'Privacy' }}</a></li>
-                        <li><a href="/{{ $fLoc }}/{{ config("locales.legal_slugs.{$fLoc}.terms") }}" class="hover:text-white transition-colors">{{ $fLoc === 'de' ? 'AGB' : 'Terms' }}</a></li>
+                        <li><a href="/{{ $fLoc }}/{{ config("locales.legal_slugs.{$fLoc}.imprint") }}" class="hover:text-white transition-colors">{{ __('layout.footer_imprint') }}</a></li>
+                        <li><a href="/{{ $fLoc }}/{{ config("locales.legal_slugs.{$fLoc}.privacy") }}" class="hover:text-white transition-colors">{{ __('layout.footer_privacy') }}</a></li>
+                        <li><a href="/{{ $fLoc }}/{{ config("locales.legal_slugs.{$fLoc}.terms") }}" class="hover:text-white transition-colors">{{ __('layout.footer_terms') }}</a></li>
                     </ul>
                 </div>
             </div>
 
             <div class="border-t border-slate-800 mt-10 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-                <p class="text-xs text-slate-500">&copy; {{ date('Y') }} sofortpdf.com — Alle Rechte vorbehalten.</p>
+                <p class="text-xs text-slate-500">{{ __('layout.footer_copyright', ['year' => date('Y')]) }}</p>
                 <div class="flex items-center gap-4 text-xs text-slate-600">
                     <span class="flex items-center gap-1">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                        SSL-verschlüsselt
+                        {{ __('layout.footer_ssl') }}
                     </span>
                     <span class="flex items-center gap-1">
-                        🇪🇺 Server in Europa
+                        🇪🇺 {{ __('layout.footer_eu_servers') }}
                     </span>
                 </div>
             </div>

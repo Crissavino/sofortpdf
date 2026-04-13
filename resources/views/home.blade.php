@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@php $isEn = app()->getLocale() === 'en'; @endphp
+@php use App\Services\LocaleHelper; @endphp
 
 @section('content')
 
@@ -22,25 +22,19 @@
             {{-- Pill badge --}}
             <div class="hero-stagger inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm border border-brand-100/80 rounded-full px-4 py-1.5 mb-8 shadow-sm" style="--stagger: 0">
                 <i data-lucide="sparkles" class="w-3.5 h-3.5 text-brand-500"></i>
-                <span class="text-sm font-medium text-slate-600">{{ $isEn ? 'All PDF tools in one place' : 'Alle PDF-Tools an einem Ort' }}</span>
+                <span class="text-sm font-medium text-slate-600">{{ __('home.hero_badge') }}</span>
             </div>
 
             {{-- Headline --}}
             <h1 class="hero-stagger font-display font-extrabold text-5xl sm:text-6xl lg:text-7xl text-slate-900 tracking-tight leading-[1.08] max-w-4xl mx-auto" style="--stagger: 1">
-                @if($isEn)
-                    Edit PDF files&mdash;
-                    <br class="hidden sm:block">
-                    <span class="text-gradient">instantly &amp; securely</span>
-                @else
-                    PDF-Dateien bearbeiten&mdash;
-                    <br class="hidden sm:block">
-                    <span class="text-gradient">sofort &amp; sicher</span>
-                @endif
+                {!! __('home.hero_title_line1') !!}
+                <br class="hidden sm:block">
+                <span class="text-gradient">{!! __('home.hero_title_highlight') !!}</span>
             </h1>
 
             {{-- Subtitle --}}
             <p class="hero-stagger mt-6 text-lg sm:text-xl text-slate-500 max-w-2xl mx-auto leading-relaxed" style="--stagger: 2">
-                {!! $isEn ? 'Professional PDF tools right in your browser&mdash;merge, compress, convert, and more.' : 'Professionelle PDF-Tools direkt im Browser&mdash;zusammenf&uuml;gen, komprimieren, umwandeln und mehr.' !!}
+                {!! __('home.hero_subtitle') !!}
             </p>
 
             {{-- CTA Buttons --}}
@@ -48,13 +42,13 @@
                 <a href="{{ route('checkout.start') }}"
                    class="btn-press inline-flex items-center gap-2.5 bg-brand-600 text-white font-display font-bold px-8 py-4 rounded-2xl shadow-lg shadow-brand-600/25 transition-all duration-200 text-base"
                    style="transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);">
-                    {{ $isEn ? 'Get started for free' : 'Kostenlos loslegen' }}
+                    {{ __('home.hero_cta_primary') }}
                     <i data-lucide="arrow-right" class="w-5 h-5"></i>
                 </a>
                 <a href="#tools"
                    class="btn-press inline-flex items-center gap-2 text-slate-600 font-medium px-6 py-4 rounded-2xl transition-all duration-200 text-base"
                    style="transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);">
-                    {{ $isEn ? 'View all tools' : 'Alle Tools ansehen' }}
+                    {{ __('home.hero_cta_secondary') }}
                     <i data-lucide="chevron-down" class="w-4 h-4"></i>
                 </a>
             </div>
@@ -63,7 +57,7 @@
             <div class="hero-stagger mt-14 sm:mt-16 flex flex-wrap items-center justify-center gap-x-6 gap-y-4" style="--stagger: 4">
                 <div class="flex items-center gap-2 text-sm text-slate-500">
                     <i data-lucide="users" class="w-4 h-4 text-brand-500"></i>
-                    <span class="font-medium text-slate-700">10.000+</span> {{ $isEn ? 'Users' : 'Nutzer' }}
+                    <span class="font-medium text-slate-700">10.000+</span> {{ __('home.social_users') }}
                 </div>
                 <span class="hidden sm:inline-block w-1 h-1 rounded-full bg-slate-300" aria-hidden="true"></span>
                 <div class="flex items-center gap-2 text-sm text-slate-500">
@@ -73,12 +67,12 @@
                 <span class="hidden sm:inline-block w-1 h-1 rounded-full bg-slate-300" aria-hidden="true"></span>
                 <div class="flex items-center gap-2 text-sm text-slate-500">
                     <i data-lucide="shield-check" class="w-4 h-4 text-blue-500"></i>
-                    {{ $isEn ? 'GDPR compliant' : 'DSGVO-konform' }}
+                    {{ __('home.social_gdpr') }}
                 </div>
                 <span class="hidden sm:inline-block w-1 h-1 rounded-full bg-slate-300" aria-hidden="true"></span>
                 <div class="flex items-center gap-2 text-sm text-slate-500">
                     <i data-lucide="globe" class="w-4 h-4 text-violet-500"></i>
-                    {{ $isEn ? 'Servers in the EU' : 'Server in der EU' }}
+                    {{ __('home.social_eu_servers') }}
                 </div>
             </div>
         </div>
@@ -90,10 +84,10 @@
         <div class="text-center mb-14">
             <div class="flex items-center justify-center gap-4 mb-4">
                 <div class="h-px w-12 bg-gradient-to-r from-transparent to-slate-200" aria-hidden="true"></div>
-                <h2 class="font-display font-extrabold text-3xl sm:text-4xl text-slate-900 tracking-tight">{{ $isEn ? 'All PDF Tools' : 'Alle PDF-Tools' }}</h2>
+                <h2 class="font-display font-extrabold text-3xl sm:text-4xl text-slate-900 tracking-tight">{{ __('home.tools_heading') }}</h2>
                 <div class="h-px w-12 bg-gradient-to-l from-transparent to-slate-200" aria-hidden="true"></div>
             </div>
-            <p class="text-lg text-slate-500 max-w-xl mx-auto">{{ $isEn ? 'Choose the right tool and get started right away.' : 'W&auml;hlen Sie das passende Tool und legen Sie sofort los.' }}</p>
+            <p class="text-lg text-slate-500 max-w-xl mx-auto">{{ __('home.tools_subheading') }}</p>
         </div>
 
         @php
@@ -113,7 +107,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             @foreach($tools as $tool)
                 @php $tc = $toolColorMap[$tool['icon']] ?? $defaultToolColor; @endphp
-                <a href="/{{ $tool['slug'] }}"
+                <a href="{{ LocaleHelper::toolUrl($tool['key']) }}"
                    class="tool-card group relative bg-white rounded-2xl border border-slate-100 p-6 {{ $tc['border'] }} transition-all duration-200"
                    style="--card-delay: {{ $loop->index * 60 }}ms; transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);">
 
@@ -142,8 +136,8 @@
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-24">
 
             <div class="text-center mb-16">
-                <h2 class="font-display font-extrabold text-3xl sm:text-4xl text-slate-900 tracking-tight">{{ $isEn ? 'How it works' : 'So funktioniert es' }}</h2>
-                <p class="mt-4 text-lg text-slate-500">{{ $isEn ? 'Get results in three simple steps.' : 'In drei einfachen Schritten zum Ergebnis.' }}</p>
+                <h2 class="font-display font-extrabold text-3xl sm:text-4xl text-slate-900 tracking-tight">{{ __('home.how_heading') }}</h2>
+                <p class="mt-4 text-lg text-slate-500">{{ __('home.how_subheading') }}</p>
             </div>
 
             <div class="relative grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
@@ -151,15 +145,15 @@
                 {{-- Dashed connecting line (desktop only) --}}
                 <div class="hidden md:block absolute top-10 left-[calc(16.666%+2rem)] right-[calc(16.666%+2rem)] h-px border-t-2 border-dashed border-brand-200" aria-hidden="true"></div>
 
-                @foreach($isEn ? [
-                    ['num' => '1', 'icon' => 'upload-cloud', 'title' => 'Upload file', 'desc' => 'Select your file or drag it into the upload area.'],
-                    ['num' => '2', 'icon' => 'zap',          'title' => 'Process automatically', 'desc' => 'Our system converts your file in seconds&mdash;securely &amp; reliably.'],
-                    ['num' => '3', 'icon' => 'download',     'title' => 'Download result', 'desc' => 'Download your finished file. Fast, secure, and without waiting.'],
-                ] : [
-                    ['num' => '1', 'icon' => 'upload-cloud', 'title' => 'Datei hochladen', 'desc' => 'W&auml;hlen Sie Ihre Datei aus oder ziehen Sie sie in den Upload-Bereich.'],
-                    ['num' => '2', 'icon' => 'zap',          'title' => 'Automatisch verarbeiten', 'desc' => 'Unser System konvertiert Ihre Datei in Sekundenschnelle&mdash;sicher &amp; zuverl&auml;ssig.'],
-                    ['num' => '3', 'icon' => 'download',     'title' => 'Ergebnis herunterladen', 'desc' => 'Laden Sie Ihre fertige Datei herunter. Schnell, sicher und ohne Wartezeit.'],
-                ] as $step)
+                @php
+                    $howSteps = [
+                        ['num' => '1', 'icon' => 'upload-cloud', 'title' => __('home.how_step1_title'), 'desc' => __('home.how_step1_desc')],
+                        ['num' => '2', 'icon' => 'zap',          'title' => __('home.how_step2_title'), 'desc' => __('home.how_step2_desc')],
+                        ['num' => '3', 'icon' => 'download',     'title' => __('home.how_step3_title'), 'desc' => __('home.how_step3_desc')],
+                    ];
+                @endphp
+
+                @foreach($howSteps as $step)
                     <div class="observe-animate relative text-center" data-delay="{{ $loop->index * 120 }}">
                         {{-- Step number circle --}}
                         <div class="relative z-10 w-20 h-20 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-white font-display font-extrabold text-2xl flex items-center justify-center mx-auto mb-5 shadow-lg shadow-brand-500/20 ring-4 ring-white">
@@ -184,26 +178,20 @@
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
             <div class="text-center mb-14">
-                <h2 class="font-display font-extrabold text-3xl sm:text-4xl text-slate-900 tracking-tight">{{ $isEn ? 'What our users say' : 'Was unsere Nutzer sagen' }}</h2>
-                <p class="mt-4 text-lg text-slate-500 max-w-xl mx-auto">{{ $isEn ? 'Trusted by thousands of professionals every day.' : 'T&auml;glich von tausenden Fachleuten genutzt.' }}</p>
+                <h2 class="font-display font-extrabold text-3xl sm:text-4xl text-slate-900 tracking-tight">{{ __('home.testimonials_heading') }}</h2>
+                <p class="mt-4 text-lg text-slate-500 max-w-xl mx-auto">{{ __('home.testimonials_subheading') }}</p>
             </div>
 
             @php
-                $testimonials = $isEn ? [
-                    ['quote' => 'I use sofortpdf daily to merge PDFs for my clients. Simple, fast and reliable.', 'name' => 'Thomas M.', 'role' => 'Tax Advisor', 'tool' => 'Merge PDF'],
-                    ['quote' => 'The PDF compression is perfect — my application documents were instantly small enough for email.', 'name' => 'Lisa K.', 'role' => 'Student', 'tool' => 'Compress PDF'],
-                    ['quote' => 'Finally a tool that cleanly converts my invoice PDFs to Excel. Saves me hours.', 'name' => 'Markus W.', 'role' => 'Accountant', 'tool' => 'PDF to Excel'],
-                    ['quote' => 'As a lawyer, I often need to sign PDFs. sofortpdf makes it secure and straightforward.', 'name' => 'Dr. Anna S.', 'role' => 'Lawyer', 'tool' => 'Sign PDF'],
-                    ['quote' => 'We use sofortpdf in the entire office. GDPR compliance was particularly important to us.', 'name' => 'Stefan R.', 'role' => 'Managing Director', 'tool' => 'PDF to Word'],
-                    ['quote' => 'Fast, secure and no installation — exactly what I was looking for.', 'name' => 'Maria H.', 'role' => 'Freelancer', 'tool' => 'Split PDF'],
-                ] : [
-                    ['quote' => 'Ich nutze sofortpdf t&auml;glich, um PDFs f&uuml;r meine Kunden zusammenzuf&uuml;gen. Einfach, schnell und zuverl&auml;ssig.', 'name' => 'Thomas M.', 'role' => 'Steuerberater', 'tool' => 'PDF zusammenf&uuml;gen'],
-                    ['quote' => 'Die PDF-Komprimierung ist perfekt &mdash; meine Bewerbungsunterlagen waren sofort klein genug f&uuml;r E-Mail.', 'name' => 'Lisa K.', 'role' => 'Studentin', 'tool' => 'PDF komprimieren'],
-                    ['quote' => 'Endlich ein Tool, das meine Rechnungs-PDFs sauber in Excel umwandelt. Spart mir Stunden.', 'name' => 'Markus W.', 'role' => 'Buchhalter', 'tool' => 'PDF in Excel'],
-                    ['quote' => 'Als Anwalt muss ich oft PDFs unterschreiben. sofortpdf macht das sicher und unkompliziert.', 'name' => 'Dr. Anna S.', 'role' => 'Rechtsanw&auml;ltin', 'tool' => 'PDF unterzeichnen'],
-                    ['quote' => 'Wir nutzen sofortpdf im ganzen B&uuml;ro. Die DSGVO-Konformit&auml;t war uns besonders wichtig.', 'name' => 'Stefan R.', 'role' => 'Gesch&auml;ftsf&uuml;hrer', 'tool' => 'PDF zu Word'],
-                    ['quote' => 'Schnell, sicher und ohne Installation &mdash; genau was ich gesucht habe.', 'name' => 'Maria H.', 'role' => 'Freiberuflerin', 'tool' => 'PDF trennen'],
-                ];
+                $testimonials = [];
+                for ($i = 1; $i <= 6; $i++) {
+                    $testimonials[] = [
+                        'quote' => __("home.testimonial_{$i}_quote"),
+                        'name'  => __("home.testimonial_{$i}_name"),
+                        'role'  => __("home.testimonial_{$i}_role"),
+                        'tool'  => __("home.testimonial_{$i}_tool"),
+                    ];
+                }
             @endphp
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -235,22 +223,21 @@
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-24">
 
             <div class="text-center mb-14">
-                <h2 class="font-display font-extrabold text-3xl sm:text-4xl text-white tracking-tight">{{ $isEn ? 'Your data is safe' : 'Ihre Daten sind sicher' }}</h2>
-                <p class="mt-4 text-lg text-slate-400 max-w-xl mx-auto">{{ $isEn ? 'Privacy and security are our top priority.' : 'Datenschutz und Sicherheit stehen bei uns an erster Stelle.' }}</p>
+                <h2 class="font-display font-extrabold text-3xl sm:text-4xl text-white tracking-tight">{{ __('home.trust_heading') }}</h2>
+                <p class="mt-4 text-lg text-slate-400 max-w-xl mx-auto">{{ __('home.trust_subheading') }}</p>
             </div>
 
+            @php
+                $trustFeatures = [
+                    ['icon' => 'lock',         'title' => __('home.trust_ssl_title'),      'desc' => __('home.trust_ssl_desc')],
+                    ['icon' => 'shield-check', 'title' => __('home.trust_gdpr_title'),     'desc' => __('home.trust_gdpr_desc')],
+                    ['icon' => 'timer',        'title' => __('home.trust_deletion_title'), 'desc' => __('home.trust_deletion_desc')],
+                    ['icon' => 'globe',        'title' => __('home.trust_servers_title'),  'desc' => __('home.trust_servers_desc')],
+                ];
+            @endphp
+
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                @foreach($isEn ? [
-                    ['icon' => 'lock',         'title' => 'SSL Encryption',      'desc' => 'All data transfers are encrypted with 256-bit SSL/TLS&mdash;just like online banking.'],
-                    ['icon' => 'shield-check', 'title' => 'GDPR Compliant',      'desc' => 'We process your data fully GDPR-compliant. No sharing with third parties.'],
-                    ['icon' => 'timer',        'title' => 'Auto-Deletion',       'desc' => 'Uploaded files are automatically and permanently deleted after one hour.'],
-                    ['icon' => 'globe',        'title' => 'Servers in Europe',    'desc' => 'Our servers are located in Germany and the EU. Your data never leaves Europe.'],
-                ] : [
-                    ['icon' => 'lock',         'title' => 'SSL-Verschl&uuml;sselung',     'desc' => 'Alle Daten&uuml;bertragungen sind mit 256-Bit SSL/TLS verschl&uuml;sselt&mdash;wie beim Online-Banking.'],
-                    ['icon' => 'shield-check', 'title' => 'DSGVO-konform',                'desc' => 'Wir verarbeiten Ihre Daten vollst&auml;ndig DSGVO-konform. Keine Weitergabe an Dritte.'],
-                    ['icon' => 'timer',        'title' => 'Auto-L&ouml;schung',           'desc' => 'Hochgeladene Dateien werden automatisch nach einer Stunde unwiderruflich gel&ouml;scht.'],
-                    ['icon' => 'globe',        'title' => 'Server in Europa',              'desc' => 'Unsere Server stehen in Deutschland und der EU. Ihre Daten verlassen niemals Europa.'],
-                ] as $feature)
+                @foreach($trustFeatures as $feature)
                     <div class="observe-animate trust-card bg-slate-900/50 backdrop-blur rounded-2xl border border-slate-800 p-6 text-center sm:text-left" data-delay="{{ $loop->index * 70 }}">
                         <div class="w-12 h-12 rounded-2xl bg-brand-400/10 flex items-center justify-center mx-auto sm:mx-0 mb-4">
                             <i data-lucide="{{ $feature['icon'] }}" class="w-6 h-6 text-brand-400"></i>
@@ -268,26 +255,18 @@
         <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
 
             <div class="text-center mb-12">
-                <h2 class="font-display font-extrabold text-3xl sm:text-4xl text-slate-900 tracking-tight">{{ $isEn ? 'Frequently Asked Questions' : 'H&auml;ufig gestellte Fragen' }}</h2>
-                <p class="mt-4 text-lg text-slate-500">{{ $isEn ? 'Everything you need to know about sofortpdf.' : 'Alles, was Sie &uuml;ber sofortpdf wissen m&uuml;ssen.' }}</p>
+                <h2 class="font-display font-extrabold text-3xl sm:text-4xl text-slate-900 tracking-tight">{{ __('home.faq_heading') }}</h2>
+                <p class="mt-4 text-lg text-slate-500">{{ __('home.faq_subheading') }}</p>
             </div>
 
             @php
-                $homeFaqs = $isEn ? [
-                    ['q' => 'Is sofortpdf free?', 'a' => 'sofortpdf offers a trial period for &euro;1.50. After that, the subscription costs &euro;39.99/month. Cancel anytime.'],
-                    ['q' => 'Is my data secure?', 'a' => 'Yes. All files are encrypted via SSL, processed on EU servers and automatically deleted after 1 hour.'],
-                    ['q' => 'Which file formats are supported?', 'a' => 'PDF, Word (DOCX), Excel (XLSX), PowerPoint (PPTX), JPG, PNG and many more formats.'],
-                    ['q' => 'Do I need to install any software?', 'a' => 'No. sofortpdf works entirely in the browser &mdash; on desktop, tablet and smartphone.'],
-                    ['q' => 'Can I use sofortpdf on my phone?', 'a' => 'Yes, sofortpdf is fully optimized for mobile and works on all devices.'],
-                    ['q' => 'How do I cancel my subscription?', 'a' => 'You can cancel at any time via your dashboard. Access remains active until the end of the billing period.'],
-                ] : [
-                    ['q' => 'Ist sofortpdf kostenlos?', 'a' => 'sofortpdf bietet einen Testzeitraum f&uuml;r 1,50 &euro; an. Danach kostet das Abonnement 39,99 &euro;/Monat. Jederzeit k&uuml;ndbar.'],
-                    ['q' => 'Sind meine Daten sicher?', 'a' => 'Ja. Alle Dateien werden &uuml;ber SSL verschl&uuml;sselt, auf EU-Servern verarbeitet und nach 1 Stunde automatisch gel&ouml;scht.'],
-                    ['q' => 'Welche Dateiformate werden unterst&uuml;tzt?', 'a' => 'PDF, Word (DOCX), Excel (XLSX), PowerPoint (PPTX), JPG, PNG und viele weitere Formate.'],
-                    ['q' => 'Muss ich Software installieren?', 'a' => 'Nein. sofortpdf funktioniert komplett im Browser &mdash; auf Desktop, Tablet und Smartphone.'],
-                    ['q' => 'Kann ich sofortpdf auf dem Handy nutzen?', 'a' => 'Ja, sofortpdf ist vollst&auml;ndig mobil optimiert und funktioniert auf allen Ger&auml;ten.'],
-                    ['q' => 'Wie k&uuml;ndige ich mein Abonnement?', 'a' => 'Sie k&ouml;nnen jederzeit &uuml;ber Ihr Dashboard k&uuml;ndigen. Der Zugang bleibt bis zum Ende der Abrechnungsperiode aktiv.'],
-                ];
+                $homeFaqs = [];
+                for ($i = 1; $i <= 6; $i++) {
+                    $homeFaqs[] = [
+                        'q' => __("home.faq_{$i}_q"),
+                        'a' => __("home.faq_{$i}_a"),
+                    ];
+                }
             @endphp
 
             <div class="space-y-3">
@@ -317,31 +296,31 @@
 
         <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-24 text-center">
             <h2 class="font-display font-extrabold text-3xl sm:text-4xl lg:text-5xl text-white tracking-tight leading-tight">
-                {{ $isEn ? 'All PDF tools. One price.' : 'Alle PDF-Tools. Ein Preis.' }}
+                {{ __('home.cta_title') }}
             </h2>
             <p class="mt-5 text-lg sm:text-xl text-brand-100 max-w-lg mx-auto leading-relaxed">
-                {!! $isEn ? 'Unlimited access to all tools&mdash;no hidden costs.' : 'Unbegrenzter Zugriff auf alle Werkzeuge&mdash;ohne versteckte Kosten.' !!}
+                {!! __('home.cta_subtitle') !!}
             </p>
 
             {{-- Glassmorphic price card --}}
             <div class="mt-10 inline-flex flex-col items-center bg-white/10 backdrop-blur-md rounded-3xl px-10 py-8 ring-1 ring-white/20">
-                <span class="text-brand-100 text-sm font-medium uppercase tracking-wider mb-2">{{ $isEn ? 'Try now' : 'Jetzt testen' }}</span>
+                <span class="text-brand-100 text-sm font-medium uppercase tracking-wider mb-2">{{ __('home.cta_try_now') }}</span>
                 <div class="flex items-baseline gap-1">
                     <span class="font-display font-extrabold text-5xl sm:text-6xl text-white">1,50</span>
                     <span class="font-display font-bold text-2xl text-brand-200">&euro;</span>
                 </div>
-                <span class="text-brand-200 text-sm mt-1">{{ $isEn ? 'for ' . config('services.stripe.trial_days', 2) . ' days trial' : 'f&uuml;r ' . config('services.stripe.trial_days', 2) . ' Tage testen' }}</span>
+                <span class="text-brand-200 text-sm mt-1">{{ __('home.cta_trial_days', ['days' => config('services.stripe.trial_days', 2)]) }}</span>
             </div>
 
             <div class="mt-10">
                 <a href="{{ route('checkout.start') }}"
                    class="btn-press inline-flex items-center gap-2.5 bg-white text-brand-700 font-display font-bold px-10 py-4 rounded-2xl shadow-xl shadow-brand-900/20 transition-all duration-200 text-lg"
                    style="transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);">
-                    {{ $isEn ? 'Unlock now' : 'Jetzt freischalten' }}
+                    {{ __('home.cta_unlock') }}
                     <i data-lucide="arrow-right" class="w-5 h-5"></i>
                 </a>
             </div>
-            <p class="mt-5 text-sm text-brand-200">{{ $isEn ? 'No automatic renewal. Cancel anytime.' : 'Keine automatische Verl&auml;ngerung. Jederzeit k&uuml;ndbar.' }}</p>
+            <p class="mt-5 text-sm text-brand-200">{{ __('home.cta_no_auto_renewal') }}</p>
         </div>
     </section>
 
@@ -351,21 +330,13 @@
 {{-- FAQ Schema.org structured data --}}
 <script type="application/ld+json">
 @php
-$faqSchemaItems = $isEn ? [
-    ['q' => 'Is sofortpdf free?', 'a' => 'sofortpdf offers a trial period for \u20ac1.50. After that, the subscription costs \u20ac39.99/month. Cancel anytime.'],
-    ['q' => 'Is my data secure?', 'a' => 'Yes. All files are encrypted via SSL, processed on EU servers and automatically deleted after 1 hour.'],
-    ['q' => 'Which file formats are supported?', 'a' => 'PDF, Word (DOCX), Excel (XLSX), PowerPoint (PPTX), JPG, PNG and many more formats.'],
-    ['q' => 'Do I need to install any software?', 'a' => 'No. sofortpdf works entirely in the browser \u2014 on desktop, tablet and smartphone.'],
-    ['q' => 'Can I use sofortpdf on my phone?', 'a' => 'Yes, sofortpdf is fully optimized for mobile and works on all devices.'],
-    ['q' => 'How do I cancel my subscription?', 'a' => 'You can cancel at any time via your dashboard. Access remains active until the end of the billing period.'],
-] : [
-    ['q' => 'Ist sofortpdf kostenlos?', 'a' => 'sofortpdf bietet einen Testzeitraum f\u00fcr 1,50 \u20ac an. Danach kostet das Abonnement 39,99 \u20ac/Monat. Jederzeit k\u00fcndbar.'],
-    ['q' => 'Sind meine Daten sicher?', 'a' => 'Ja. Alle Dateien werden \u00fcber SSL verschl\u00fcsselt, auf EU-Servern verarbeitet und nach 1 Stunde automatisch gel\u00f6scht.'],
-    ['q' => 'Welche Dateiformate werden unterst\u00fctzt?', 'a' => 'PDF, Word (DOCX), Excel (XLSX), PowerPoint (PPTX), JPG, PNG und viele weitere Formate.'],
-    ['q' => 'Muss ich Software installieren?', 'a' => 'Nein. sofortpdf funktioniert komplett im Browser \u2014 auf Desktop, Tablet und Smartphone.'],
-    ['q' => 'Kann ich sofortpdf auf dem Handy nutzen?', 'a' => 'Ja, sofortpdf ist vollst\u00e4ndig mobil optimiert und funktioniert auf allen Ger\u00e4ten.'],
-    ['q' => 'Wie k\u00fcndige ich mein Abonnement?', 'a' => 'Sie k\u00f6nnen jederzeit \u00fcber Ihr Dashboard k\u00fcndigen. Der Zugang bleibt bis zum Ende der Abrechnungsperiode aktiv.'],
-];
+    $faqSchemaItems = [];
+    for ($i = 1; $i <= 6; $i++) {
+        $faqSchemaItems[] = [
+            'q' => __("home.faq_{$i}_q"),
+            'a' => __("home.faq_{$i}_a"),
+        ];
+    }
 @endphp
 {!! json_encode([
     '@context' => 'https://schema.org',
