@@ -500,63 +500,78 @@
     .page-picker[data-mode="rotate"] .page-picker-card[data-angle="180"] .page-thumb img { transform: rotate(180deg); }
     .page-picker[data-mode="rotate"] .page-picker-card[data-angle="270"] .page-thumb img { transform: rotate(270deg); }
 
-    /* Split mode — cards are arranged in groups separated by clickable
-       cut points. Group bands run between cards. */
+    /* Split mode — cards flow horizontally with narrow vertical cut
+       markers between them. Wraps naturally on long PDFs so we don't
+       end up with 100 rows on a single column. */
     .page-picker[data-mode="split"] .page-picker-grid {
-        position: relative;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: stretch;
     }
     .page-picker[data-mode="split"] .page-picker-card {
+        flex: 0 0 calc(33.333% - 10px);
         cursor: default;
     }
+    @media (min-width: 640px) {
+        .page-picker[data-mode="split"] .page-picker-card { flex-basis: calc(25% - 10px); }
+    }
+    @media (min-width: 768px) {
+        .page-picker[data-mode="split"] .page-picker-card { flex-basis: calc(16.666% - 10px); }
+    }
     .page-picker[data-mode="split"] .page-picker-card .page-mark { display: none; }
+
     .split-cut {
-        grid-column: 1 / -1;
-        display: flex; align-items: center; gap: 10px;
-        margin: 4px 0;
-        padding: 0;
-        font-size: 11px; font-weight: 600;
+        flex: 0 0 28px;
+        align-self: stretch;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        gap: 4px;
+        padding: 6px 0;
         color: #94a3b8;
         cursor: pointer;
         user-select: none;
+        position: relative;
+        transition: color 180ms ease-out;
     }
-    .split-cut::before, .split-cut::after {
+    /* Vertical line that runs the full height of the card */
+    .split-cut::before {
         content: '';
-        flex: 1;
-        height: 1px;
+        position: absolute;
+        top: 6px; bottom: 6px;
+        left: 50%;
+        width: 1px;
         background: #e2e8f0;
-        transition: background-color 180ms ease-out;
-    }
-    .split-cut:hover {
-        color: #3b6cf5;
-    }
-    .split-cut:hover::before, .split-cut:hover::after {
-        background: #93b4fd;
-    }
-    .split-cut.is-active {
-        color: #ef4444;
-        font-weight: 700;
-    }
-    .split-cut.is-active::before, .split-cut.is-active::after {
-        background: #ef4444;
-        height: 2px;
+        transition: background-color 180ms ease-out, width 180ms ease-out;
     }
     .split-cut .split-cut-icon {
+        position: relative;
+        z-index: 2;
         display: inline-flex; align-items: center; justify-content: center;
-        width: 22px; height: 22px;
+        width: 24px; height: 24px;
         border-radius: 50%;
-        background: #f8fafc;
+        background: #fff;
         border: 1.5px solid currentColor;
+        transition: all 180ms ease-out;
     }
-    .split-group-label {
-        grid-column: 1 / -1;
-        display: inline-flex; align-self: flex-start;
-        align-items: center; gap: 6px;
-        font-size: 11px; font-weight: 700;
-        color: #475569;
-        background: #f1f5f9;
-        padding: 4px 10px;
-        border-radius: 999px;
-        margin-top: 6px;
+    .split-cut span:not(.split-cut-icon) {
+        font-size: 9px; font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        position: relative;
+        z-index: 2;
+        background: #fff;
+        padding: 0 2px;
+    }
+    .split-cut:hover { color: #3b6cf5; }
+    .split-cut:hover::before { background: #93b4fd; }
+    .split-cut.is-active { color: #ef4444; }
+    .split-cut.is-active::before {
+        background: #ef4444;
+        width: 2px;
+    }
+    .split-cut.is-active .split-cut-icon {
+        background: #ef4444;
+        color: #fff;
     }
 
     /* ── Merge tool: thumbnail grid ── */
