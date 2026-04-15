@@ -371,12 +371,6 @@
         placementMode = true;
         placementHint.classList.remove('hidden');
         pdfCanvas.style.cursor = 'crosshair';
-
-        // Scroll the viewer into view so the just-placed signature is visible
-        const viewer = document.getElementById('pdf-viewer');
-        if (viewer && viewer.scrollIntoView) {
-            viewer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
     });
 
     function placeSignatureAt(xPct, yPct) {
