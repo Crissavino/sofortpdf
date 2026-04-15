@@ -16,6 +16,14 @@
 @endphp
 
 @section('content')
+    <style>
+        @keyframes sign-cta-pulse {
+            0%   { box-shadow: 0 0 0 0 rgba(59, 108, 245, 0.55); }
+            70%  { box-shadow: 0 0 0 12px rgba(59, 108, 245, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(59, 108, 245, 0); }
+        }
+        .sign-cta-pulse { animation: sign-cta-pulse 1.8s ease-out infinite; }
+    </style>
     <section class="relative overflow-hidden">
         {{-- Background --}}
         <div class="absolute inset-0 bg-gradient-to-b from-brand-50/40 to-white pointer-events-none"></div>
@@ -53,7 +61,7 @@
                 <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-3 mb-4 flex flex-wrap items-center justify-between gap-3">
                     <div class="flex items-center gap-2">
                         <button id="btn-create-sig"
-                                class="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-display font-bold px-4 py-2 rounded-lg shadow-sm text-sm transition-colors">
+                                class="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-display font-bold px-4 py-2 rounded-lg shadow-sm text-sm transition-colors relative">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                             {{ __('sign.create_signature') }}
                         </button>
@@ -82,7 +90,7 @@
 
                 {{-- PDF viewer --}}
                 <div id="pdf-viewer" class="relative bg-slate-100 rounded-xl border border-slate-200 overflow-hidden min-h-[400px] flex items-center justify-center">
-                    <canvas id="pdf-canvas" class="max-w-full cursor-crosshair"></canvas>
+                    <canvas id="pdf-canvas" class="max-w-full cursor-pointer"></canvas>
                     {{-- Signature overlays will be appended here --}}
                     <div id="sig-overlays" class="absolute inset-0 pointer-events-none"></div>
                 </div>
@@ -267,6 +275,9 @@
         signWorkspace.classList.remove('hidden');
         errorState.classList.add('hidden');
 
+        // Nudge the user toward "Create signature" until they make one
+        btnCreateSig.classList.add('sign-cta-pulse');
+
         updatePageNav();
         renderPage(currentPage);
     }
@@ -306,6 +317,7 @@
     sigModalBackdrop.addEventListener('click', closeSigModal);
 
     function openSigModal() {
+        btnCreateSig.classList.remove('sign-cta-pulse');
         sigModal.classList.remove('hidden');
 
         // Initialize signature pad
@@ -347,48 +359,58 @@
         signatureDataUrl = signaturePad.toDataURL('image/png');
         closeSigModal();
 
-        // Enter placement mode
+        // Signature ready — stop pulsing the CTA
+        btnCreateSig.classList.remove('sign-cta-pulse');
+
+        // Auto-insert at the center of the current page. The user can then
+        // drag the overlay to reposition it, and click elsewhere to place
+        // additional copies.
+        placeSignatureAt(50, 50);
+
+        // Remain in placement mode so extra clicks add more signatures
         placementMode = true;
         placementHint.classList.remove('hidden');
         pdfCanvas.style.cursor = 'crosshair';
     });
 
-    // Place signature on click
-    pdfCanvas.addEventListener('click', (e) => {
-        if (!placementMode || !signatureDataUrl) return;
+    function placeSignatureAt(xPct, yPct) {
+        if (!signatureDataUrl) return;
 
-        const rect = pdfCanvas.getBoundingClientRect();
-        const clickX = e.clientX - rect.left;
-        const clickY = e.clientY - rect.top;
-
-        // Convert to percentage of canvas
-        const xPct = (clickX / rect.width) * 100;
-        const yPct = (clickY / rect.height) * 100;
-
-        // Signature size: ~20% width, proportional height
         const widthPct = 20;
         const heightPct = 8;
 
-        // Center on click position
         const finalX = Math.max(0, Math.min(100 - widthPct, xPct - widthPct / 2));
         const finalY = Math.max(0, Math.min(100 - heightPct, yPct - heightPct / 2));
 
-        const sig = {
+        placedSignatures.push({
             id: ++sigIdCounter,
             page: currentPage,
             xPct: finalX,
             yPct: finalY,
             widthPct: widthPct,
             heightPct: heightPct,
-        };
-
-        placedSignatures.push(sig);
-        placementMode = false;
-        placementHint.classList.add('hidden');
-        pdfCanvas.style.cursor = 'default';
+        });
 
         renderSignatureOverlays();
         updateSubmitButton();
+    }
+
+    // Place signature on click (or open the signature modal if none yet)
+    pdfCanvas.addEventListener('click', (e) => {
+        // No signature created yet? Clicking the PDF should open the modal
+        // — that's what the crosshair-ish cursor suggests to users.
+        if (!signatureDataUrl) {
+            openSigModal();
+            return;
+        }
+
+        if (!placementMode) return;
+
+        const rect = pdfCanvas.getBoundingClientRect();
+        const xPct = ((e.clientX - rect.left) / rect.width) * 100;
+        const yPct = ((e.clientY - rect.top) / rect.height) * 100;
+
+        placeSignatureAt(xPct, yPct);
     });
 
     // Render signature overlays
@@ -480,7 +502,8 @@
         signatureDataUrl = null;
         placementMode = false;
         placementHint.classList.add('hidden');
-        pdfCanvas.style.cursor = 'default';
+        pdfCanvas.style.cursor = 'pointer';
+        btnCreateSig.classList.add('sign-cta-pulse');
         renderSignatureOverlays();
         updateSubmitButton();
     });
@@ -606,7 +629,8 @@
 
             fileInput.value = '';
             sigOverlays.innerHTML = '';
-            pdfCanvas.style.cursor = 'default';
+            pdfCanvas.style.cursor = 'pointer';
+            btnCreateSig.classList.remove('sign-cta-pulse');
             btnSubmit.disabled = true;
             btnSubmitText.textContent = __t.submit;
             btnSubmitSpinner.classList.add('hidden');
