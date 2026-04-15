@@ -144,4 +144,10 @@ return [
         'de' => ['imprint' => 'impressum', 'privacy' => 'datenschutz', 'terms' => 'agb'],
         'en' => ['imprint' => 'imprint', 'privacy' => 'privacy', 'terms' => 'terms'],
     ],
+
+    // Contact route slug
+    'contact_slugs' => [
+        'de' => 'kontakt',
+        'en' => 'contact',
+    ],
 ];

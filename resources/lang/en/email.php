@@ -24,6 +24,15 @@ return [
     'reset_ignore_notice'      => 'If you did not request a password reset, you can ignore this email. Your password will remain unchanged.',
     'reset_plain_url_label'    => 'If the button does not work, copy this link into your browser:',
 
+    // Contact auto-reply
+    'contact_autoreply_subject'       => 'We received your message — sofortpdf.com',
+    'contact_autoreply_heading'       => 'Thank you, :name',
+    'contact_autoreply_intro'         => 'We have received your message and will get back to you as soon as possible — usually within one business day.',
+    'contact_autoreply_your_message'  => 'Your message:',
+    'contact_autoreply_body'          => 'No need to reply — we will reach out to the email address you wrote from.',
+    'contact_autoreply_signature_line1' => 'Kind regards,',
+    'contact_autoreply_signature_line2' => 'Your sofortpdf.com team',
+
     // Welcome
     'welcome_heading'          => 'Welcome to sofortpdf.com, :name!',
     'welcome_intro'            => 'Thank you for signing up at sofortpdf.com. Your account has been created successfully.',

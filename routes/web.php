@@ -8,6 +8,7 @@ use App\Http\Controllers\DownloadController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LegalController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\SignatureController;
 use App\Http\Controllers\ToolController;
@@ -224,6 +225,16 @@ Route::prefix('{locale}')
     | Legal — all locale slugs
     |----------------------------------------------------------------------
     */
+    /*
+    |----------------------------------------------------------------------
+    | Contact — all locale slugs
+    |----------------------------------------------------------------------
+    */
+    Route::get('/kontakt',  [ContactController::class, 'show'])->name('contact.show.de');
+    Route::post('/kontakt', [ContactController::class, 'send'])->name('contact.send.de');
+    Route::get('/contact',  [ContactController::class, 'show'])->name('contact.show.en');
+    Route::post('/contact', [ContactController::class, 'send'])->name('contact.send.en');
+
     // DE legal
     Route::get('/impressum', [LegalController::class, 'imprint'])->name('impressum.de');
     Route::get('/datenschutz', [LegalController::class, 'privacy'])->name('datenschutz.de');
@@ -241,6 +252,13 @@ Route::prefix('{locale}')
 |--------------------------------------------------------------------------
 */
 Route::get('/registrieren', function () { return redirect('/de'); })->name('register');
+
+// Contact fallback — redirect to locale-appropriate slug
+Route::get('/contact-redirect', function () {
+    $locale = session('locale', 'de');
+    $slug   = config("locales.contact_slugs.{$locale}", 'kontakt');
+    return redirect("/{$locale}/{$slug}");
+})->name('contact');
 
 // Auth fallbacks (Laravel's auth middleware looks for 'login')
 Route::get('/login', function () {

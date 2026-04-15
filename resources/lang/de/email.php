@@ -24,6 +24,15 @@ return [
     'reset_ignore_notice'      => 'Falls Sie kein Zurücksetzen angefordert haben, können Sie diese E-Mail ignorieren. Ihr Passwort bleibt unverändert.',
     'reset_plain_url_label'    => 'Falls der Button nicht funktioniert, kopieren Sie diesen Link in Ihren Browser:',
 
+    // Contact auto-reply
+    'contact_autoreply_subject'       => 'Wir haben Ihre Nachricht erhalten — sofortpdf.com',
+    'contact_autoreply_heading'       => 'Vielen Dank, :name',
+    'contact_autoreply_intro'         => 'Wir haben Ihre Nachricht erhalten und werden uns so schnell wie möglich bei Ihnen melden — in der Regel innerhalb eines Werktags.',
+    'contact_autoreply_your_message'  => 'Ihre Nachricht:',
+    'contact_autoreply_body'          => 'Sie müssen nicht antworten — wir melden uns unter der E-Mail-Adresse, von der Sie geschrieben haben.',
+    'contact_autoreply_signature_line1' => 'Viele Grüße,',
+    'contact_autoreply_signature_line2' => 'Ihr sofortpdf.com-Team',
+
     // Welcome
     'welcome_heading'          => 'Willkommen bei sofortpdf.com, :name!',
     'welcome_intro'            => 'Vielen Dank für Ihre Anmeldung bei sofortpdf.com. Ihr Konto wurde erfolgreich erstellt.',

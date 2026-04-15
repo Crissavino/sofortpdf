@@ -314,6 +314,7 @@
                         <li><a href="/{{ $fLoc }}/{{ config("locales.legal_slugs.{$fLoc}.imprint") }}" class="hover:text-white transition-colors">{{ __('layout.footer_imprint') }}</a></li>
                         <li><a href="/{{ $fLoc }}/{{ config("locales.legal_slugs.{$fLoc}.privacy") }}" class="hover:text-white transition-colors">{{ __('layout.footer_privacy') }}</a></li>
                         <li><a href="/{{ $fLoc }}/{{ config("locales.legal_slugs.{$fLoc}.terms") }}" class="hover:text-white transition-colors">{{ __('layout.footer_terms') }}</a></li>
+                        <li><a href="/{{ $fLoc }}/{{ config("locales.contact_slugs.{$fLoc}") }}" class="hover:text-white transition-colors">{{ __('contact_ui.footer_link') }}</a></li>
                     </ul>
                 </div>
             </div>
