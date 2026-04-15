@@ -77,6 +77,20 @@ return [
     'picker_select_all' => 'Alle auswählen',
     'picker_select_none' => 'Auswahl aufheben',
 
+    // Rotate-mode picker
+    'picker_rotate_heading' => 'Seiten zum Drehen anklicken',
+    'picker_rotate_hint' => 'Jeder Klick dreht die Seite um 90° im Uhrzeigersinn.',
+    'picker_rotate_count' => ':n Seite(n) gedreht',
+    'picker_need_rotation' => 'Drehen Sie mindestens eine Seite, indem Sie sie anklicken.',
+    'picker_reset_rotations' => 'Drehungen zurücksetzen',
+
+    // Split-mode picker
+    'picker_split_heading' => 'Schnittpunkte zwischen Seiten setzen',
+    'picker_split_hint' => 'Klicken Sie zwischen zwei Seiten, um einen Schnittpunkt einzufügen. Jede entstehende Gruppe wird zu einer separaten PDF.',
+    'picker_split_count' => ':n Gruppe(n) — :groups',
+    'picker_need_split' => 'Setzen Sie mindestens einen Schnittpunkt.',
+    'picker_reset_splits' => 'Schnitte zurücksetzen',
+
     'ocr_language_label' => 'Sprache',
     'ocr_language_hint' => 'Wählen Sie die Sprache des Textes im Dokument.',
     'ocr_lang_deu' => 'Deutsch',

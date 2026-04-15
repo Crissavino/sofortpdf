@@ -459,6 +459,106 @@
     }
     .page-picker[data-mode="extract"] .page-picker-card.is-selected .page-mark svg { opacity: 1; }
 
+    /* Rotate mode — thumbnail rotates with the chosen angle, badge shows
+       the number of degrees. The rotation badge appears at top-right when
+       any rotation has been applied (≠ 0). */
+    .page-picker[data-mode="rotate"] .page-picker-card .page-mark { display: none; }
+    .page-picker[data-mode="rotate"] .page-picker-card .page-rotate-badge {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        background: #fff;
+        border: 1.5px solid #cbd5e1;
+        color: #475569;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 2px 7px;
+        border-radius: 999px;
+        z-index: 3;
+        opacity: 0;
+        transition: opacity 160ms ease-out;
+    }
+    .page-picker[data-mode="rotate"] .page-picker-card[data-angle="90"] .page-rotate-badge,
+    .page-picker[data-mode="rotate"] .page-picker-card[data-angle="180"] .page-rotate-badge,
+    .page-picker[data-mode="rotate"] .page-picker-card[data-angle="270"] .page-rotate-badge {
+        opacity: 1;
+    }
+    .page-picker[data-mode="rotate"] .page-picker-card[data-angle="90"] .page-rotate-badge,
+    .page-picker[data-mode="rotate"] .page-picker-card[data-angle="180"] .page-rotate-badge,
+    .page-picker[data-mode="rotate"] .page-picker-card[data-angle="270"] .page-rotate-badge {
+        background: #3b6cf5;
+        border-color: #3b6cf5;
+        color: #fff;
+    }
+    .page-picker[data-mode="rotate"] .page-picker-card[data-angle="90"]  { border-color: #93b4fd; }
+    .page-picker[data-mode="rotate"] .page-picker-card[data-angle="180"] { border-color: #3b6cf5; }
+    .page-picker[data-mode="rotate"] .page-picker-card[data-angle="270"] { border-color: #1d3ad7; }
+    .page-picker[data-mode="rotate"] .page-picker-card .page-thumb img {
+        transition: transform 280ms cubic-bezier(0.23, 1, 0.32, 1);
+    }
+    .page-picker[data-mode="rotate"] .page-picker-card[data-angle="90"]  .page-thumb img { transform: rotate(90deg);  }
+    .page-picker[data-mode="rotate"] .page-picker-card[data-angle="180"] .page-thumb img { transform: rotate(180deg); }
+    .page-picker[data-mode="rotate"] .page-picker-card[data-angle="270"] .page-thumb img { transform: rotate(270deg); }
+
+    /* Split mode — cards are arranged in groups separated by clickable
+       cut points. Group bands run between cards. */
+    .page-picker[data-mode="split"] .page-picker-grid {
+        position: relative;
+    }
+    .page-picker[data-mode="split"] .page-picker-card {
+        cursor: default;
+    }
+    .page-picker[data-mode="split"] .page-picker-card .page-mark { display: none; }
+    .split-cut {
+        grid-column: 1 / -1;
+        display: flex; align-items: center; gap: 10px;
+        margin: 4px 0;
+        padding: 0;
+        font-size: 11px; font-weight: 600;
+        color: #94a3b8;
+        cursor: pointer;
+        user-select: none;
+    }
+    .split-cut::before, .split-cut::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: #e2e8f0;
+        transition: background-color 180ms ease-out;
+    }
+    .split-cut:hover {
+        color: #3b6cf5;
+    }
+    .split-cut:hover::before, .split-cut:hover::after {
+        background: #93b4fd;
+    }
+    .split-cut.is-active {
+        color: #ef4444;
+        font-weight: 700;
+    }
+    .split-cut.is-active::before, .split-cut.is-active::after {
+        background: #ef4444;
+        height: 2px;
+    }
+    .split-cut .split-cut-icon {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 22px; height: 22px;
+        border-radius: 50%;
+        background: #f8fafc;
+        border: 1.5px solid currentColor;
+    }
+    .split-group-label {
+        grid-column: 1 / -1;
+        display: inline-flex; align-self: flex-start;
+        align-items: center; gap: 6px;
+        font-size: 11px; font-weight: 700;
+        color: #475569;
+        background: #f1f5f9;
+        padding: 4px 10px;
+        border-radius: 999px;
+        margin-top: 6px;
+    }
+
     /* ── Merge tool: thumbnail grid ── */
     .merge-grid {
         display: grid;
@@ -685,27 +785,52 @@
                      Hidden input `pages` is populated by JS so the existing
                      tool-param collection picks it up without changes. --}}
                 @if (! empty($toolConfig['page_picker'] ?? null))
-                    @php $pickerMode = $toolConfig['page_picker']; @endphp
+                    @php
+                        $pickerMode = $toolConfig['page_picker'];
+                        $pickerHeadings = [
+                            'remove'  => __('tool.picker_remove_heading'),
+                            'extract' => __('tool.picker_extract_heading'),
+                            'rotate'  => __('tool.picker_rotate_heading'),
+                            'split'   => __('tool.picker_split_heading'),
+                        ];
+                        $pickerHints = [
+                            'remove'  => __('tool.picker_remove_hint'),
+                            'extract' => __('tool.picker_extract_hint'),
+                            'rotate'  => __('tool.picker_rotate_hint'),
+                            'split'   => __('tool.picker_split_hint'),
+                        ];
+                        // The remove/extract picker writes to `pages`; rotate writes
+                        // to `rotations` (JSON); split writes to `pages`.
+                        $pickerOutputKey = $pickerMode === 'rotate' ? 'rotations' : 'pages';
+                    @endphp
                     <div id="page-picker" class="page-picker" data-mode="{{ $pickerMode }}" data-accept="{{ $accept }}">
                         <div class="page-picker-header">
                             <div>
-                                <h3 class="page-picker-heading">
-                                    {{ $pickerMode === 'extract' ? __('tool.picker_extract_heading') : __('tool.picker_remove_heading') }}
-                                </h3>
-                                <p class="page-picker-sub">
-                                    {{ $pickerMode === 'extract' ? __('tool.picker_extract_hint') : __('tool.picker_remove_hint') }}
-                                </p>
+                                <h3 class="page-picker-heading">{{ $pickerHeadings[$pickerMode] ?? '' }}</h3>
+                                <p class="page-picker-sub">{{ $pickerHints[$pickerMode] ?? '' }}</p>
                                 <p id="page-picker-count" class="page-picker-count mt-2" hidden></p>
                             </div>
                             <div class="page-picker-actions">
-                                <button type="button" class="page-picker-btn" data-picker-action="all">
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-                                    {{ __('tool.picker_select_all') }}
-                                </button>
-                                <button type="button" class="page-picker-btn" data-picker-action="none">
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
-                                    {{ __('tool.picker_select_none') }}
-                                </button>
+                                @if (in_array($pickerMode, ['remove', 'extract'], true))
+                                    <button type="button" class="page-picker-btn" data-picker-action="all">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                                        {{ __('tool.picker_select_all') }}
+                                    </button>
+                                    <button type="button" class="page-picker-btn" data-picker-action="none">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+                                        {{ __('tool.picker_select_none') }}
+                                    </button>
+                                @elseif ($pickerMode === 'rotate')
+                                    <button type="button" class="page-picker-btn" data-picker-action="reset-rotations">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9"/><polyline points="3 4 3 12 11 12"/></svg>
+                                        {{ __('tool.picker_reset_rotations') }}
+                                    </button>
+                                @elseif ($pickerMode === 'split')
+                                    <button type="button" class="page-picker-btn" data-picker-action="reset-splits">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9"/><polyline points="3 4 3 12 11 12"/></svg>
+                                        {{ __('tool.picker_reset_splits') }}
+                                    </button>
+                                @endif
                             </div>
                         </div>
 
@@ -713,8 +838,10 @@
                             <div class="page-picker-loading">{{ __('tool.picker_loading') }}</div>
                         </div>
 
-                        {{-- Hidden input that feeds the existing param collection. --}}
-                        <input type="hidden" data-tool-param="pages" id="page-picker-value" value="">
+                        {{-- Hidden input that feeds the existing param collection.
+                             Key is `pages` for remove/extract/split, `rotations`
+                             for the rotate mode (JSON array). --}}
+                        <input type="hidden" data-tool-param="{{ $pickerOutputKey }}" id="page-picker-value" value="">
                     </div>
                 @endif
 
@@ -1066,8 +1193,12 @@
         'pageLabel'    => __('tool.picker_page_label', ['n' => ':N']),
         'countRemove'  => __('tool.picker_selected_count_remove', ['n' => ':N']),
         'countExtract' => __('tool.picker_selected_count_extract', ['n' => ':N']),
+        'countRotate'  => __('tool.picker_rotate_count', ['n' => ':N']),
+        'countSplit'   => __('tool.picker_split_count', ['n' => ':N', 'groups' => ':GROUPS']),
         'needRemove'   => __('tool.picker_need_selection_remove'),
         'needExtract'  => __('tool.picker_need_selection_extract'),
+        'needRotation' => __('tool.picker_need_rotation'),
+        'needSplit'    => __('tool.picker_need_split'),
     ];
 @endphp
 @push('scripts')
@@ -1237,10 +1368,17 @@
         refreshIcons();
     }
 
+    // Picker state for rotate + split modes (separate from the
+    // remove/extract `pickerSelected` set).
+    const pickerRotations = new Map();   // page (int) → angle (0/90/180/270)
+    const pickerSplits = new Set();      // cut points BEFORE page N (so {3} → cut between 2 and 3 → groups 1-2 and 3-…)
+
     /* ── Page picker: render every PDF page as a clickable tile ── */
     async function initPagePicker(file) {
         if (!pickerEl || !file) return;
         pickerSelected.clear();
+        pickerRotations.clear();
+        pickerSplits.clear();
         pickerTotalPages = 0;
         updatePickerValue();
 
@@ -1257,27 +1395,7 @@
             var pdf = await pdfjs.getDocument({ data: ab }).promise;
             pickerTotalPages = pdf.numPages;
 
-            // Scaffold all cards up front with placeholders; fill thumbs async.
-            pickerGridEl.innerHTML = '';
-            for (var i = 1; i <= pdf.numPages; i++) {
-                var card = document.createElement('div');
-                card.className = 'page-picker-card';
-                card.setAttribute('data-page', i);
-                card.setAttribute('title', __pickerLabels.pageLabel.replace(':N', i));
-                card.innerHTML =
-                    '<div class="page-thumb"><div class="page-thumb-loading"></div></div>' +
-                    '<span class="page-number">' + i + '</span>' +
-                    '<span class="page-mark">' +
-                        (pickerMode === 'remove'
-                            ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>'
-                            : '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
-                        ) +
-                    '</span>';
-                card.addEventListener('click', function() {
-                    togglePickerPage(this);
-                });
-                pickerGridEl.appendChild(card);
-            }
+            renderPickerCards();
 
             // Render thumbnails sequentially so we don't hammer the worker.
             for (var p = 1; p <= pdf.numPages; p++) {
@@ -1303,6 +1421,72 @@
         }
     }
 
+    function renderPickerCards() {
+        pickerGridEl.innerHTML = '';
+
+        // Split mode interleaves cut points + group labels between cards.
+        if (pickerMode === 'split') {
+            renderSplitGroups();
+            return;
+        }
+
+        for (var i = 1; i <= pickerTotalPages; i++) {
+            pickerGridEl.appendChild(buildPageCard(i));
+        }
+    }
+
+    function buildPageCard(i) {
+        var card = document.createElement('div');
+        card.className = 'page-picker-card';
+        card.setAttribute('data-page', i);
+        card.setAttribute('title', __pickerLabels.pageLabel.replace(':N', i));
+
+        var markSvg = '';
+        if (pickerMode === 'remove') {
+            markSvg = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>';
+        } else if (pickerMode === 'extract') {
+            markSvg = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+        }
+
+        card.innerHTML =
+            '<div class="page-thumb"><div class="page-thumb-loading"></div></div>' +
+            '<span class="page-number">' + i + '</span>' +
+            (pickerMode === 'rotate'
+                ? '<span class="page-rotate-badge"></span>'
+                : '<span class="page-mark">' + markSvg + '</span>');
+
+        if (pickerMode === 'rotate') {
+            card.setAttribute('data-angle', String(pickerRotations.get(i) || 0));
+            updateRotateBadge(card, pickerRotations.get(i) || 0);
+            card.addEventListener('click', function() { rotatePickerPage(this); });
+        } else if (pickerMode === 'remove' || pickerMode === 'extract') {
+            if (pickerSelected.has(i)) card.classList.add('is-selected');
+            card.addEventListener('click', function() { togglePickerPage(this); });
+        }
+
+        return card;
+    }
+
+    function updateRotateBadge(card, angle) {
+        var badge = card.querySelector('.page-rotate-badge');
+        if (!badge) return;
+        badge.textContent = angle ? angle + '°' : '';
+    }
+
+    function rotatePickerPage(cardEl) {
+        var n = parseInt(cardEl.getAttribute('data-page'), 10);
+        var current = pickerRotations.get(n) || 0;
+        var next = (current + 90) % 360;
+        if (next === 0) {
+            pickerRotations.delete(n);
+        } else {
+            pickerRotations.set(n, next);
+        }
+        cardEl.setAttribute('data-angle', String(next));
+        updateRotateBadge(cardEl, next);
+        updatePickerValue();
+    }
+
     function togglePickerPage(cardEl) {
         var n = parseInt(cardEl.getAttribute('data-page'), 10);
         if (pickerSelected.has(n)) {
@@ -1315,10 +1499,100 @@
         updatePickerValue();
     }
 
+    /* ── Split mode: interleave clickable cut markers between cards ── */
+    function renderSplitGroups() {
+        pickerGridEl.innerHTML = '';
+        if (pickerTotalPages === 0) return;
+
+        for (var i = 1; i <= pickerTotalPages; i++) {
+            // Inject a cut marker BEFORE pages 2..N (cut "before page i"
+            // splits between page i-1 and page i).
+            if (i > 1) pickerGridEl.appendChild(buildCutMarker(i));
+            pickerGridEl.appendChild(buildPageCard(i));
+        }
+    }
+
+    function buildCutMarker(beforePage) {
+        var cut = document.createElement('div');
+        cut.className = 'split-cut';
+        cut.setAttribute('data-cut-before', String(beforePage));
+        if (pickerSplits.has(beforePage)) cut.classList.add('is-active');
+        cut.innerHTML =
+            '<span class="split-cut-icon">' +
+                '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">' +
+                    '<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/>' +
+                    '<line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/>' +
+                '</svg>' +
+            '</span>' +
+            '<span>cut</span>';
+        cut.addEventListener('click', function() { toggleSplitCut(beforePage); });
+        return cut;
+    }
+
+    function toggleSplitCut(beforePage) {
+        if (pickerSplits.has(beforePage)) pickerSplits.delete(beforePage);
+        else pickerSplits.add(beforePage);
+        renderSplitGroups();
+        updatePickerValue();
+    }
+
+    // Build the list of page-range groups produced by the current cut points.
+    function splitGroups() {
+        if (pickerTotalPages === 0) return [];
+        var cuts = Array.from(pickerSplits).sort(function(a,b) { return a - b; });
+        var ranges = [];
+        var start = 1;
+        cuts.forEach(function(c) {
+            if (c > start) {
+                ranges.push(rangeStr(start, c - 1));
+                start = c;
+            }
+        });
+        ranges.push(rangeStr(start, pickerTotalPages));
+        return ranges;
+    }
+    function rangeStr(a, b) { return a === b ? String(a) : a + '-' + b; }
+
     function updatePickerValue() {
         if (!pickerEl) return;
+
+        if (pickerMode === 'rotate') {
+            // Submit JSON: [{"page":1,"angle":90},...]
+            var payload = [];
+            pickerRotations.forEach(function(angle, page) {
+                if (angle !== 0) payload.push({ page: page, angle: angle });
+            });
+            payload.sort(function(a, b) { return a.page - b.page; });
+            if (pickerValueEl) pickerValueEl.value = payload.length ? JSON.stringify(payload) : '';
+            if (pickerCountEl) {
+                if (payload.length === 0) {
+                    pickerCountEl.hidden = true;
+                } else {
+                    pickerCountEl.hidden = false;
+                    pickerCountEl.textContent = __pickerLabels.countRotate.replace(':N', payload.length);
+                }
+            }
+            return;
+        }
+
+        if (pickerMode === 'split') {
+            var ranges = splitGroups();
+            if (pickerValueEl) pickerValueEl.value = ranges.length > 1 ? ranges.join(',') : '';
+            if (pickerCountEl) {
+                if (ranges.length <= 1) {
+                    pickerCountEl.hidden = true;
+                } else {
+                    pickerCountEl.hidden = false;
+                    pickerCountEl.textContent = __pickerLabels.countSplit
+                        .replace(':N', ranges.length)
+                        .replace(':GROUPS', ranges.join(' · '));
+                }
+            }
+            return;
+        }
+
+        // Default: remove / extract
         var arr = Array.from(pickerSelected).sort(function(a, b) { return a - b; });
-        // Compact consecutive runs into ranges (1,2,3 → 1-3). Cs accepts both.
         var groups = [], start = null, prev = null;
         arr.forEach(function(n) {
             if (start === null) { start = n; prev = n; }
@@ -1340,7 +1614,7 @@
         }
     }
 
-    // Select all / none actions
+    // Action buttons (varies per mode)
     if (pickerEl) {
         pickerEl.addEventListener('click', function(e) {
             var btn = e.target.closest('[data-picker-action]');
@@ -1353,6 +1627,15 @@
             } else if (action === 'none') {
                 pickerSelected.clear();
                 pickerGridEl.querySelectorAll('.page-picker-card').forEach(function(c) { c.classList.remove('is-selected'); });
+            } else if (action === 'reset-rotations') {
+                pickerRotations.clear();
+                pickerGridEl.querySelectorAll('.page-picker-card').forEach(function(c) {
+                    c.setAttribute('data-angle', '0');
+                    updateRotateBadge(c, 0);
+                });
+            } else if (action === 'reset-splits') {
+                pickerSplits.clear();
+                renderSplitGroups();
             }
             updatePickerValue();
         });
@@ -1610,22 +1893,27 @@
             if (v !== '') toolParams[k] = v;
         });
 
-        // Page picker: require at least one page selected. Show a picker-
-        // specific error message since "please fill all required fields" is
-        // misleading when the input is visual.
+        // Page picker: require a meaningful selection. Mode-specific error
+        // messages since "please fill all required fields" doesn't make
+        // sense when the input is visual.
         if (pickerEl) {
             var pickerVal = pickerValueEl ? pickerValueEl.value.trim() : '';
             if (pickerVal === '') {
-                var msg = pickerMode === 'remove' ? __pickerLabels.needRemove : __pickerLabels.needExtract;
-                showError(msg);
+                var needMsg;
+                if (pickerMode === 'rotate') needMsg = __pickerLabels.needRotation;
+                else if (pickerMode === 'split') needMsg = __pickerLabels.needSplit;
+                else if (pickerMode === 'extract') needMsg = __pickerLabels.needExtract;
+                else needMsg = __pickerLabels.needRemove;
+                showError(needMsg);
                 processBtn.disabled = false;
                 btnText.textContent = '{{ $actionLabel }}';
                 btnSpinner.classList.add('hidden');
                 btnArrow.classList.remove('hidden');
                 return;
             }
-            toolParams['pages'] = pickerVal;
-            missingRequired = false; // the hidden input would otherwise false-positive
+            // Hidden input is bound to data-tool-param={pages | rotations}
+            // and was already collected above; nothing else to do here.
+            missingRequired = false; // false-positive guard for the hidden input
         }
 
         if (missingRequired) {

@@ -77,6 +77,20 @@ return [
     'picker_select_all' => 'Select all',
     'picker_select_none' => 'Clear selection',
 
+    // Rotate-mode picker
+    'picker_rotate_heading' => 'Click pages to rotate',
+    'picker_rotate_hint' => 'Each click rotates the page 90° clockwise.',
+    'picker_rotate_count' => ':n page(s) rotated',
+    'picker_need_rotation' => 'Rotate at least one page by clicking it.',
+    'picker_reset_rotations' => 'Reset rotations',
+
+    // Split-mode picker
+    'picker_split_heading' => 'Place cut points between pages',
+    'picker_split_hint' => 'Click between two pages to insert a cut point. Each resulting group becomes its own PDF.',
+    'picker_split_count' => ':n group(s) — :groups',
+    'picker_need_split' => 'Place at least one cut point.',
+    'picker_reset_splits' => 'Reset cuts',
+
     'ocr_language_label' => 'Language',
     'ocr_language_hint' => 'Pick the language of the text in the document.',
     'ocr_lang_deu' => 'German',

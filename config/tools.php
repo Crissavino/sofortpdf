@@ -89,15 +89,19 @@ return [
         'enabled' => env('TOOL_SPLIT_ENABLED', true),
         'slug' => 'pdf-trennen',
         'name' => 'PDF trennen',
-        'description' => 'PDF aufteilen — Seiten extrahieren & trennen',
+        'description' => 'PDF aufteilen — Schnittpunkte zwischen Seiten setzen',
         'h1' => 'PDF trennen',
-        'h2' => 'PDF aufteilen — Seiten extrahieren & trennen',
-        'meta_description' => 'PDF trennen — teilen Sie PDF-Dateien auf und extrahieren Sie einzelne Seiten. Schnell und online.',
+        'h2' => 'Klicken Sie zwischen Seiten, um Schnittpunkte zu setzen',
+        'meta_description' => 'PDF trennen — teilen Sie PDF-Dateien visuell auf. Schnell und online.',
         'icon' => 'split',
         'accept' => '.pdf',
         'multiple' => false,
         'max_files' => 1,
         'action_label' => 'PDF trennen',
+        // Visual split picker — click between pages to mark cut points.
+        // The resulting groups are submitted as a comma-separated range
+        // string ("1-3,4-5,6-8") in the existing `pages` param.
+        'page_picker' => 'split',
     ],
     'edit' => [
         'enabled' => env('TOOL_EDIT_ENABLED', false),
@@ -160,29 +164,18 @@ return [
         'enabled' => env('TOOL_ROTATE_ENABLED', true),
         'slug' => 'pdf-drehen',
         'name' => 'PDF drehen',
-        'description' => 'PDF-Seiten drehen — 90°, 180° oder 270°',
+        'description' => 'PDF-Seiten einzeln drehen — 90°, 180° oder 270°',
         'h1' => 'PDF drehen',
-        'h2' => 'PDF-Seiten drehen — 90°, 180° oder 270°',
-        'meta_description' => 'PDF drehen — drehen Sie PDF-Seiten um 90°, 180° oder 270°. Schnell und online.',
+        'h2' => 'Klicken Sie auf jede Seite, um sie um 90° zu drehen',
+        'meta_description' => 'PDF drehen — drehen Sie jede Seite einzeln um 90°, 180° oder 270°. Schnell und online.',
         'icon' => 'rotate',
         'accept' => '.pdf',
         'multiple' => false,
         'max_files' => 1,
         'action_label' => 'Drehen',
-        'params' => [
-            [
-                'key' => 'angle',
-                'type' => 'radio-pills',
-                'label_key' => 'tool.rotate_angle_label',
-                'required' => true,
-                'default' => '90',
-                'options' => [
-                    ['value' => '90',  'label' => '90°'],
-                    ['value' => '180', 'label' => '180°'],
-                    ['value' => '270', 'label' => '270°'],
-                ],
-            ],
-        ],
+        // Visual rotation picker — each page click cycles 0→90→180→270
+        // and the selected angles get submitted as a `rotations` JSON array.
+        'page_picker' => 'rotate',
     ],
     'protect' => [
         'enabled' => env('TOOL_PROTECT_ENABLED', false),
