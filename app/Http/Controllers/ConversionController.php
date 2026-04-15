@@ -137,10 +137,6 @@ class ConversionController extends Controller
         $ttl = now()->addHours((int) config('sofortpdf.guest_download_ttl_hours', 4));
 
         if ($success !== '1') {
-            // The raw error from cs is useful for internal debugging but
-            // must never reach the user — messages like "No export URLs
-            // from CloudConvert job" expose backend implementation
-            // details that aren't actionable for the customer.
             $rawError = (string) $request->input('error', '');
             if ($rawError !== '') {
                 Log::warning('Conversion callback reported failure', [
@@ -149,6 +145,12 @@ class ConversionController extends Controller
                     'error' => $rawError,
                 ]);
             }
+
+            // Honor the locale the user was on when they kicked off the
+            // job — the webhook itself has no locale context (called by
+            // the conversion-service over HTTP), so __() would fall back
+            // to default (de) and leak German into /en confirmation pages.
+            App::setLocale($entry['locale'] ?? config('locales.default', 'de'));
 
             Cache::put($this->jobKey($documentId), array_merge($entry, [
                 'status' => 'failed',
@@ -273,11 +275,23 @@ class ConversionController extends Controller
             $fields['engine'] = 'local';
         }
 
+        // For the split tool, the picker submits ranges in the `pages`
+        // field as a comma-separated string ("1-3,4-5,6-8"). cs's
+        // split-by-ranges operation wants those as a JSON array, so
+        // translate before forwarding.
+        if ($tool === 'split' && isset($params['pages']) && $params['pages'] !== '') {
+            $rangeArray = array_values(array_filter(array_map('trim', explode(',', (string) $params['pages']))));
+            if (! empty($rangeArray)) {
+                $params['ranges'] = json_encode($rangeArray);
+            }
+            unset($params['pages']);
+        }
+
         // Forward tool params the cs convertAsync validator allows:
         // quality, password, pages, ranges, text, fontSize, opacity, angle,
-        // language, output_extension.
+        // language, output_extension, rotations.
         foreach (['quality', 'password', 'pages', 'ranges', 'text', 'fontSize',
-                  'opacity', 'angle', 'language', 'output_extension'] as $k) {
+                  'opacity', 'angle', 'language', 'output_extension', 'rotations'] as $k) {
             if (isset($params[$k]) && $params[$k] !== '' && $params[$k] !== null) {
                 $fields[$k] = (string) $params[$k];
             }
@@ -311,7 +325,12 @@ class ConversionController extends Controller
             'ocr'           => 'ocr-pdf',
             'remove-pages'  => 'remove-pages',
             'extract-pages' => 'extract-pages',
-            'split'         => 'split',
+            // Split with multiple ranges → ZIP of separate PDFs (the picker
+            // only emits a value when there are 2+ groups). cs's
+            // split-by-ranges expects a JSON array in `ranges`; we
+            // synthesise that from the comma-separated `pages` string in
+            // dispatchToConversionService below.
+            'split'         => 'split-by-ranges',
             'optimize'      => 'optimize',
             'html-to-pdf'   => 'html-to-pdf',
             default         => null,
