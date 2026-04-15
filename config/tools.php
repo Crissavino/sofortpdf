@@ -379,17 +379,10 @@ return [
         'multiple' => false,
         'max_files' => 1,
         'action_label' => 'Seiten entfernen',
-        'params' => [
-            [
-                'key' => 'pages',
-                'type' => 'text',
-                'label_key' => 'tool.pages_remove_label',
-                'placeholder_key' => 'tool.pages_placeholder',
-                'hint_key' => 'tool.pages_hint',
-                'required' => true,
-                'maxlength' => 100,
-            ],
-        ],
+        // Visual page picker (JS renders every page of the uploaded PDF
+        // as a clickable thumbnail). The selected pages get submitted as
+        // the `pages` param, formatted "1,3,5".
+        'page_picker' => 'remove',
     ],
     'extract-pages' => [
         'enabled' => env('TOOL_EXTRACT_PAGES_ENABLED', true),
@@ -404,17 +397,7 @@ return [
         'multiple' => false,
         'max_files' => 1,
         'action_label' => 'Seiten extrahieren',
-        'params' => [
-            [
-                'key' => 'pages',
-                'type' => 'text',
-                'label_key' => 'tool.pages_extract_label',
-                'placeholder_key' => 'tool.pages_placeholder',
-                'hint_key' => 'tool.pages_hint',
-                'required' => true,
-                'maxlength' => 100,
-            ],
-        ],
+        'page_picker' => 'extract',
     ],
     'html-to-pdf' => [
         'enabled' => env('TOOL_HTML_TO_PDF_ENABLED', false),

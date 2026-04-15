@@ -63,6 +63,20 @@ return [
     'pages_remove_label' => 'Zu entfernende Seiten',
     'pages_extract_label' => 'Zu extrahierende Seiten',
 
+    // Page picker UI
+    'picker_remove_heading' => 'Seiten zum Entfernen auswählen',
+    'picker_extract_heading' => 'Seiten zum Extrahieren auswählen',
+    'picker_remove_hint' => 'Klicken Sie auf die Seiten, die entfernt werden sollen.',
+    'picker_extract_hint' => 'Klicken Sie auf die Seiten, die behalten werden sollen.',
+    'picker_page_label' => 'Seite :n',
+    'picker_loading' => 'Seiten werden geladen …',
+    'picker_selected_count_remove' => ':n Seite(n) zum Entfernen markiert',
+    'picker_selected_count_extract' => ':n Seite(n) zum Extrahieren markiert',
+    'picker_need_selection_remove' => 'Wählen Sie mindestens eine Seite zum Entfernen aus.',
+    'picker_need_selection_extract' => 'Wählen Sie mindestens eine Seite zum Extrahieren aus.',
+    'picker_select_all' => 'Alle auswählen',
+    'picker_select_none' => 'Auswahl aufheben',
+
     'ocr_language_label' => 'Sprache',
     'ocr_language_hint' => 'Wählen Sie die Sprache des Textes im Dokument.',
     'ocr_lang_deu' => 'Deutsch',

@@ -63,6 +63,20 @@ return [
     'pages_remove_label' => 'Pages to remove',
     'pages_extract_label' => 'Pages to extract',
 
+    // Page picker UI
+    'picker_remove_heading' => 'Pick pages to remove',
+    'picker_extract_heading' => 'Pick pages to extract',
+    'picker_remove_hint' => 'Click the pages you want to remove.',
+    'picker_extract_hint' => 'Click the pages you want to keep.',
+    'picker_page_label' => 'Page :n',
+    'picker_loading' => 'Loading pages …',
+    'picker_selected_count_remove' => ':n page(s) marked to remove',
+    'picker_selected_count_extract' => ':n page(s) marked to extract',
+    'picker_need_selection_remove' => 'Pick at least one page to remove.',
+    'picker_need_selection_extract' => 'Pick at least one page to extract.',
+    'picker_select_all' => 'Select all',
+    'picker_select_none' => 'Clear selection',
+
     'ocr_language_label' => 'Language',
     'ocr_language_hint' => 'Pick the language of the text in the document.',
     'ocr_lang_deu' => 'German',

@@ -295,6 +295,170 @@
         100% { left: 100%; }
     }
 
+    /* ── Page picker (remove-pages / extract-pages) ── */
+    .page-picker {
+        margin-top: 1.5rem;
+    }
+    .page-picker-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 14px;
+    }
+    .page-picker-heading {
+        font-family: 'Cabinet Grotesk', system-ui, sans-serif;
+        font-weight: 700;
+        font-size: 15px;
+        color: #0f172a;
+    }
+    .page-picker-sub {
+        font-size: 12px;
+        color: #64748b;
+        margin-top: 2px;
+    }
+    .page-picker-actions {
+        display: inline-flex;
+        gap: 6px;
+    }
+    .page-picker-btn {
+        display: inline-flex; align-items: center; gap: 4px;
+        padding: 6px 10px;
+        border: 1px solid rgb(226 232 240);
+        border-radius: 8px;
+        background: #fff;
+        font-size: 11px; font-weight: 600; color: #475569;
+        cursor: pointer;
+        transition: all 160ms ease-out;
+    }
+    .page-picker-btn:hover { background: #f8fafc; border-color: #cbd5e1; }
+    .page-picker-count {
+        font-size: 12px;
+        color: #64748b;
+        font-weight: 500;
+    }
+    .page-picker-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+    }
+    @media (min-width: 640px) {
+        .page-picker-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+    }
+    @media (min-width: 768px) {
+        .page-picker-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    }
+    .page-picker-loading {
+        padding: 30px;
+        text-align: center;
+        color: #94a3b8;
+        font-size: 13px;
+    }
+    .page-picker-card {
+        position: relative;
+        aspect-ratio: 3 / 4;
+        background: #fff;
+        border: 2px solid rgb(226 232 240);
+        border-radius: 10px;
+        padding: 4px;
+        cursor: pointer;
+        user-select: none;
+        transition: all 180ms var(--ease-out-expo);
+        overflow: hidden;
+    }
+    .page-picker-card:hover {
+        border-color: rgb(148 163 184);
+        transform: translateY(-1px);
+    }
+    .page-picker-card .page-thumb {
+        width: 100%; height: 100%;
+        display: flex; align-items: center; justify-content: center;
+        background: #f8fafc;
+        border-radius: 6px;
+        overflow: hidden;
+    }
+    .page-picker-card .page-thumb img {
+        max-width: 100%; max-height: 100%;
+        object-fit: contain;
+    }
+    .page-picker-card .page-thumb-loading {
+        width: 22px; height: 22px;
+        border: 2px solid #cbd5e1;
+        border-top-color: #3b6cf5;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+    .page-picker-card .page-number {
+        position: absolute;
+        bottom: 6px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(15, 23, 42, 0.85);
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 2px 8px;
+        border-radius: 999px;
+        z-index: 3;
+    }
+    .page-picker-card .page-mark {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: #fff;
+        border: 2px solid #cbd5e1;
+        display: flex; align-items: center; justify-content: center;
+        z-index: 3;
+        transition: all 180ms var(--ease-out-expo);
+    }
+    .page-picker-card .page-mark svg { opacity: 0; transition: opacity 140ms ease-out; }
+
+    /* Remove mode — selected pages get a red X and crossed-out overlay */
+    .page-picker[data-mode="remove"] .page-picker-card.is-selected {
+        border-color: #ef4444;
+        background: #fef2f2;
+    }
+    .page-picker[data-mode="remove"] .page-picker-card.is-selected .page-mark {
+        background: #ef4444;
+        border-color: #ef4444;
+        color: #fff;
+    }
+    .page-picker[data-mode="remove"] .page-picker-card.is-selected .page-mark svg { opacity: 1; }
+    .page-picker[data-mode="remove"] .page-picker-card.is-selected .page-thumb {
+        opacity: 0.35;
+    }
+    .page-picker[data-mode="remove"] .page-picker-card.is-selected::after {
+        content: '';
+        position: absolute;
+        inset: 4px;
+        background: repeating-linear-gradient(
+            -45deg,
+            rgba(239, 68, 68, 0.08) 0px,
+            rgba(239, 68, 68, 0.08) 4px,
+            transparent 4px,
+            transparent 8px
+        );
+        border-radius: 6px;
+        pointer-events: none;
+    }
+
+    /* Extract mode — selected pages get a green check + brand highlight */
+    .page-picker[data-mode="extract"] .page-picker-card.is-selected {
+        border-color: #10b981;
+        background: #ecfdf5;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+    }
+    .page-picker[data-mode="extract"] .page-picker-card.is-selected .page-mark {
+        background: #10b981;
+        border-color: #10b981;
+        color: #fff;
+    }
+    .page-picker[data-mode="extract"] .page-picker-card.is-selected .page-mark svg { opacity: 1; }
+
     /* ── Merge tool: thumbnail grid ── */
     .merge-grid {
         display: grid;
@@ -443,11 +607,13 @@
     }
 </style>
 
-@if ($tool === 'merge')
-    {{-- Merge tool needs PDF.js for PDF thumbnail rendering and SortableJS
-         for drag-drop reordering. Both loaded via CDN to avoid a build step. --}}
+@if ($tool === 'merge' || ! empty($toolConfig['page_picker'] ?? null))
+    {{-- PDF.js needed for: merge grid thumbnails + page-picker grids (remove/
+         extract pages). SortableJS is merge-specific. --}}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+    @if ($tool === 'merge')
+        <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+    @endif
     <script>
         // cdnjs's pdf.js exposes two globals: window['pdfjs-dist/build/pdf']
         // (CommonJS name) and window.pdfjsLib. Either may be present or
@@ -514,6 +680,43 @@
 
                 {{-- Add more files --}}
                 <div id="add-more-area" class="hidden mt-3"></div>
+
+                {{-- Visual page picker (remove-pages / extract-pages).
+                     Hidden input `pages` is populated by JS so the existing
+                     tool-param collection picks it up without changes. --}}
+                @if (! empty($toolConfig['page_picker'] ?? null))
+                    @php $pickerMode = $toolConfig['page_picker']; @endphp
+                    <div id="page-picker" class="page-picker" data-mode="{{ $pickerMode }}" data-accept="{{ $accept }}">
+                        <div class="page-picker-header">
+                            <div>
+                                <h3 class="page-picker-heading">
+                                    {{ $pickerMode === 'extract' ? __('tool.picker_extract_heading') : __('tool.picker_remove_heading') }}
+                                </h3>
+                                <p class="page-picker-sub">
+                                    {{ $pickerMode === 'extract' ? __('tool.picker_extract_hint') : __('tool.picker_remove_hint') }}
+                                </p>
+                                <p id="page-picker-count" class="page-picker-count mt-2" hidden></p>
+                            </div>
+                            <div class="page-picker-actions">
+                                <button type="button" class="page-picker-btn" data-picker-action="all">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                                    {{ __('tool.picker_select_all') }}
+                                </button>
+                                <button type="button" class="page-picker-btn" data-picker-action="none">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+                                    {{ __('tool.picker_select_none') }}
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="page-picker-grid" class="page-picker-grid">
+                            <div class="page-picker-loading">{{ __('tool.picker_loading') }}</div>
+                        </div>
+
+                        {{-- Hidden input that feeds the existing param collection. --}}
+                        <input type="hidden" data-tool-param="pages" id="page-picker-value" value="">
+                    </div>
+                @endif
 
                 {{-- Tool-specific params (text / number / radio / select inputs
                      driven by config('tools.{tool}.params')). Rendered only if
@@ -856,6 +1059,16 @@
         'genericError'     => __('tool.error_generic'),
         'paramRequired'    => __('tool.param_required_error'),
     ];
+    // Built here to sidestep Blade's parser truncating @json with inline
+    // multi-line arrays + nested __() calls (we've seen this before).
+    $pickerLabels = [
+        'loading'      => __('tool.picker_loading'),
+        'pageLabel'    => __('tool.picker_page_label', ['n' => ':N']),
+        'countRemove'  => __('tool.picker_selected_count_remove', ['n' => ':N']),
+        'countExtract' => __('tool.picker_selected_count_extract', ['n' => ':N']),
+        'needRemove'   => __('tool.picker_need_selection_remove'),
+        'needExtract'  => __('tool.picker_need_selection_extract'),
+    ];
 @endphp
 @push('scripts')
 <script>
@@ -886,6 +1099,16 @@
     const mergeMode = toolKey === 'merge';
     let mergeSortable = null;
     const previewCache = new Map(); // fileKey -> dataURL/objectURL (so we don't re-render on each reorder)
+
+    // Page picker (remove-pages / extract-pages): grid of every PDF page.
+    const pickerEl = document.getElementById('page-picker');
+    const pickerMode = pickerEl ? pickerEl.getAttribute('data-mode') : null; // 'remove' | 'extract' | null
+    const pickerValueEl = document.getElementById('page-picker-value');
+    const pickerCountEl = document.getElementById('page-picker-count');
+    const pickerGridEl = document.getElementById('page-picker-grid');
+    let pickerTotalPages = 0;
+    const pickerSelected = new Set();
+    const __pickerLabels = @json($pickerLabels);
 
     let selectedFiles = [];
 
@@ -962,6 +1185,12 @@
 
         renderFileList();
         errorState.classList.add('hidden');
+
+        // Tools with a page-picker render every page of the PDF once the
+        // user uploads a file. Single-file tools only (config enforces it).
+        if (pickerEl && selectedFiles.length > 0) {
+            initPagePicker(selectedFiles[0]).catch(function() { /* ignore */ });
+        }
     }
 
     /* ── Render file list with stagger ── */
@@ -1006,6 +1235,127 @@
         }
 
         refreshIcons();
+    }
+
+    /* ── Page picker: render every PDF page as a clickable tile ── */
+    async function initPagePicker(file) {
+        if (!pickerEl || !file) return;
+        pickerSelected.clear();
+        pickerTotalPages = 0;
+        updatePickerValue();
+
+        pickerGridEl.innerHTML = '<div class="page-picker-loading">' + __pickerLabels.loading + '</div>';
+
+        var pdfjs = window['pdfjs-dist/build/pdf'] || window.pdfjsLib;
+        if (!pdfjs || !pdfjs.getDocument) {
+            pickerGridEl.innerHTML = '<div class="page-picker-loading">PDF.js not loaded.</div>';
+            return;
+        }
+
+        try {
+            var ab = await file.arrayBuffer();
+            var pdf = await pdfjs.getDocument({ data: ab }).promise;
+            pickerTotalPages = pdf.numPages;
+
+            // Scaffold all cards up front with placeholders; fill thumbs async.
+            pickerGridEl.innerHTML = '';
+            for (var i = 1; i <= pdf.numPages; i++) {
+                var card = document.createElement('div');
+                card.className = 'page-picker-card';
+                card.setAttribute('data-page', i);
+                card.setAttribute('title', __pickerLabels.pageLabel.replace(':N', i));
+                card.innerHTML =
+                    '<div class="page-thumb"><div class="page-thumb-loading"></div></div>' +
+                    '<span class="page-number">' + i + '</span>' +
+                    '<span class="page-mark">' +
+                        (pickerMode === 'remove'
+                            ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>'
+                            : '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
+                        ) +
+                    '</span>';
+                card.addEventListener('click', function() {
+                    togglePickerPage(this);
+                });
+                pickerGridEl.appendChild(card);
+            }
+
+            // Render thumbnails sequentially so we don't hammer the worker.
+            for (var p = 1; p <= pdf.numPages; p++) {
+                var tile = pickerGridEl.querySelector('[data-page="' + p + '"] .page-thumb');
+                if (!tile) continue;
+                try {
+                    var page = await pdf.getPage(p);
+                    var vp = page.getViewport({ scale: 1 });
+                    var targetHeight = 180;
+                    var scale = targetHeight / vp.height;
+                    var viewport = page.getViewport({ scale: scale * (window.devicePixelRatio || 1) });
+                    var canvas = document.createElement('canvas');
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+                    await page.render({ canvasContext: canvas.getContext('2d'), viewport: viewport }).promise;
+                    tile.innerHTML = '<img src="' + canvas.toDataURL('image/png') + '" alt="">';
+                } catch (e) { /* leave spinner → user still sees page number */ }
+            }
+
+            updatePickerValue();
+        } catch (e) {
+            pickerGridEl.innerHTML = '<div class="page-picker-loading">Failed to load PDF pages.</div>';
+        }
+    }
+
+    function togglePickerPage(cardEl) {
+        var n = parseInt(cardEl.getAttribute('data-page'), 10);
+        if (pickerSelected.has(n)) {
+            pickerSelected.delete(n);
+            cardEl.classList.remove('is-selected');
+        } else {
+            pickerSelected.add(n);
+            cardEl.classList.add('is-selected');
+        }
+        updatePickerValue();
+    }
+
+    function updatePickerValue() {
+        if (!pickerEl) return;
+        var arr = Array.from(pickerSelected).sort(function(a, b) { return a - b; });
+        // Compact consecutive runs into ranges (1,2,3 → 1-3). Cs accepts both.
+        var groups = [], start = null, prev = null;
+        arr.forEach(function(n) {
+            if (start === null) { start = n; prev = n; }
+            else if (n === prev + 1) { prev = n; }
+            else { groups.push(start === prev ? String(start) : start + '-' + prev); start = n; prev = n; }
+        });
+        if (start !== null) groups.push(start === prev ? String(start) : start + '-' + prev);
+
+        if (pickerValueEl) pickerValueEl.value = groups.join(',');
+        if (pickerCountEl) {
+            var n = arr.length;
+            if (n === 0) {
+                pickerCountEl.hidden = true;
+            } else {
+                pickerCountEl.hidden = false;
+                var tpl = pickerMode === 'remove' ? __pickerLabels.countRemove : __pickerLabels.countExtract;
+                pickerCountEl.textContent = tpl.replace(':N', n);
+            }
+        }
+    }
+
+    // Select all / none actions
+    if (pickerEl) {
+        pickerEl.addEventListener('click', function(e) {
+            var btn = e.target.closest('[data-picker-action]');
+            if (!btn) return;
+            var action = btn.getAttribute('data-picker-action');
+            if (action === 'all') {
+                pickerSelected.clear();
+                for (var i = 1; i <= pickerTotalPages; i++) pickerSelected.add(i);
+                pickerGridEl.querySelectorAll('.page-picker-card').forEach(function(c) { c.classList.add('is-selected'); });
+            } else if (action === 'none') {
+                pickerSelected.clear();
+                pickerGridEl.querySelectorAll('.page-picker-card').forEach(function(c) { c.classList.remove('is-selected'); });
+            }
+            updatePickerValue();
+        });
     }
 
     /* ── Linear list renderer (all tools except merge) ── */
@@ -1259,6 +1609,25 @@
             }
             if (v !== '') toolParams[k] = v;
         });
+
+        // Page picker: require at least one page selected. Show a picker-
+        // specific error message since "please fill all required fields" is
+        // misleading when the input is visual.
+        if (pickerEl) {
+            var pickerVal = pickerValueEl ? pickerValueEl.value.trim() : '';
+            if (pickerVal === '') {
+                var msg = pickerMode === 'remove' ? __pickerLabels.needRemove : __pickerLabels.needExtract;
+                showError(msg);
+                processBtn.disabled = false;
+                btnText.textContent = '{{ $actionLabel }}';
+                btnSpinner.classList.add('hidden');
+                btnArrow.classList.remove('hidden');
+                return;
+            }
+            toolParams['pages'] = pickerVal;
+            missingRequired = false; // the hidden input would otherwise false-positive
+        }
+
         if (missingRequired) {
             showError(__t.paramRequired);
             processBtn.disabled = false;
