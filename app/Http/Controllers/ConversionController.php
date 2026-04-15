@@ -235,9 +235,13 @@ class ConversionController extends Controller
             foreach ($filePaths as $i => $path) {
                 $client = $client->attach("files[{$i}]", file_get_contents($path), basename($path));
             }
+            // Pin merge to the local engine too — cs's CloudConvert merge
+            // path has less reliable support for heterogeneous input (mixing
+            // DOCX + JPG + PDF) than its local LibreOffice+PDF pipeline.
             $response = $client->post("{$baseUrl}/api/async/merge", [
                 'callback_url' => $callbackUrl,
                 'document_id' => $jobId,
+                'engine' => 'local',
             ]);
             if (! $response->successful()) {
                 throw new \RuntimeException('async merge dispatch failed: ' . $response->status() . ' ' . $response->body());
