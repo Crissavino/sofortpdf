@@ -208,19 +208,25 @@ class ConversionController extends Controller
         }
 
         $callbackUrl = route('api.webhooks.conversion', [], true);
-        $client = Http::withToken($token)->timeout(20); // short: we only wait for the ACK
+        // Laravel's HTTP client uses Http::attach() for file parts (which
+        // flips the body into multipart/form-data); plain scalar fields are
+        // passed as the second arg of post() and end up in the same
+        // multipart body. Mixing the two was the bug that made scalar
+        // params silently vanish.
+        $client = Http::withToken($token)->timeout(20); // ACK only, not result
 
-        // merge + multi-image tools use /api/async/merge (the service already
-        // handles heterogeneous inputs).
+        // merge + multi-image tools use /api/async/merge (the service
+        // already handles heterogeneous inputs internally).
         $useMerge = in_array($tool, ['merge', 'jpg-to-pdf', 'png-to-pdf'], true);
 
         if ($useMerge) {
             foreach ($filePaths as $i => $path) {
                 $client = $client->attach("files[{$i}]", file_get_contents($path), basename($path));
             }
-            $client = $client->attach('callback_url', $callbackUrl)
-                             ->attach('document_id', $jobId);
-            $response = $client->post("{$baseUrl}/api/async/merge");
+            $response = $client->post("{$baseUrl}/api/async/merge", [
+                'callback_url' => $callbackUrl,
+                'document_id' => $jobId,
+            ]);
             if (! $response->successful()) {
                 throw new \RuntimeException('async merge dispatch failed: ' . $response->status() . ' ' . $response->body());
             }
@@ -232,22 +238,26 @@ class ConversionController extends Controller
             throw new \RuntimeException("no async operation mapping for tool '{$tool}'");
         }
 
-        $client = $client->attach('file', file_get_contents($filePaths[0]), basename($filePaths[0]))
-                         ->attach('operation', $operation)
-                         ->attach('callback_url', $callbackUrl)
-                         ->attach('document_id', $jobId);
+        // File part stays on attach(); everything else rides in the fields array.
+        $client = $client->attach('file', file_get_contents($filePaths[0]), basename($filePaths[0]));
 
-        // Forward tool params the cs supports (listed in its convertAsync
-        // validator): quality, password, pages, ranges, text, fontSize,
-        // opacity, angle, language, output_extension.
+        $fields = [
+            'operation' => $operation,
+            'callback_url' => $callbackUrl,
+            'document_id' => $jobId,
+        ];
+
+        // Forward tool params the cs convertAsync validator allows:
+        // quality, password, pages, ranges, text, fontSize, opacity, angle,
+        // language, output_extension.
         foreach (['quality', 'password', 'pages', 'ranges', 'text', 'fontSize',
                   'opacity', 'angle', 'language', 'output_extension'] as $k) {
             if (isset($params[$k]) && $params[$k] !== '' && $params[$k] !== null) {
-                $client = $client->attach($k, (string) $params[$k]);
+                $fields[$k] = (string) $params[$k];
             }
         }
 
-        $response = $client->post("{$baseUrl}/api/async/convert");
+        $response = $client->post("{$baseUrl}/api/async/convert", $fields);
         if (! $response->successful()) {
             throw new \RuntimeException('async convert dispatch failed: ' . $response->status() . ' ' . $response->body());
         }
