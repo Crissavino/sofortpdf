@@ -45,6 +45,18 @@ Route::middleware(['paywall'])->prefix('api')->group(function () {
     Route::post('/sign', [SignatureController::class, 'sign']);
 });
 
+// Polling endpoint for the confirmation page (no paywall, otherwise the
+// user couldn't check their own job status from a guest session).
+Route::get('/api/convert/status/{id}', [ConversionController::class, 'status'])
+     ->name('api.convert.status');
+
+// Webhook from the conversion-service. Public (no auth, no CSRF) so the
+// external worker can POST back. Tampering is bounded by requiring a known
+// job_id that's still in cache.
+Route::post('/api/webhooks/conversion', [ConversionController::class, 'webhook'])
+     ->name('api.webhooks.conversion')
+     ->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class);
+
 /*
 |--------------------------------------------------------------------------
 | Download (no locale prefix, auth required)

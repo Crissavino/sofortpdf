@@ -2,20 +2,27 @@
 
 namespace App\Http\Controllers;
 
-use App\Exceptions\ConversionServiceException;
 use App\Models\ConversionLog;
-use App\Models\Download;
-use App\Services\ConversionServiceClient;
 use App\Services\PaywallBypass;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class ConversionController extends Controller
 {
-    public function convert(Request $request, ConversionServiceClient $client)
+    /**
+     * POST /api/convert
+     *
+     * Kicks off an async conversion on the external conversion-service and
+     * returns a job_id immediately. The conversion-service processes the
+     * work on its own queue and hits back /api/webhooks/conversion when it
+     * completes. The browser polls GET /api/convert/status/{id} until the
+     * cache entry flips to completed/failed.
+     */
+    public function convert(Request $request)
     {
         $request->validate([
             'tool' => 'required|string',
@@ -23,9 +30,7 @@ class ConversionController extends Controller
         ]);
 
         // /api/convert lives outside the localized route group, so SetLocale
-        // never runs here. Pull the locale the user picked from session and
-        // apply it manually — otherwise __() falls back to German and
-        // route() complains about the missing {locale} parameter.
+        // never runs here. Resolve from session/referer so __() + route() work.
         $locale = $this->resolveLocale($request);
         App::setLocale($locale);
 
@@ -35,107 +40,276 @@ class ConversionController extends Controller
         $bypass = PaywallBypass::applies($request);
 
         if (empty($uploadedFiles)) {
-            return response()->json(['message' => 'Keine Dateien gefunden. Bitte laden Sie erneut hoch.'], 422);
+            return response()->json(['message' => __('tool.error_generic')], 422);
         }
 
+        $params = $request->except(['tool', 'file_ids']);
         $filePaths = collect($uploadedFiles)->pluck('path')->toArray();
         $originalNames = collect($uploadedFiles)->pluck('original_name')->toArray();
-        $startTime = microtime(true);
 
+        // Generate a job_id the browser will poll on and the webhook will key against.
+        $jobId = (string) Str::uuid();
+        $ttl = now()->addHours((int) config('sofortpdf.guest_download_ttl_hours', 4));
+
+        // Seed the cache so the polling endpoint has an answer before the
+        // conversion-service acknowledges the dispatch.
+        Cache::put($this->jobKey($jobId), [
+            'status' => 'pending',
+            'tool' => $tool,
+            'started_at' => now()->toIso8601String(),
+            'original_filename' => $originalNames[0] ?? null,
+            'locale' => $locale,
+            'user_id' => $user?->id,
+            'bypass' => $bypass,
+            'input_paths' => $filePaths,
+            'original_names' => $originalNames,
+            'output_filename' => $this->generateOutputName($originalNames[0] ?? 'datei', $tool),
+        ], $ttl);
+
+        // Session data isn't needed for the async flow anymore.
+        session()->forget(['upload_files', 'upload_tool']);
+
+        // Dispatch to the external async worker. This HTTP call should be
+        // fast (<1s) — the conversion-service enqueues a Laravel job and
+        // returns 202. If it fails, we fall back to the sync path so the
+        // user still gets their file eventually.
         try {
-            $resultPath = match ($tool) {
-                'merge' => $client->merge($filePaths),
-                'compress' => $client->compress($filePaths[0]),
-                'jpg-to-pdf' => $client->jpgToPdf($filePaths),
-                'pdf-to-word' => $client->convert($filePaths[0], 'pdf', 'docx'),
-                'word-to-pdf' => $client->convert($filePaths[0], 'docx', 'pdf'),
-                'pdf-to-jpg' => $client->pdfToJpg($filePaths[0]),
-                'split' => $client->split($filePaths[0], $request->input('pages', [])),
-                'pdf-to-excel' => $client->convert($filePaths[0], 'pdf', 'xlsx'),
-                'excel-to-pdf' => $client->convert($filePaths[0], 'xlsx', 'pdf'),
-                'rotate' => $client->rotate($filePaths[0], (int) $request->input('angle', 90)),
-                'protect' => $client->protect($filePaths[0], $request->input('password', '')),
-                'unlock' => $client->unlock($filePaths[0], $request->input('password', '')),
-                'watermark' => $client->watermark(
-                    $filePaths[0],
-                    $request->input('text', 'WATERMARK'),
-                    (float) $request->input('opacity', 0.5),
-                    (int) $request->input('fontSize', 48),
-                    (int) $request->input('angle', 45)
-                ),
-                'pdf-to-ppt' => $client->pdfToPpt($filePaths[0]),
-                'ppt-to-pdf' => $client->officeToPdf($filePaths[0]),
-                'pdf-to-png' => $client->pdfToPng($filePaths[0]),
-                'png-to-pdf' => $client->pngToPdf($filePaths),
-                'ocr' => $client->ocrPdf($filePaths[0], $request->input('language', 'deu+eng')),
-                'remove-pages' => $client->removePages($filePaths[0], $request->input('pages', '')),
-                'extract-pages' => $client->extractPages($filePaths[0], $request->input('pages', '')),
-                'html-to-pdf' => $client->htmlToPdf($request->input('html', '')),
-                'optimize' => $client->optimize($filePaths[0]),
-                default => throw ConversionServiceException::conversionFailed('Unbekanntes Tool.'),
-            };
-
-            $processingTime = (int) ((microtime(true) - $startTime) * 1000);
-
-            // Handle array results (split, pdf-to-jpg)
-            $isArray = is_array($resultPath);
-            $primaryPath = $isArray ? $resultPath[0] : $resultPath;
-            $originalName = $this->generateOutputName($originalNames[0] ?? 'datei', $tool);
-
-            // Log conversion (best-effort; never block the response)
-            try {
-                ConversionLog::create([
-                    'customer_id' => $user?->id,
-                    'tool_slug' => "sofortpdf_{$tool}",
-                    'original_filename' => $originalNames[0] ?? 'unknown',
-                    'result_filename' => basename($primaryPath),
-                    'status' => 'completed',
-                    'file_size' => file_exists($primaryPath) ? filesize($primaryPath) : 0,
-                    'processing_time_ms' => $processingTime,
-                ]);
-            } catch (\Throwable $e) {
-                Log::warning('ConversionLog write failed', ['error' => $e->getMessage()]);
-            }
-
-            // Issue a download token. With a logged-in user we use the
-            // downloads table; in payment-bypass mode (or guest) we keep
-            // the mapping in cache to avoid the customer_id FK in the
-            // shared database.
-            $tokenInfo = $this->issueDownloadToken($user, $primaryPath, $originalName, $bypass);
-
-            // Clear session — but read the upload_tool first so we don't
-            // strip context the rest of the response might want later.
-            session()->forget(['upload_files', 'upload_tool']);
-
-            return response()->json([
-                'download_url' => $tokenInfo['download_url'],
-                'confirmation_url' => route('confirmation', ['locale' => $locale, 't' => $tokenInfo['token']]),
-                'filename' => $originalName,
-                'message' => __('tool.ready_for_download'),
+            $this->dispatchToConversionService($jobId, $tool, $filePaths, $params, $ttl);
+        } catch (\Throwable $e) {
+            Log::error('Async dispatch failed, job marked failed', [
+                'job_id' => $jobId,
+                'tool' => $tool,
+                'error' => $e->getMessage(),
             ]);
+            Cache::put($this->jobKey($jobId), array_merge(Cache::get($this->jobKey($jobId), []), [
+                'status' => 'failed',
+                'message' => __('tool.error_generic'),
+                'failed_at' => now()->toIso8601String(),
+            ]), $ttl);
+        }
 
-        } catch (ConversionServiceException $e) {
-            $processingTime = (int) ((microtime(true) - $startTime) * 1000);
+        return response()->json([
+            'job_id' => $jobId,
+            'confirmation_url' => route('confirmation', ['locale' => $locale, 't' => $jobId]),
+            'message' => __('tool.processing'),
+        ]);
+    }
 
-            try {
-                ConversionLog::create([
-                    'customer_id' => $user?->id,
-                    'tool_slug' => "sofortpdf_{$tool}",
-                    'original_filename' => $originalNames[0] ?? 'unknown',
-                    'result_filename' => '',
-                    'status' => 'failed',
-                    'error_message' => $e->getMessage(),
-                    'processing_time_ms' => $processingTime,
-                ]);
-            } catch (\Throwable $logErr) {
-                Log::warning('ConversionLog write failed', ['error' => $logErr->getMessage()]);
+    /**
+     * GET /api/convert/status/{id}
+     * Polled by the confirmation page until the job reports completed / failed.
+     */
+    public function status(Request $request, string $id)
+    {
+        App::setLocale($this->resolveLocale($request));
+        $entry = Cache::get($this->jobKey($id));
+        if (! is_array($entry)) {
+            return response()->json(['status' => 'unknown'], 404);
+        }
+
+        // Keep the response surface minimal — internal bookkeeping fields
+        // shouldn't leak to the browser.
+        $publicKeys = ['status', 'tool', 'message', 'download_url', 'download_token',
+                       'filename', 'original_filename', 'started_at', 'completed_at', 'failed_at'];
+        return response()->json(array_intersect_key($entry, array_flip($publicKeys)));
+    }
+
+    /**
+     * POST /api/webhooks/conversion
+     * Called by the conversion-service when a job finishes (multipart/form-data
+     * with `document_id`, `success`, `file`, `output_extension`, optional `error`).
+     */
+    public function webhook(Request $request)
+    {
+        $documentId = (string) $request->input('document_id', '');
+        $success = (string) $request->input('success', '0');
+
+        if ($documentId === '') {
+            return response()->json(['ok' => false, 'message' => 'document_id required'], 422);
+        }
+
+        $entry = Cache::get($this->jobKey($documentId));
+        if (! is_array($entry)) {
+            // Unknown or expired job — swallow silently so cs doesn't retry.
+            return response()->json(['ok' => true, 'status' => 'unknown']);
+        }
+
+        $ttl = now()->addHours((int) config('sofortpdf.guest_download_ttl_hours', 4));
+
+        if ($success !== '1') {
+            $errorMessage = (string) $request->input('error', '');
+            Cache::put($this->jobKey($documentId), array_merge($entry, [
+                'status' => 'failed',
+                'message' => $errorMessage !== '' ? $errorMessage : __('tool.error_generic'),
+                'failed_at' => now()->toIso8601String(),
+            ]), $ttl);
+
+            $this->logConversion($entry, 'failed', null, $errorMessage ?: 'dispatch failed');
+            $this->cleanupInputs($entry);
+            return response()->json(['ok' => true, 'status' => 'failed']);
+        }
+
+        $file = $request->file('file');
+        if (! $file) {
+            return response()->json(['ok' => false, 'message' => 'file missing'], 422);
+        }
+
+        $outputExt = (string) ($request->input('output_extension') ?: $file->getClientOriginalExtension() ?: 'pdf');
+        $outputPath = storage_path('app/temp/' . (string) Str::uuid() . '.' . $outputExt);
+        if (! is_dir(dirname($outputPath))) {
+            @mkdir(dirname($outputPath), 0755, true);
+        }
+        $file->move(dirname($outputPath), basename($outputPath));
+
+        // Issue a download token using the same DB-or-cache rules as before.
+        $user = ! empty($entry['user_id']) ? \App\Models\User::find($entry['user_id']) : null;
+        $originalName = $entry['output_filename'] ?? ('converted.' . $outputExt);
+
+        // Honor the stored original extension if it doesn't match the result
+        // (e.g. compress preserves input extension; pdf-to-jpg returns zip).
+        if (! str_ends_with(strtolower($originalName), '.' . strtolower($outputExt))) {
+            $originalName = pathinfo($originalName, PATHINFO_FILENAME) . '.' . $outputExt;
+        }
+
+        $tokenInfo = $this->issueDownloadToken($user, $outputPath, $originalName, (bool) ($entry['bypass'] ?? false));
+
+        Cache::put($this->jobKey($documentId), array_merge($entry, [
+            'status' => 'completed',
+            'download_url' => $tokenInfo['download_url'],
+            'download_token' => $tokenInfo['token'],
+            'filename' => $originalName,
+            'completed_at' => now()->toIso8601String(),
+        ]), $ttl);
+
+        $this->logConversion($entry, 'completed', $outputPath, null);
+        $this->cleanupInputs($entry);
+
+        return response()->json(['ok' => true, 'status' => 'completed']);
+    }
+
+    // ─── Dispatch helpers ─────────────────────────────────────────────────
+
+    /**
+     * POST to conversion-service /api/async/convert or /api/async/merge.
+     * Tools that don't map to those endpoints fall through to a small
+     * synchronous fallback path (none today — every live tool is covered).
+     */
+    protected function dispatchToConversionService(
+        string $jobId,
+        string $tool,
+        array $filePaths,
+        array $params,
+        $ttl
+    ): void {
+        $baseUrl = rtrim((string) config('services.conversion.url', ''), '/');
+        $token = (string) config('services.conversion.token', '');
+        if ($baseUrl === '') {
+            throw new \RuntimeException('conversion service url not configured');
+        }
+
+        $callbackUrl = route('api.webhooks.conversion', [], true);
+        $client = Http::withToken($token)->timeout(20); // short: we only wait for the ACK
+
+        // merge + multi-image tools use /api/async/merge (the service already
+        // handles heterogeneous inputs).
+        $useMerge = in_array($tool, ['merge', 'jpg-to-pdf', 'png-to-pdf'], true);
+
+        if ($useMerge) {
+            foreach ($filePaths as $i => $path) {
+                $client = $client->attach("files[{$i}]", file_get_contents($path), basename($path));
             }
+            $client = $client->attach('callback_url', $callbackUrl)
+                             ->attach('document_id', $jobId);
+            $response = $client->post("{$baseUrl}/api/async/merge");
+            if (! $response->successful()) {
+                throw new \RuntimeException('async merge dispatch failed: ' . $response->status() . ' ' . $response->body());
+            }
+            return;
+        }
 
-            return response()->json(['message' => $e->getMessage()], 500);
+        $operation = $this->toolToOperation($tool);
+        if ($operation === null) {
+            throw new \RuntimeException("no async operation mapping for tool '{$tool}'");
+        }
 
-        } catch (\Exception $e) {
-            Log::error("Conversion failed: {$e->getMessage()}", ['tool' => $tool, 'user' => $user?->id]);
-            return response()->json(['message' => __('tool.error_generic')], 500);
+        $client = $client->attach('file', file_get_contents($filePaths[0]), basename($filePaths[0]))
+                         ->attach('operation', $operation)
+                         ->attach('callback_url', $callbackUrl)
+                         ->attach('document_id', $jobId);
+
+        // Forward tool params the cs supports (listed in its convertAsync
+        // validator): quality, password, pages, ranges, text, fontSize,
+        // opacity, angle, language, output_extension.
+        foreach (['quality', 'password', 'pages', 'ranges', 'text', 'fontSize',
+                  'opacity', 'angle', 'language', 'output_extension'] as $k) {
+            if (isset($params[$k]) && $params[$k] !== '' && $params[$k] !== null) {
+                $client = $client->attach($k, (string) $params[$k]);
+            }
+        }
+
+        $response = $client->post("{$baseUrl}/api/async/convert");
+        if (! $response->successful()) {
+            throw new \RuntimeException('async convert dispatch failed: ' . $response->status() . ' ' . $response->body());
+        }
+    }
+
+    /**
+     * Map our tool keys to the operation strings the conversion-service accepts.
+     * Returns null when there's no async path (caller falls back).
+     */
+    protected function toolToOperation(string $tool): ?string
+    {
+        return match ($tool) {
+            'compress'      => 'compress',
+            'pdf-to-word'   => 'pdf-to-word',
+            'pdf-to-excel'  => 'pdf-to-excel',
+            'pdf-to-ppt'    => 'pdf-to-powerpoint',
+            'pdf-to-jpg'    => 'pdf-to-jpg',
+            'pdf-to-png'    => 'pdf-to-png',
+            'word-to-pdf',
+            'excel-to-pdf',
+            'ppt-to-pdf'    => 'office-to-pdf',
+            'rotate'        => 'rotate',
+            'unlock'        => 'unlock',
+            'watermark'     => 'watermark',
+            'ocr'           => 'ocr-pdf',
+            'remove-pages'  => 'remove-pages',
+            'extract-pages' => 'extract-pages',
+            'split'         => 'split',
+            'optimize'      => 'optimize',
+            'html-to-pdf'   => 'html-to-pdf',
+            default         => null,
+        };
+    }
+
+    // ─── Shared utilities ─────────────────────────────────────────────────
+
+    private function jobKey(string $id): string
+    {
+        return 'conversion_job:' . $id;
+    }
+
+    private function logConversion(array $entry, string $status, ?string $resultPath, ?string $errorMessage): void
+    {
+        try {
+            ConversionLog::create([
+                'customer_id' => $entry['user_id'] ?? null,
+                'tool_slug' => 'sofortpdf_' . ($entry['tool'] ?? 'unknown'),
+                'original_filename' => $entry['original_filename'] ?? ($entry['original_names'][0] ?? 'unknown'),
+                'result_filename' => $resultPath ? basename($resultPath) : '',
+                'status' => $status,
+                'error_message' => $errorMessage,
+                'file_size' => ($resultPath && file_exists($resultPath)) ? filesize($resultPath) : null,
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('ConversionLog write failed', ['error' => $e->getMessage()]);
+        }
+    }
+
+    private function cleanupInputs(array $entry): void
+    {
+        foreach ((array) ($entry['input_paths'] ?? []) as $p) {
+            @unlink($p);
         }
     }
 
@@ -168,16 +342,15 @@ class ConversionController extends Controller
     /**
      * Issue a single-use download token. Falls back to a cache-backed
      * mapping when there's no authenticated user (guest / bypass mode)
-     * so we don't need to write a downloads row keyed on customer_id.
+     * so we don't depend on the shared customer_id FK.
      *
      * @return array{token: string, download_url: string}
      */
     private function issueDownloadToken($user, string $primaryPath, string $originalName, bool $bypass): array
     {
-        // Logged-in user, normal flow
         if ($user && ! $bypass) {
             try {
-                $download = Download::createToken($user->id, $primaryPath, $originalName);
+                $download = \App\Models\Download::createToken($user->id, $primaryPath, $originalName);
                 return [
                     'token' => $download->token,
                     'download_url' => route('download', $download->token),
@@ -187,7 +360,6 @@ class ConversionController extends Controller
             }
         }
 
-        // Guest / bypass / DB write failure → cache token
         $token = Str::random(64);
         $ttlHours = (int) config('sofortpdf.guest_download_ttl_hours', 4);
         Cache::put('guest_download:' . $token, [
@@ -206,28 +378,28 @@ class ConversionController extends Controller
     {
         $base = pathinfo($originalName, PATHINFO_FILENAME);
         return match ($tool) {
-            'merge' => "{$base}_zusammengefuegt.pdf",
-            'compress' => "{$base}_komprimiert.pdf",
+            'merge' => "{$base}_merged.pdf",
+            'compress' => "{$base}_compressed.pdf",
             'jpg-to-pdf' => "{$base}.pdf",
             'pdf-to-word' => "{$base}.docx",
             'word-to-pdf' => "{$base}.pdf",
             'pdf-to-jpg' => "{$base}.jpg",
-            'split' => "{$base}_getrennt.pdf",
+            'split' => "{$base}_split.pdf",
             'pdf-to-excel' => "{$base}.xlsx",
             'excel-to-pdf' => "{$base}.pdf",
-            'rotate' => "{$base}_gedreht.pdf",
-            'protect' => "{$base}_geschuetzt.pdf",
-            'unlock' => "{$base}_entsperrt.pdf",
-            'watermark' => "{$base}_wasserzeichen.pdf",
+            'rotate' => "{$base}_rotated.pdf",
+            'protect' => "{$base}_protected.pdf",
+            'unlock' => "{$base}_unlocked.pdf",
+            'watermark' => "{$base}_watermarked.pdf",
             'pdf-to-ppt' => "{$base}.pptx",
             'ppt-to-pdf' => "{$base}.pdf",
             'pdf-to-png' => "{$base}.png",
             'png-to-pdf' => "{$base}.pdf",
             'ocr' => "{$base}_ocr.pdf",
-            'remove-pages' => "{$base}_bereinigt.pdf",
-            'extract-pages' => "{$base}_extrakt.pdf",
+            'remove-pages' => "{$base}_cleaned.pdf",
+            'extract-pages' => "{$base}_extracted.pdf",
             'html-to-pdf' => "{$base}.pdf",
-            'optimize' => "{$base}_optimiert.pdf",
+            'optimize' => "{$base}_optimized.pdf",
             default => "{$base}_converted.pdf",
         };
     }

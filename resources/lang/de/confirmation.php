@@ -18,4 +18,13 @@ return [
 
     'no_token_heading' => 'Kein Download verfügbar',
     'no_token_message' => 'Wir konnten keine Datei zu diesem Link finden. Möglicherweise ist der Link abgelaufen.',
+
+    'working_heading' => 'Wir bereiten Ihre Datei vor',
+    'working_message' => 'Die Verarbeitung läuft im Hintergrund. Sie können diese Seite offen lassen — sie aktualisiert sich automatisch, sobald Ihre Datei fertig ist.',
+    'working_dashboard_hint' => 'Sie können auch die Seite verlassen: das Ergebnis erscheint in Ihrem persönlichen Bereich und Sie erhalten eine E-Mail, sobald die Datei bereit ist.',
+    'working_elapsed' => 'Seit :seconds Sek. in Bearbeitung',
+
+    'failed_heading' => 'Verarbeitung fehlgeschlagen',
+    'failed_message_fallback' => 'Die Verarbeitung Ihrer Datei ist fehlgeschlagen. Bitte versuchen Sie es erneut.',
+    'retry_button' => 'Erneut versuchen',
 ];

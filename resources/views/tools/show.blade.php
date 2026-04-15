@@ -1291,11 +1291,17 @@
 
             var uploadData = await uploadRes.json();
 
-            // Switch to processing state
+            // Switch to processing state. Keep the user looking at the
+            // progress UI for a minimum of 3s even if the backend ACK
+            // comes back sooner — conversie-pdf's team found that an
+            // instant flicker feels "fake" and a short ramp reads as
+            // solid progress.
             fileListWrapper.classList.add('hidden');
             processingState.classList.remove('hidden');
+            var processingStartedAt = Date.now();
+            var MIN_PROCESSING_MS = 3000;
 
-            var convertRes = await fetch('/api/convert', {
+            var convertReq = fetch('/api/convert', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1307,16 +1313,24 @@
                 }, toolParams)),
             });
 
+            var convertRes = await convertReq;
             if (!convertRes.ok) {
                 var errConv = await convertRes.json();
                 throw new Error(errConv.message || __t.conversionFailed);
             }
-
             var result = await convertRes.json();
 
-            // Redirect to the confirmation page. The page will trigger
-            // the download itself and offer a re-download button + a link
-            // to the user's account.
+            // Enforce the minimum processing-state time before handing off
+            // to the confirmation page.
+            var elapsed = Date.now() - processingStartedAt;
+            if (elapsed < MIN_PROCESSING_MS) {
+                await new Promise(function(r) { setTimeout(r, MIN_PROCESSING_MS - elapsed); });
+            }
+
+            // Redirect to the confirmation page. The conversion now runs
+            // asynchronously on the conversion-service; the confirmation
+            // page polls /api/convert/status until it flips to completed
+            // or failed.
             if (result.confirmation_url) {
                 var confUrl = result.confirmation_url;
                 // First-payment marker (base64 of "paymentSuccess"). Appended

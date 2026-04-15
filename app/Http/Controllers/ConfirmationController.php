@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Download;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\URL;
 
 class ConfirmationController extends Controller
 {
@@ -24,24 +25,49 @@ class ConfirmationController extends Controller
         $filename = null;
         $downloadUrl = null;
         $tokenValid = false;
+        $jobState = 'unknown';   // ready | processing | failed | unknown
+        $jobErrorMessage = null;
+        $statusUrl = null;
 
         if ($token !== '') {
-            // Cache-backed token (guest / payment-bypass flow)
-            $cached = Cache::get('guest_download:' . $token);
-            if (is_array($cached)) {
-                $filename = $cached['original_filename'] ?? null;
-                $tokenValid = true;
-            } else {
-                // DB-backed token (authenticated flow)
-                $row = Download::where('token', $token)->first();
-                if ($row && ! $row->isExpired()) {
-                    $filename = $row->original_filename;
-                    $tokenValid = true;
+            // 1) Is this a live conversion job? (takes priority — the job
+            // cache entry also lives when a download is already issued, and
+            // we want consistent state reporting.)
+            $jobEntry = Cache::get('conversion_job:' . $token);
+            if (is_array($jobEntry)) {
+                $statusUrl = URL::to('/api/convert/status/' . $token);
+                if ($jobEntry['status'] === 'completed') {
+                    $filename = $jobEntry['filename'] ?? null;
+                    $downloadUrl = $jobEntry['download_url'] ?? null;
+                    $tokenValid = $downloadUrl !== null;
+                    $jobState = 'ready';
+                } elseif ($jobEntry['status'] === 'failed') {
+                    $jobState = 'failed';
+                    $jobErrorMessage = $jobEntry['message'] ?? null;
+                    $filename = $jobEntry['original_filename'] ?? null;
+                } else {
+                    $jobState = 'processing';
+                    $filename = $jobEntry['original_filename'] ?? null;
                 }
-            }
-
-            if ($tokenValid) {
-                $downloadUrl = route('download', $token);
+            } else {
+                // 2) Direct download token (guest cache or DB) — fallback
+                // for paths that bypass the async pipeline (signatures,
+                // legacy flows).
+                $cached = Cache::get('guest_download:' . $token);
+                if (is_array($cached)) {
+                    $filename = $cached['original_filename'] ?? null;
+                    $tokenValid = true;
+                } else {
+                    $row = Download::where('token', $token)->first();
+                    if ($row && ! $row->isExpired()) {
+                        $filename = $row->original_filename;
+                        $tokenValid = true;
+                    }
+                }
+                if ($tokenValid) {
+                    $downloadUrl = route('download', $token);
+                    $jobState = 'ready';
+                }
             }
         }
 
@@ -51,6 +77,9 @@ class ConfirmationController extends Controller
             'downloadUrl' => $downloadUrl,
             'tokenValid' => $tokenValid,
             'paymentSuccess' => $paymentSuccess,
+            'jobState' => $jobState,
+            'jobErrorMessage' => $jobErrorMessage,
+            'statusUrl' => $statusUrl,
             'pageTitle' => __('confirmation.meta_title'),
             'metaDescription' => __('confirmation.meta_description'),
             'slug' => 'confirmation',
