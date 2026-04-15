@@ -137,14 +137,26 @@ class ConversionController extends Controller
         $ttl = now()->addHours((int) config('sofortpdf.guest_download_ttl_hours', 4));
 
         if ($success !== '1') {
-            $errorMessage = (string) $request->input('error', '');
+            // The raw error from cs is useful for internal debugging but
+            // must never reach the user — messages like "No export URLs
+            // from CloudConvert job" expose backend implementation
+            // details that aren't actionable for the customer.
+            $rawError = (string) $request->input('error', '');
+            if ($rawError !== '') {
+                Log::warning('Conversion callback reported failure', [
+                    'job_id' => $documentId,
+                    'tool' => $entry['tool'] ?? null,
+                    'error' => $rawError,
+                ]);
+            }
+
             Cache::put($this->jobKey($documentId), array_merge($entry, [
                 'status' => 'failed',
-                'message' => $errorMessage !== '' ? $errorMessage : __('tool.error_generic'),
+                'message' => __('confirmation.failed_message_fallback'),
                 'failed_at' => now()->toIso8601String(),
             ]), $ttl);
 
-            $this->logConversion($entry, 'failed', null, $errorMessage ?: 'dispatch failed');
+            $this->logConversion($entry, 'failed', null, $rawError ?: 'dispatch failed');
             $this->cleanupInputs($entry);
             return response()->json(['ok' => true, 'status' => 'failed']);
         }
@@ -246,6 +258,19 @@ class ConversionController extends Controller
             'callback_url' => $callbackUrl,
             'document_id' => $jobId,
         ];
+
+        // CloudConvert only covers format-conversion + compress. PDF-
+        // manipulation and OCR operations have no CC equivalent — force
+        // them onto the local (Gotenberg/LibreOffice/OCRmyPDF) path or
+        // we'll get "No export URLs from CloudConvert job" back as the
+        // error when CC can't figure out what to do.
+        $localOnlyOps = [
+            'remove-pages', 'extract-pages', 'split', 'rotate',
+            'unlock', 'watermark', 'optimize', 'ocr-pdf', 'html-to-pdf',
+        ];
+        if (in_array($operation, $localOnlyOps, true)) {
+            $fields['engine'] = 'local';
+        }
 
         // Forward tool params the cs convertAsync validator allows:
         // quality, password, pages, ranges, text, fontSize, opacity, angle,
