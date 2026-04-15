@@ -264,12 +264,15 @@ class ConversionController extends Controller
 
         // CloudConvert only covers format-conversion + compress. PDF-
         // manipulation and OCR operations have no CC equivalent — force
-        // them onto the local (Gotenberg/LibreOffice/OCRmyPDF) path or
-        // we'll get "No export URLs from CloudConvert job" back as the
-        // error when CC can't figure out what to do.
+        // them onto the local (Gotenberg/LibreOffice/OCRmyPDF) path. CC
+        // will silently re-export the input file unchanged when sent an
+        // operation it doesn't recognise, which surfaces here as a
+        // mislabelled file (e.g. PDF bytes saved as .zip for split).
         $localOnlyOps = [
-            'remove-pages', 'extract-pages', 'split', 'rotate',
-            'unlock', 'watermark', 'optimize', 'ocr-pdf', 'html-to-pdf',
+            'remove-pages', 'extract-pages',
+            'split', 'split-by-ranges', 'split-every-page',
+            'rotate', 'unlock', 'watermark', 'optimize',
+            'ocr-pdf', 'ocr-image', 'html-to-pdf', 'url-to-pdf',
         ];
         if (in_array($operation, $localOnlyOps, true)) {
             $fields['engine'] = 'local';
