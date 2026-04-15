@@ -17,7 +17,7 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('password.request') }}">
+            <form method="POST" action="{{ route('password.email.' . app()->getLocale()) }}">
                 @csrf
 
                 {{-- E-Mail --}}

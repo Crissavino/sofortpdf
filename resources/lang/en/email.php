@@ -13,6 +13,16 @@ return [
     'subscription_active_subject'   => 'Your subscription is active',
     'subscription_canceled_subject' => 'Your subscription has been canceled',
     'payment_failed_subject'   => 'Payment failed — action required',
+    'reset_subject'            => 'Reset your password — sofortpdf.com',
+
+    // Password reset
+    'reset_heading'            => 'Hi :name,',
+    'reset_intro'              => 'You are receiving this email because we received a password reset request for your sofortpdf.com account.',
+    'reset_cta_intro'          => 'Click the button below to choose a new password:',
+    'reset_cta'                => 'Reset password',
+    'reset_expiry_notice'      => 'This link is valid for :minutes minutes.',
+    'reset_ignore_notice'      => 'If you did not request a password reset, you can ignore this email. Your password will remain unchanged.',
+    'reset_plain_url_label'    => 'If the button does not work, copy this link into your browser:',
 
     // Welcome
     'welcome_heading'          => 'Welcome to sofortpdf.com, :name!',

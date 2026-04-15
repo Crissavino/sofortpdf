@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Mail\ResetPasswordMail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Mail;
 
 class User extends Authenticatable
 {
@@ -48,5 +50,18 @@ class User extends Authenticatable
             ->where('stripe_price_id', 'like', '%sofortpdf_%')
             ->whereIn('status', ['trialing', 'active'])
             ->exists();
+    }
+
+    /**
+     * Use the custom branded, locale-aware reset password email instead of
+     * Laravel's default notification.
+     */
+    public function sendPasswordResetNotification($token): void
+    {
+        $locale = app()->getLocale();
+        $slug   = config("locales.auth_slugs.{$locale}.password_reset", 'passwort-reset');
+        $resetUrl = url("/{$locale}/{$slug}/{$token}?email=" . urlencode($this->getEmailForPasswordReset()));
+
+        Mail::to($this->email)->send(new ResetPasswordMail($this, $resetUrl));
     }
 }

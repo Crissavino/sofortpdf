@@ -11,6 +11,7 @@ use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Stripe\Stripe;
@@ -120,8 +121,14 @@ class WebhookController extends Controller
             ]
         );
 
-        // Willkommens-E-Mails senden
-        Mail::to($user->email)->send(new WelcomeMail($user));
+        // Willkommens-E-Mails senden. CheckoutController setzt beim
+        // Inline-Flow (generiertes Passwort) bereits eine WelcomeMail ab und
+        // markiert das im Cache, damit wir hier keinen Duplikat senden.
+        $welcomeLockKey = 'welcome_sent:' . $user->id;
+        if (!Cache::has($welcomeLockKey)) {
+            Mail::to($user->email)->send(new WelcomeMail($user));
+            Cache::put($welcomeLockKey, true, now()->addHours(24));
+        }
         Mail::to($user->email)->send(new TrialStartedMail($user));
 
         Log::info('Stripe Webhook: Checkout abgeschlossen', [

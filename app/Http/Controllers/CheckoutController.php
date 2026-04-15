@@ -155,9 +155,12 @@ class CheckoutController extends Controller
             // Benutzer automatisch einloggen
             Auth::login($user);
 
-            // Willkommens-E-Mail senden (nur fuer neue Benutzer mit generiertem Passwort)
+            // Willkommens-E-Mail senden (nur fuer neue Benutzer mit generiertem Passwort).
+            // Cache-Lock verhindert ein Duplikat, falls gleichzeitig ein
+            // checkout.session.completed-Webhook ankommt.
             if ($generatedPassword) {
                 Mail::to($user->email)->send(new WelcomeMail($user, $generatedPassword));
+                \Illuminate\Support\Facades\Cache::put('welcome_sent:' . $user->id, true, now()->addHours(24));
             }
 
             // Pruefen ob 3DS erforderlich

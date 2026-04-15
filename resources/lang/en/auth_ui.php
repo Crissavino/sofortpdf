@@ -26,4 +26,23 @@ return [
     'reset_instructions' => 'Enter your email address and we will send you a link to reset your password.',
     'reset_submit' => 'Send reset link',
     'back_to_login' => 'Back to login',
+
+    // Password reset — request form messages
+    'reset_err_email_required'  => 'Please enter your email address.',
+    'reset_err_email_invalid'   => 'Please enter a valid email address.',
+    'reset_err_user_not_found'  => 'We could not find a user with this email address.',
+    'reset_status_sent'         => 'We have emailed you a link to reset your password.',
+
+    // Password reset — confirm (new password) form
+    'reset_confirm_title_suffix' => 'Choose new password - SofortPDF',
+    'reset_confirm_heading'      => 'Choose a new password',
+    'reset_confirm_instructions' => 'Enter a new password for your account.',
+    'reset_new_password'         => 'New password',
+    'reset_confirm_password'     => 'Confirm password',
+    'reset_confirm_submit'       => 'Save password',
+    'reset_err_password_required'  => 'Please enter a new password.',
+    'reset_err_password_confirmed' => 'The passwords do not match.',
+    'reset_err_password_min'       => 'The password must be at least :min characters long.',
+    'reset_err_token_invalid'      => 'This reset link is invalid or has expired. Please request a new one.',
+    'reset_status_updated'         => 'Your password has been updated successfully. You can now log in.',
 ];

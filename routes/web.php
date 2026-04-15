@@ -169,12 +169,16 @@ Route::prefix('{locale}')
     Route::post('/abmelden', [LoginController::class, 'logout'])->name('logout.de');
     Route::get('/passwort-reset', [PasswordResetController::class, 'showForm'])->name('password.request.de');
     Route::post('/passwort-reset', [PasswordResetController::class, 'sendResetLink'])->name('password.email.de');
+    Route::get('/passwort-reset/{token}', [PasswordResetController::class, 'showResetConfirmForm'])->name('password.reset.de');
+    Route::post('/passwort-reset-speichern', [PasswordResetController::class, 'reset'])->name('password.update.de');
     // EN auth
     Route::get('/login', [LoginController::class, 'showForm'])->name('login.en');
     Route::post('/login', [LoginController::class, 'login']);
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout.en');
     Route::get('/password-reset', [PasswordResetController::class, 'showForm'])->name('password.request.en');
     Route::post('/password-reset', [PasswordResetController::class, 'sendResetLink'])->name('password.email.en');
+    Route::get('/password-reset/{token}', [PasswordResetController::class, 'showResetConfirmForm'])->name('password.reset.en');
+    Route::post('/password-reset-save', [PasswordResetController::class, 'reset'])->name('password.update.en');
 
     /*
     |----------------------------------------------------------------------
@@ -256,6 +260,22 @@ Route::get('/password-reset', function () {
     $slug = config("locales.auth_slugs.{$locale}.password_reset", 'passwort-reset');
     return redirect("/{$locale}/{$slug}");
 })->name('password.request');
+
+// Default named routes Laravel's password broker looks up. The actual
+// request form lives under the localized routes; these just redirect.
+Route::get('/password-reset/{token}', function ($token) {
+    $locale = session('locale', 'de');
+    $slug   = config("locales.auth_slugs.{$locale}.password_reset", 'passwort-reset');
+    $query  = request()->query();
+    $qs     = $query ? ('?' . http_build_query($query)) : '';
+    return redirect("/{$locale}/{$slug}/{$token}{$qs}");
+})->name('password.reset');
+
+Route::post('/password-reset-save', function () {
+    $locale = session('locale', 'de');
+    $url    = route('password.update.' . $locale);
+    return redirect()->to($url);
+})->name('password.update');
 
 // Legal fallbacks
 Route::get('/impressum-redirect', function () {

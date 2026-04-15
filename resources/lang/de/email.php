@@ -13,6 +13,16 @@ return [
     'subscription_active_subject'   => 'Ihr Abonnement ist aktiv',
     'subscription_canceled_subject' => 'Ihr Abonnement wurde gekündigt',
     'payment_failed_subject'   => 'Zahlung fehlgeschlagen — Aktion erforderlich',
+    'reset_subject'            => 'Passwort zurücksetzen — sofortpdf.com',
+
+    // Password reset
+    'reset_heading'            => 'Hallo :name,',
+    'reset_intro'              => 'Sie erhalten diese E-Mail, weil wir eine Anfrage zum Zurücksetzen des Passworts für Ihr sofortpdf.com-Konto erhalten haben.',
+    'reset_cta_intro'          => 'Klicken Sie auf den Button unten, um ein neues Passwort zu vergeben:',
+    'reset_cta'                => 'Passwort zurücksetzen',
+    'reset_expiry_notice'      => 'Dieser Link ist :minutes Minuten lang gültig.',
+    'reset_ignore_notice'      => 'Falls Sie kein Zurücksetzen angefordert haben, können Sie diese E-Mail ignorieren. Ihr Passwort bleibt unverändert.',
+    'reset_plain_url_label'    => 'Falls der Button nicht funktioniert, kopieren Sie diesen Link in Ihren Browser:',
 
     // Welcome
     'welcome_heading'          => 'Willkommen bei sofortpdf.com, :name!',
