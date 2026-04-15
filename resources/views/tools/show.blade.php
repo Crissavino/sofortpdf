@@ -837,12 +837,12 @@
                                     </button>
                                 @elseif ($pickerMode === 'rotate')
                                     <button type="button" class="page-picker-btn" data-picker-action="reset-rotations">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9"/><polyline points="3 4 3 12 11 12"/></svg>
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
                                         {{ __('tool.picker_reset_rotations') }}
                                     </button>
                                 @elseif ($pickerMode === 'split')
                                     <button type="button" class="page-picker-btn" data-picker-action="reset-splits">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9"/><polyline points="3 4 3 12 11 12"/></svg>
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
                                         {{ __('tool.picker_reset_splits') }}
                                     </button>
                                 @endif
@@ -1547,7 +1547,12 @@
     function toggleSplitCut(beforePage) {
         if (pickerSplits.has(beforePage)) pickerSplits.delete(beforePage);
         else pickerSplits.add(beforePage);
-        renderSplitGroups();
+        // Just toggle the matching cut marker — rebuilding the whole grid
+        // here used to wipe the rendered <img> thumbnails because PDF.js
+        // only renders pages once on initial load (no cache lookup on
+        // re-render), leaving every card stuck on the loading spinner.
+        var marker = pickerGridEl.querySelector('[data-cut-before="' + beforePage + '"]');
+        if (marker) marker.classList.toggle('is-active', pickerSplits.has(beforePage));
         updatePickerValue();
     }
 
@@ -1650,7 +1655,11 @@
                 });
             } else if (action === 'reset-splits') {
                 pickerSplits.clear();
-                renderSplitGroups();
+                // Just clear all is-active classes; same reason as
+                // toggleSplitCut — preserve the rendered thumbnails.
+                pickerGridEl.querySelectorAll('.split-cut.is-active').forEach(function(c) {
+                    c.classList.remove('is-active');
+                });
             }
             updatePickerValue();
         });
