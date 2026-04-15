@@ -362,15 +362,21 @@
         // Signature ready — stop pulsing the CTA
         btnCreateSig.classList.remove('sign-cta-pulse');
 
-        // Auto-insert at the center of the current page. The user can then
-        // drag the overlay to reposition it, and click elsewhere to place
-        // additional copies.
-        placeSignatureAt(50, 50);
+        // Auto-insert near the top of the current page so it's immediately
+        // visible above the fold — user can drag it to reposition, or click
+        // elsewhere to place additional copies.
+        placeSignatureAt(50, 8);
 
         // Remain in placement mode so extra clicks add more signatures
         placementMode = true;
         placementHint.classList.remove('hidden');
         pdfCanvas.style.cursor = 'crosshair';
+
+        // Scroll the viewer into view so the just-placed signature is visible
+        const viewer = document.getElementById('pdf-viewer');
+        if (viewer && viewer.scrollIntoView) {
+            viewer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
     });
 
     function placeSignatureAt(xPct, yPct) {
