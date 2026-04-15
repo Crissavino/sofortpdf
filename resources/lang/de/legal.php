@@ -5,7 +5,7 @@ return [
     'agb_heading' => 'Allgemeine Geschäftsbedingungen',
 
     'agb_section_1_title' => '§ 1 Geltungsbereich',
-    'agb_section_1_p1' => 'Diese Allgemeinen Geschäftsbedingungen (nachfolgend „AGB") gelten für alle Verträge, die zwischen der Muster GmbH (nachfolgend „Anbieter") und dem Kunden (nachfolgend „Nutzer") über die Website sofortpdf.com geschlossen werden.',
+    'agb_section_1_p1' => 'Diese Allgemeinen Geschäftsbedingungen (nachfolgend „AGB") gelten für alle Verträge, die zwischen :company (nachfolgend „Anbieter") und dem Kunden (nachfolgend „Nutzer") über die Website sofortpdf.com geschlossen werden.',
     'agb_section_1_p2' => 'Es gelten ausschließlich diese AGB. Abweichende Bedingungen des Nutzers werden nicht anerkannt, es sei denn, der Anbieter stimmt ihrer Geltung ausdrücklich schriftlich zu.',
 
     'agb_section_2_title' => '§ 2 Vertragsgegenstand',
@@ -21,7 +21,7 @@ return [
 
     'agb_section_5_title' => '§ 5 Widerrufsrecht',
     'agb_section_5_p1' => 'Verbraucher haben das Recht, binnen vierzehn Tagen ohne Angabe von Gründen diesen Vertrag zu widerrufen. Die Widerrufsfrist beträgt vierzehn Tage ab dem Tag des Vertragsschlusses.',
-    'agb_section_5_p2' => 'Um Ihr Widerrufsrecht auszuüben, müssen Sie uns mittels einer eindeutigen Erklärung (z. B. ein mit der Post versandter Brief oder eine E-Mail) über Ihren Entschluss, diesen Vertrag zu widerrufen, informieren.',
+    'agb_section_5_p2' => 'Um Ihr Widerrufsrecht auszuüben, müssen Sie uns (:company, :address) mittels einer eindeutigen Erklärung (z. B. ein mit der Post versandter Brief oder eine E-Mail an :email) über Ihren Entschluss, diesen Vertrag zu widerrufen, informieren.',
     'agb_section_5_p3' => 'Zur Wahrung der Widerrufsfrist reicht es aus, dass Sie die Mitteilung über die Ausübung des Widerrufsrechts vor Ablauf der Widerrufsfrist absenden.',
     'agb_section_5_consequences_title' => 'Folgen des Widerrufs',
     'agb_section_5_consequences_p1' => 'Wenn Sie diesen Vertrag widerrufen, haben wir Ihnen alle Zahlungen, die wir von Ihnen erhalten haben, unverzüglich und spätestens binnen vierzehn Tagen ab dem Tag zurückzuzahlen, an dem die Mitteilung über Ihren Widerruf bei uns eingegangen ist.',
@@ -46,17 +46,17 @@ return [
     // ============== Impressum ==============
     'impressum_heading' => 'Impressum',
     'impressum_tmg_title' => 'Angaben gemäß § 5 TMG',
-    'impressum_tmg_address_html' => 'Muster GmbH<br>Musterstraße 1<br>12345 Musterstadt',
     'impressum_represented_title' => 'Vertreten durch',
-    'impressum_represented_text' => 'Max Mustermann, Geschäftsführer',
     'impressum_contact_title' => 'Kontakt',
-    'impressum_contact_html' => 'Telefon: +49 (0) 123 456789<br>E-Mail: info@sofortpdf.com',
+    'impressum_contact_phone_label' => 'Telefon:',
+    'impressum_contact_email_label' => 'E-Mail:',
     'impressum_register_title' => 'Registereintrag',
-    'impressum_register_html' => 'Eintragung im Handelsregister.<br>Registergericht: Amtsgericht Musterstadt<br>Registernummer: HRB 12345',
+    'impressum_register_court_label' => 'Registergericht:',
+    'impressum_register_entry_label' => 'Registernummer:',
     'impressum_vat_title' => 'Umsatzsteuer-ID',
-    'impressum_vat_html' => 'Umsatzsteuer-Identifikationsnummer gemäß § 27a Umsatzsteuergesetz:<br>DE 123456789',
+    'impressum_vat_intro' => 'Umsatzsteuer-Identifikationsnummer gemäß § 27a Umsatzsteuergesetz:',
+    'impressum_registration_title' => 'Handelsregisternummer',
     'impressum_responsible_title' => 'Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV',
-    'impressum_responsible_html' => 'Max Mustermann<br>Musterstraße 1<br>12345 Musterstadt',
     'impressum_dispute_title' => 'Streitschlichtung',
     'impressum_dispute_p1_html' => 'Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener" class="text-blue-600 hover:underline">https://ec.europa.eu/consumers/odr</a>.<br>Unsere E-Mail-Adresse finden Sie oben im Impressum.',
     'impressum_dispute_p2' => 'Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.',
@@ -66,12 +66,14 @@ return [
     'impressum_liability_links_p1' => 'Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich.',
     'impressum_copyright_title' => 'Urheberrecht',
     'impressum_copyright_p1' => 'Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.',
+    'impressum_missing_notice' => 'Die Unternehmensdaten werden zurzeit aktualisiert. Für Rückfragen wenden Sie sich bitte an :email.',
 
     // ============== Datenschutz ==============
     'datenschutz_heading' => 'Datenschutzerklärung',
 
     'datenschutz_section_1_title' => '1. Verantwortlicher',
-    'datenschutz_section_1_html' => 'Verantwortlich für die Datenverarbeitung auf dieser Website ist:<br><br>Muster GmbH<br>Musterstraße 1<br>12345 Musterstadt<br>E-Mail: datenschutz@sofortpdf.com',
+    'datenschutz_section_1_intro' => 'Verantwortlich für die Datenverarbeitung auf dieser Website ist:',
+    'datenschutz_section_1_email_label' => 'E-Mail:',
 
     'datenschutz_section_2_title' => '2. Datenerhebung auf unserer Website',
     'datenschutz_section_2a_title' => 'a) Server-Logfiles',

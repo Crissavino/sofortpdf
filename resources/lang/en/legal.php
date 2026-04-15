@@ -5,7 +5,7 @@ return [
     'agb_heading' => 'Terms and Conditions',
 
     'agb_section_1_title' => 'Section 1 — Scope',
-    'agb_section_1_p1' => 'These Terms and Conditions (hereinafter "Terms") apply to all contracts concluded between Muster GmbH (hereinafter "Provider") and the customer (hereinafter "User") via the website sofortpdf.com.',
+    'agb_section_1_p1' => 'These Terms and Conditions (hereinafter "Terms") apply to all contracts concluded between :company (hereinafter "Provider") and the customer (hereinafter "User") via the website sofortpdf.com.',
     'agb_section_1_p2' => 'These Terms apply exclusively. Deviating terms of the User will not be accepted unless the Provider expressly agrees to them in writing.',
 
     'agb_section_2_title' => 'Section 2 — Subject Matter',
@@ -21,7 +21,7 @@ return [
 
     'agb_section_5_title' => 'Section 5 — Right of Withdrawal',
     'agb_section_5_p1' => 'Consumers have the right to withdraw from this contract within fourteen days without giving any reason. The withdrawal period is fourteen days from the date of the conclusion of the contract.',
-    'agb_section_5_p2' => 'To exercise your right of withdrawal, you must inform us by means of a clear statement (e.g., a letter sent by post or an email) of your decision to withdraw from this contract.',
+    'agb_section_5_p2' => 'To exercise your right of withdrawal, you must inform us (:company, :address) by means of a clear statement (e.g., a letter sent by post or an email to :email) of your decision to withdraw from this contract.',
     'agb_section_5_p3' => 'To meet the withdrawal deadline, it is sufficient for you to send the communication concerning your exercise of the right of withdrawal before the withdrawal period has expired.',
     'agb_section_5_consequences_title' => 'Consequences of Withdrawal',
     'agb_section_5_consequences_p1' => 'If you withdraw from this contract, we shall reimburse all payments received from you without undue delay and no later than fourteen days from the day on which we receive notification of your withdrawal from this contract.',
@@ -46,17 +46,17 @@ return [
     // ============== Impressum / Legal Notice ==============
     'impressum_heading' => 'Legal Notice',
     'impressum_tmg_title' => 'Information pursuant to Sect. 5 German Telemedia Act (TMG)',
-    'impressum_tmg_address_html' => 'Muster GmbH<br>Musterstrasse 1<br>12345 Musterstadt, Germany',
     'impressum_represented_title' => 'Represented by',
-    'impressum_represented_text' => 'Max Mustermann, Managing Director',
     'impressum_contact_title' => 'Contact',
-    'impressum_contact_html' => 'Phone: +49 (0) 123 456789<br>Email: info@sofortpdf.com',
+    'impressum_contact_phone_label' => 'Phone:',
+    'impressum_contact_email_label' => 'Email:',
     'impressum_register_title' => 'Commercial Register',
-    'impressum_register_html' => 'Registered in the commercial register.<br>Court of registration: Amtsgericht Musterstadt<br>Registration number: HRB 12345',
+    'impressum_register_court_label' => 'Court of registration:',
+    'impressum_register_entry_label' => 'Registration number:',
     'impressum_vat_title' => 'VAT ID',
-    'impressum_vat_html' => 'VAT identification number pursuant to Sect. 27a of the German Value Added Tax Act:<br>DE 123456789',
+    'impressum_vat_intro' => 'VAT identification number pursuant to Sect. 27a of the German Value Added Tax Act:',
+    'impressum_registration_title' => 'Commercial register number',
     'impressum_responsible_title' => 'Person responsible for editorial content',
-    'impressum_responsible_html' => 'Max Mustermann<br>Musterstrasse 1<br>12345 Musterstadt, Germany',
     'impressum_dispute_title' => 'EU Dispute Resolution',
     'impressum_dispute_p1_html' => 'The European Commission provides a platform for online dispute resolution (ODR): <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener" class="text-blue-600 hover:underline">https://ec.europa.eu/consumers/odr</a>.<br>Our email address can be found above in the legal notice.',
     'impressum_dispute_p2' => 'We are not willing or obliged to participate in dispute resolution proceedings before a consumer arbitration board.',
@@ -66,12 +66,14 @@ return [
     'impressum_liability_links_p1' => 'Our website contains links to external third-party websites over whose content we have no influence. Therefore, we cannot assume any liability for such external content. The respective provider or operator of the linked pages is always responsible for their content.',
     'impressum_copyright_title' => 'Copyright',
     'impressum_copyright_p1' => 'The content and works created by the site operators on these pages are subject to German copyright law. Duplication, processing, distribution, and any form of commercialization beyond the scope of copyright law require the written consent of the respective author or creator.',
+    'impressum_missing_notice' => 'Company details are being updated. For any questions, please contact :email.',
 
     // ============== Datenschutz / Privacy ==============
     'datenschutz_heading' => 'Privacy Policy',
 
     'datenschutz_section_1_title' => '1. Data Controller',
-    'datenschutz_section_1_html' => 'The data controller for data processing on this website is:<br><br>Muster GmbH<br>Musterstrasse 1<br>12345 Musterstadt, Germany<br>Email: datenschutz@sofortpdf.com',
+    'datenschutz_section_1_intro' => 'The data controller for data processing on this website is:',
+    'datenschutz_section_1_email_label' => 'Email:',
 
     'datenschutz_section_2_title' => '2. Data Collection on Our Website',
     'datenschutz_section_2a_title' => 'a) Server Log Files',
