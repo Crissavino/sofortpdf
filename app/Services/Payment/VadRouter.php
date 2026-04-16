@@ -156,6 +156,10 @@ class VadRouter
     {
         $cc = strtoupper($countryCode);
 
+        // Country-specific segments (countries with dedicated bo_vad_rules).
+        // Sofortpdf's primary market is Germany, so DE has its own segment
+        // — same pattern as RO/HU in conversie-pdf / contract-kit.
+        if ($cc === 'DE') return 'DE';
         if ($cc === 'RO') return 'RO';
         if ($cc === 'HU') return 'HU';
         if (in_array($cc, self::EU_COUNTRIES, true)) return 'EU';
