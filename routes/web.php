@@ -74,7 +74,7 @@ Route::get('/download/{token}', [DownloadController::class, 'download'])
 */
 Route::prefix('{locale}')
      ->where(['locale' => 'de|en'])
-     ->middleware('locale')
+     ->middleware(['locale', 'resolve-vad'])
      ->group(function () {
 
     /*

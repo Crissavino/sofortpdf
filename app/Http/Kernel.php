@@ -66,5 +66,6 @@ class Kernel extends HttpKernel
         'sofortpdf.subscribed' => \App\Http\Middleware\CheckSofortpdfSubscription::class,
         'paywall' => \App\Http\Middleware\Paywall::class,
         'locale' => \App\Http\Middleware\SetLocale::class,
+        'resolve-vad' => \App\Http\Middleware\ResolveVad::class,
     ];
 }

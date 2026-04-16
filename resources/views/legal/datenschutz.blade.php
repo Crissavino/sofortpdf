@@ -3,25 +3,34 @@
 @section('title', $pageTitle)
 
 @section('content')
+@php
+    $loc = app()->getLocale();
+    $pick = function ($value) use ($loc) {
+        if (is_array($value)) {
+            return $value[$loc] ?? ($value['en'] ?? array_values($value)[0] ?? '');
+        }
+        return $value;
+    };
+
+    $companyName = $pick($company['name'] ?? '');
+    $dsLines = array_filter([
+        $companyName,
+        $pick($company['street'] ?? $company['address'] ?? ''),
+        trim(($company['postcode'] ?? '') . ' ' . ($pick($company['city'] ?? ''))),
+        $pick($company['country'] ?? ''),
+    ]);
+@endphp
+
 <div class="max-w-3xl mx-auto px-4 py-12">
     <h1 class="text-3xl font-bold mb-8">{{ __('legal.datenschutz_heading') }}</h1>
 
     <h2 class="text-xl font-semibold mt-8 mb-4">{{ __('legal.datenschutz_section_1_title') }}</h2>
-    @php
-        $dsLines = array_filter([
-            $company['name'] ?? '',
-            $company['address'] ?? '',
-            trim(($company['postcode'] ?? '') . ' ' . ($company['city'] ?? '')),
-            $company['country'] ?? '',
-        ]);
-    @endphp
     <p class="mb-4 leading-relaxed">
         {{ __('legal.datenschutz_section_1_intro') }}
         <br><br>
         {!! implode('<br>', array_map('e', $dsLines)) !!}
-        @if(!empty($company['email']))
-            <br>{{ __('legal.datenschutz_section_1_email_label') }} <a href="mailto:{{ $company['email'] }}" class="text-blue-600 hover:underline">{{ $company['email'] }}</a>
-        @endif
+        <br>{{ __('legal.datenschutz_section_1_email_label') }}
+        <a href="mailto:{{ $companyEmail }}" class="text-blue-600 hover:underline">{{ $companyEmail }}</a>
     </p>
 
     <h2 class="text-xl font-semibold mt-8 mb-4">{{ __('legal.datenschutz_section_2_title') }}</h2>

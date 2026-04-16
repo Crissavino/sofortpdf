@@ -40,23 +40,17 @@ return [
     'agb_section_9_p1_html' => 'Information on the processing of personal data can be found in our <a href=":url" class="text-blue-600 hover:underline">Privacy Policy</a>.',
 
     'agb_section_10_title' => 'Section 10 — Final Provisions',
-    'agb_section_10_p1' => 'The law of the Federal Republic of Germany shall apply. The place of jurisdiction is, to the extent permitted by law, the registered office of the Provider.',
+    'agb_section_10_p1' => 'This contract is governed by :governing_law. To the extent permitted by law, the place of jurisdiction shall be :jurisdiction.',
     'agb_section_10_p2' => 'Should individual provisions of these Terms be or become invalid, the validity of the remaining provisions shall not be affected.',
 
     // ============== Impressum / Legal Notice ==============
     'impressum_heading' => 'Legal Notice',
-    'impressum_tmg_title' => 'Information pursuant to Sect. 5 German Telemedia Act (TMG)',
-    'impressum_represented_title' => 'Represented by',
+    'impressum_tmg_title' => 'Operator of this website',
     'impressum_contact_title' => 'Contact',
-    'impressum_contact_phone_label' => 'Phone:',
     'impressum_contact_email_label' => 'Email:',
-    'impressum_register_title' => 'Commercial Register',
-    'impressum_register_court_label' => 'Court of registration:',
-    'impressum_register_entry_label' => 'Registration number:',
-    'impressum_vat_title' => 'VAT ID',
-    'impressum_vat_intro' => 'VAT identification number pursuant to Sect. 27a of the German Value Added Tax Act:',
+    'impressum_contact_website_label' => 'Website:',
+    'impressum_vat_title' => 'VAT / Tax ID',
     'impressum_registration_title' => 'Commercial register number',
-    'impressum_responsible_title' => 'Person responsible for editorial content',
     'impressum_dispute_title' => 'EU Dispute Resolution',
     'impressum_dispute_p1_html' => 'The European Commission provides a platform for online dispute resolution (ODR): <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener" class="text-blue-600 hover:underline">https://ec.europa.eu/consumers/odr</a>.<br>Our email address can be found above in the legal notice.',
     'impressum_dispute_p2' => 'We are not willing or obliged to participate in dispute resolution proceedings before a consumer arbitration board.',
@@ -65,8 +59,7 @@ return [
     'impressum_liability_links_title' => 'Liability for Links',
     'impressum_liability_links_p1' => 'Our website contains links to external third-party websites over whose content we have no influence. Therefore, we cannot assume any liability for such external content. The respective provider or operator of the linked pages is always responsible for their content.',
     'impressum_copyright_title' => 'Copyright',
-    'impressum_copyright_p1' => 'The content and works created by the site operators on these pages are subject to German copyright law. Duplication, processing, distribution, and any form of commercialization beyond the scope of copyright law require the written consent of the respective author or creator.',
-    'impressum_missing_notice' => 'Company details are being updated. For any questions, please contact :email.',
+    'impressum_copyright_p1' => 'The content and works created by :company on these pages are subject to applicable copyright laws. Duplication, processing, distribution, and any form of commercialization beyond the scope of copyright law require the written consent of the respective author or creator.',
 
     // ============== Datenschutz / Privacy ==============
     'datenschutz_heading' => 'Privacy Policy',

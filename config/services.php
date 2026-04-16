@@ -47,4 +47,16 @@ return [
         'subscription_price' => env('SUBSCRIPTION_PRICE_EUR', 39.99),
     ],
 
+    'bo' => [
+        'website_id' => env('WEBSITE_ID'),
+    ],
+
+    'ipdata' => [
+        'key' => env('IPDATA_KEY'),
+    ],
+
+    'ipinfo' => [
+        'key' => env('IPINFO_KEY'),
+    ],
+
 ];

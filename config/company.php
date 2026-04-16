@@ -3,41 +3,114 @@
 return [
     /*
     |--------------------------------------------------------------------------
-    | Company row for this brand
+    | Default company id
     |--------------------------------------------------------------------------
     |
-    | Primary key in the shared `companies` table that corresponds to the
-    | legal entity operating sofortpdf.com. Used by CompanyResolver to fetch
-    | the row for legal pages (impressum, AGB, Datenschutz).
+    | Used by ResolveVad's shareCompanyData() when the session has no
+    | resolved company yet (e.g., very first request before middleware
+    | runs, or when the DB is unreachable). Matches bo_vads.company_id:
+    |   1 = AVOCODE  (Romania)
+    |   2 = KIWIKODE (Romania)
+    |   3 = JACKCODE (UAE)
+    |
+    | Sofortpdf operates with AVOCODE (EU consumers) and JACKCODE (rest of
+    | the world) — defaulting to AVOCODE since the brand targets DE/EU.
     |
     */
-    'id' => env('COMPANY_ID'),
+    'default_company_id' => env('DEFAULT_COMPANY_ID', 1),
 
     /*
     |--------------------------------------------------------------------------
-    | Fallback values
+    | Company profiles (keyed by company_id)
     |--------------------------------------------------------------------------
     |
-    | Used when the DB is unreachable or the configured COMPANY_ID row is
-    | missing, so legal pages never render with empty placeholders. Set each
-    | value in .env — the site falls back to these verbatim until DB access
-    | is restored.
+    | Locale-aware fields are arrays: ['de' => '…', 'en' => '…']. Plain
+    | strings are reused as-is across locales. Views resolve the right
+    | string with $company['address'][app()->getLocale()] etc.
     |
     */
-    'fallback' => [
-        'name'                => env('COMPANY_NAME', ''),
-        'address'             => env('COMPANY_ADDRESS', ''),
-        'city'                => env('COMPANY_CITY', ''),
-        'country'             => env('COMPANY_COUNTRY', ''),
-        'postcode'            => env('COMPANY_POSTCODE', ''),
-        'phone'               => env('COMPANY_PHONE', ''),
-        'vat_number'          => env('COMPANY_VAT_NUMBER', ''),
-        'registration_number' => env('COMPANY_REGISTRATION_NUMBER', ''),
-        'num_reg_com'         => env('COMPANY_NUM_REG_COM', ''),
-        // Fields not on the DB row but still needed for German legal pages
-        'representative'      => env('COMPANY_REPRESENTATIVE', ''),
-        'email'               => env('COMPANY_EMAIL', env('CONTACT_EMAIL', 'info@sofortpdf.com')),
-        'register_court'      => env('COMPANY_REGISTER_COURT', ''),
-        'register_entry'      => env('COMPANY_REGISTER_ENTRY', ''),
+    'profiles' => [
+
+        // company_id = 1 — AVOCODE S.R.L. (Romania, EU)
+        1 => [
+            'name'    => 'AVOCODE S.R.L.',
+            'tax_id'  => 'RO47950333',
+            'reg_no'  => 'J40/6621/2023',
+            'address' => [
+                'de' => 'Sektor 6, Aleea ARINII DORNEI, Nr. 14, Erdgeschoss, Block 16, Treppe D, App. 48, 060797 Bukarest, Rumänien',
+                'en' => 'Sector 6, Aleea ARINII DORNEI, No. 14, Ground Floor, Block 16, Stairwell D, Apt. 48, 060797 Bucharest, Romania',
+            ],
+            'street' => [
+                'de' => 'Aleea ARINII DORNEI, Nr. 14, Erdgeschoss, Block 16, Treppe D, App. 48',
+                'en' => 'Aleea ARINII DORNEI, No. 14, Ground Floor, Block 16, Stairwell D, Apt. 48',
+            ],
+            'city'     => 'Bucharest',
+            'postcode' => '060797',
+            'country'  => [
+                'de' => 'Rumänien',
+                'en' => 'Romania',
+            ],
+            'jurisdiction' => [
+                'de' => 'die zuständigen Gerichte in Bukarest, Rumänien',
+                'en' => 'the competent courts in Bucharest, Romania',
+            ],
+            'tax_label' => [
+                'de' => 'Umsatzsteuer-ID (CUI)',
+                'en' => 'VAT ID (CUI)',
+            ],
+            'reg_label' => [
+                'de' => 'Handelsregisternummer',
+                'en' => 'Commercial Register Number',
+            ],
+            'governing_law' => [
+                'de' => 'rumänisches Recht',
+                'en' => 'Romanian law',
+            ],
+        ],
+
+        // company_id = 3 — JACKCODE - FZCO (UAE)
+        3 => [
+            'name'    => 'JACKCODE - FZCO',
+            'tax_id'  => 'DSO-FZCO-46187',
+            'reg_no'  => 'DSO-FZCO-46187',
+            'address' => [
+                'de' => 'Building A1, Dubai Digital Park, Dubai Silicon Oasis, Dubai, Vereinigte Arabische Emirate',
+                'en' => 'Building A1, Dubai Digital Park, Dubai Silicon Oasis, Dubai, United Arab Emirates',
+            ],
+            'street' => [
+                'de' => 'Building A1, Dubai Digital Park, Dubai Silicon Oasis',
+                'en' => 'Building A1, Dubai Digital Park, Dubai Silicon Oasis',
+            ],
+            'city'     => 'Dubai',
+            'postcode' => '',
+            'country'  => [
+                'de' => 'Vereinigte Arabische Emirate',
+                'en' => 'United Arab Emirates',
+            ],
+            'jurisdiction' => [
+                'de' => 'die zuständigen Gerichte in Dubai, VAE',
+                'en' => 'the competent courts in Dubai, UAE',
+            ],
+            'tax_label' => [
+                'de' => 'Registrierungsnummer',
+                'en' => 'Registration Number',
+            ],
+            'reg_label' => [
+                'de' => 'Registrierungsnummer',
+                'en' => 'Registration Number',
+            ],
+            'governing_law' => [
+                'de' => 'das Recht der Vereinigten Arabischen Emirate',
+                'en' => 'the laws of the United Arab Emirates',
+            ],
+        ],
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Shared contact info (independent of company profile)
+    |--------------------------------------------------------------------------
+    */
+    'email'   => env('COMPANY_EMAIL', env('CONTACT_EMAIL', 'info@sofortpdf.com')),
+    'website' => env('COMPANY_WEBSITE', 'sofortpdf.com'),
 ];

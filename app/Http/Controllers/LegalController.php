@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\CompanyResolver;
-
 class LegalController extends Controller
 {
     public function imprint()
@@ -11,7 +9,6 @@ class LegalController extends Controller
         return view('legal.impressum', [
             'pageTitle' => __('legal.impressum_heading'),
             'slug'      => 'impressum',
-            'company'   => CompanyResolver::current(),
         ]);
     }
 
@@ -20,7 +17,6 @@ class LegalController extends Controller
         return view('legal.datenschutz', [
             'pageTitle' => __('legal.datenschutz_heading'),
             'slug'      => 'datenschutz',
-            'company'   => CompanyResolver::current(),
         ]);
     }
 
@@ -29,7 +25,6 @@ class LegalController extends Controller
         return view('legal.agb', [
             'pageTitle' => __('legal.agb_heading'),
             'slug'      => 'agb',
-            'company'   => CompanyResolver::current(),
         ]);
     }
 }

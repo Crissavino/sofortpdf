@@ -40,23 +40,17 @@ return [
     'agb_section_9_p1_html' => 'Informationen zur Verarbeitung personenbezogener Daten finden Sie in unserer <a href=":url" class="text-blue-600 hover:underline">Datenschutzerklärung</a>.',
 
     'agb_section_10_title' => '§ 10 Schlussbestimmungen',
-    'agb_section_10_p1' => 'Es gilt das Recht der Bundesrepublik Deutschland. Gerichtsstand ist, soweit gesetzlich zulässig, der Sitz des Anbieters.',
+    'agb_section_10_p1' => 'Für diesen Vertrag gilt :governing_law. Gerichtsstand sind, soweit gesetzlich zulässig, :jurisdiction.',
     'agb_section_10_p2' => 'Sollten einzelne Bestimmungen dieser AGB unwirksam sein oder werden, bleibt die Wirksamkeit der übrigen Bestimmungen unberührt.',
 
     // ============== Impressum ==============
     'impressum_heading' => 'Impressum',
-    'impressum_tmg_title' => 'Angaben gemäß § 5 TMG',
-    'impressum_represented_title' => 'Vertreten durch',
+    'impressum_tmg_title' => 'Anbieter dieser Website',
     'impressum_contact_title' => 'Kontakt',
-    'impressum_contact_phone_label' => 'Telefon:',
     'impressum_contact_email_label' => 'E-Mail:',
-    'impressum_register_title' => 'Registereintrag',
-    'impressum_register_court_label' => 'Registergericht:',
-    'impressum_register_entry_label' => 'Registernummer:',
+    'impressum_contact_website_label' => 'Website:',
     'impressum_vat_title' => 'Umsatzsteuer-ID',
-    'impressum_vat_intro' => 'Umsatzsteuer-Identifikationsnummer gemäß § 27a Umsatzsteuergesetz:',
     'impressum_registration_title' => 'Handelsregisternummer',
-    'impressum_responsible_title' => 'Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV',
     'impressum_dispute_title' => 'Streitschlichtung',
     'impressum_dispute_p1_html' => 'Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener" class="text-blue-600 hover:underline">https://ec.europa.eu/consumers/odr</a>.<br>Unsere E-Mail-Adresse finden Sie oben im Impressum.',
     'impressum_dispute_p2' => 'Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.',
@@ -65,8 +59,7 @@ return [
     'impressum_liability_links_title' => 'Haftung für Links',
     'impressum_liability_links_p1' => 'Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich.',
     'impressum_copyright_title' => 'Urheberrecht',
-    'impressum_copyright_p1' => 'Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.',
-    'impressum_missing_notice' => 'Die Unternehmensdaten werden zurzeit aktualisiert. Für Rückfragen wenden Sie sich bitte an :email.',
+    'impressum_copyright_p1' => 'Die durch :company erstellten Inhalte und Werke auf diesen Seiten unterliegen den geltenden Urheberrechtsgesetzen. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.',
 
     // ============== Datenschutz ==============
     'datenschutz_heading' => 'Datenschutzerklärung',
