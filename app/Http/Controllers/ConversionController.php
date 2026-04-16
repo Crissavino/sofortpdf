@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ConversionLog;
 use App\Services\PaywallBypass;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -176,7 +175,7 @@ class ConversionController extends Controller
         $file->move(dirname($outputPath), basename($outputPath));
 
         // Issue a download token using the same DB-or-cache rules as before.
-        $user = ! empty($entry['user_id']) ? \App\Models\User::find($entry['user_id']) : null;
+        $user = ! empty($entry['user_id']) ? \App\Models\Customer::find($entry['user_id']) : null;
         $originalName = $entry['output_filename'] ?? ('converted.' . $outputExt);
 
         // Honor the stored original extension if it doesn't match the result
@@ -349,19 +348,9 @@ class ConversionController extends Controller
 
     private function logConversion(array $entry, string $status, ?string $resultPath, ?string $errorMessage): void
     {
-        try {
-            ConversionLog::create([
-                'customer_id' => $entry['user_id'] ?? null,
-                'tool_slug' => 'sofortpdf_' . ($entry['tool'] ?? 'unknown'),
-                'original_filename' => $entry['original_filename'] ?? ($entry['original_names'][0] ?? 'unknown'),
-                'result_filename' => $resultPath ? basename($resultPath) : '',
-                'status' => $status,
-                'error_message' => $errorMessage,
-                'file_size' => ($resultPath && file_exists($resultPath)) ? filesize($resultPath) : null,
-            ]);
-        } catch (\Throwable $e) {
-            Log::warning('ConversionLog write failed', ['error' => $e->getMessage()]);
-        }
+        // Conversion logging is disabled until the shared DB has a sofortpdf
+        // conversion table. The writes used to silently fail anyway — we
+        // just skip the call entirely now to keep logs clean.
     }
 
     private function cleanupInputs(array $entry): void
@@ -406,17 +395,10 @@ class ConversionController extends Controller
      */
     private function issueDownloadToken($user, string $primaryPath, string $originalName, bool $bypass): array
     {
-        if ($user && ! $bypass) {
-            try {
-                $download = \App\Models\Download::createToken($user->id, $primaryPath, $originalName);
-                return [
-                    'token' => $download->token,
-                    'download_url' => route('download', $download->token),
-                ];
-            } catch (\Throwable $e) {
-                Log::warning('Download row insert failed, falling back to cache', ['error' => $e->getMessage()]);
-            }
-        }
+        // Auth-Path used to write a Download row to a local table, but that
+        // table doesn't exist on the shared DB; cache-backed tokens cover
+        // both authenticated and guest flows uniformly. Kept the $user
+        // arg so the call sites don't change.
 
         $token = Str::random(64);
         $ttlHours = (int) config('sofortpdf.guest_download_ttl_hours', 4);

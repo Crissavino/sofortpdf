@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Download;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\URL;
@@ -50,19 +49,12 @@ class ConfirmationController extends Controller
                     $filename = $jobEntry['original_filename'] ?? null;
                 }
             } else {
-                // 2) Direct download token (guest cache or DB) — fallback
-                // for paths that bypass the async pipeline (signatures,
-                // legacy flows).
+                // 2) Direct download token (cache only — the local
+                // downloads table doesn't exist on the shared DB).
                 $cached = Cache::get('guest_download:' . $token);
                 if (is_array($cached)) {
                     $filename = $cached['original_filename'] ?? null;
                     $tokenValid = true;
-                } else {
-                    $row = Download::where('token', $token)->first();
-                    if ($row && ! $row->isExpired()) {
-                        $filename = $row->original_filename;
-                        $tokenValid = true;
-                    }
                 }
                 if ($tokenValid) {
                     $downloadUrl = route('download', $token);

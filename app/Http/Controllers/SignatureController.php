@@ -48,30 +48,10 @@ class SignatureController extends Controller
         $bypass = PaywallBypass::applies($request);
         $originalName = 'unterschrieben.pdf';
 
-        // Log conversion (best-effort)
-        try {
-            \App\Models\ConversionLog::create([
-                'customer_id' => $user?->id,
-                'tool_slug' => 'sofortpdf_sign',
-                'original_filename' => 'document.pdf',
-                'result_filename' => basename($outputPath),
-                'status' => 'completed',
-                'file_size' => filesize($outputPath),
-            ]);
-        } catch (\Throwable $e) {
-            Log::warning('ConversionLog write failed (sign)', ['error' => $e->getMessage()]);
-        }
-
-        // Issue download token (DB for logged-in user, cache otherwise)
+        // Conversion telemetry + Download row writes are skipped — both
+        // tables are sofortpdf-local and not present on the shared DB. The
+        // cache-backed token below covers logged-in and guest flows alike.
         $token = null;
-        if ($user && ! $bypass) {
-            try {
-                $download = \App\Models\Download::createToken($user->id, $outputPath, $originalName);
-                $token = $download->token;
-            } catch (\Throwable $e) {
-                Log::warning('Sign Download row insert failed, falling back to cache', ['error' => $e->getMessage()]);
-            }
-        }
         if (! $token) {
             $token = Str::random(64);
             $ttlHours = (int) config('sofortpdf.guest_download_ttl_hours', 4);

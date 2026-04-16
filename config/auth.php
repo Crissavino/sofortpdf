@@ -60,15 +60,13 @@ return [
     */
 
     'providers' => [
+        // Provider key kept as "users" for compatibility with Laravel's
+        // default password broker config; the underlying model is now
+        // Customer (shared `customers` table on the avocode DB).
         'users' => [
             'driver' => 'eloquent',
-            'model' => App\Models\User::class,
+            'model'  => App\Models\Customer::class,
         ],
-
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
     ],
 
     /*

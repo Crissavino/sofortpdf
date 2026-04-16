@@ -3,14 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Mail\WelcomeMail;
+use App\Models\BoStripeCustomer;
+use App\Models\Customer;
 use App\Models\Subscription;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
 use Stripe\Stripe;
 
 class CheckoutController extends Controller
@@ -40,10 +41,10 @@ class CheckoutController extends Controller
      */
     public function start(Request $request)
     {
-        $user = $request->user();
+        $customer = $request->user();
 
         // Wenn eingeloggt und bereits Abo vorhanden → weiterleiten
-        if ($user && $user->hasSofortpdfSubscription()) {
+        if ($customer && $customer->hasSofortpdfSubscription()) {
             return redirect($request->get('return_to', '/'));
         }
 
@@ -82,85 +83,142 @@ class CheckoutController extends Controller
         $paymentMethodId = $request->input('payment_method_id');
         $generatedPassword = null;
 
-        try {
-            // Benutzer ermitteln oder erstellen
-            $user = User::where('email', $email)->first();
+        $websiteId    = (int) config('services.bo.website_id');
+        $companyId    = (int) (session('vad.company_id') ?? config('company.default_company_id'));
+        $boWebsiteId  = (int) (session('vad.used_vad.bo_website_id') ?? 0);
 
-            if ($user) {
-                // Benutzer existiert — pruefen ob bereits aktives Abo
-                if ($user->hasSofortpdfSubscription()) {
+        try {
+            // Customer ermitteln oder erstellen — gescoped auf diese Marke.
+            $customer = Customer::where('email', $email)
+                ->when($websiteId, fn ($q) => $q->where('website_id', $websiteId))
+                ->first();
+
+            if ($customer) {
+                if ($customer->hasSofortpdfSubscription()) {
                     return response()->json([
                         'error' => 'Sie haben bereits ein aktives Abonnement. Bitte melden Sie sich an.',
                     ], 422);
                 }
-                // Existierender Benutzer ohne Abo — verwenden
             } else {
-                // Neuen Benutzer erstellen
                 $generatedPassword = self::generatePassword();
-                $user = User::create([
-                    'name' => $name,
-                    'email' => $email,
-                    'password' => Hash::make($generatedPassword),
+                $parts             = explode(' ', $name, 2);
+                $customer          = Customer::create([
+                    'first_name'         => $parts[0],
+                    'last_name'          => $parts[1] ?? '',
+                    'email'              => $email,
+                    'password'           => Hash::make($generatedPassword),
+                    'language'           => app()->getLocale(),
+                    'country'            => session('country_code'),
+                    'ip'                 => $request->ip(),
+                    'website_id'         => $websiteId,
+                    'last_time_connected'=> now(),
                 ]);
             }
 
-            // Stripe-Kunde erstellen oder vorhandenen verwenden
-            if (!$user->stripe_customer_id) {
-                $customer = \Stripe\Customer::create([
-                    'email' => $user->email,
-                    'name' => $user->name,
-                    'metadata' => ['user_id' => $user->id, 'product' => 'sofortpdf'],
+            // Stripe-Kunde erstellen oder vorhandenen wiederverwenden — wir
+            // tracken die Stripe-IDs in der shared bo_stripe_customers-Tabelle
+            // (scoped pro Marke + Stripe-Account).
+            $boStripe = BoStripeCustomer::where('customer_id', $customer->id)
+                ->where('website_id', $websiteId)
+                ->first();
+
+            if (!$boStripe || !$boStripe->id_stripe_customer) {
+                $stripeCustomer = \Stripe\Customer::create([
+                    'email'    => $customer->email,
+                    'name'     => $customer->name,
+                    'metadata' => [
+                        'customer_id' => $customer->id,
+                        'website_id'  => $websiteId,
+                        'product'     => 'sofortpdf',
+                    ],
                 ]);
-                $user->update(['stripe_customer_id' => $customer->id]);
+
+                $boStripe = BoStripeCustomer::updateOrCreate(
+                    [
+                        'customer_id' => $customer->id,
+                        'website_id'  => $websiteId,
+                    ],
+                    [
+                        'bo_stripe_account_id' => 0, // not yet wired to specific Stripe account
+                        'id_stripe_customer'   => $stripeCustomer->id,
+                        'email'                => $customer->email,
+                    ]
+                );
             }
 
-            // PaymentMethod an Kunde anhaengen
+            // PaymentMethod attachen + als default setzen
             \Stripe\PaymentMethod::retrieve($paymentMethodId)->attach([
-                'customer' => $user->stripe_customer_id,
+                'customer' => $boStripe->id_stripe_customer,
             ]);
-
-            // Als Standard-Zahlungsmethode setzen
-            \Stripe\Customer::update($user->stripe_customer_id, [
+            \Stripe\Customer::update($boStripe->id_stripe_customer, [
                 'invoice_settings' => ['default_payment_method' => $paymentMethodId],
             ]);
 
             // Abonnement mit Testzeitraum erstellen
-            $subscription = \Stripe\Subscription::create([
-                'customer' => $user->stripe_customer_id,
-                'items' => [['price' => config('services.stripe.subscription_price_id')]],
-                'trial_period_days' => config('services.stripe.trial_days', 2),
+            $stripeSubscription = \Stripe\Subscription::create([
+                'customer'               => $boStripe->id_stripe_customer,
+                'items'                  => [['price' => config('services.stripe.subscription_price_id')]],
+                'trial_period_days'      => config('services.stripe.trial_days', 2),
                 'default_payment_method' => $paymentMethodId,
                 'metadata' => [
-                    'user_id' => $user->id,
-                    'product' => 'sofortpdf',
+                    'customer_id' => $customer->id,
+                    'website_id'  => $websiteId,
+                    'product'     => 'sofortpdf',
                 ],
                 'expand' => ['latest_invoice.payment_intent'],
             ]);
 
-            // Lokale Subscription speichern
-            Subscription::updateOrCreate(
-                [
-                    'customer_id' => $user->id,
-                    'stripe_subscription_id' => $subscription->id,
-                ],
-                [
-                    'stripe_price_id' => 'sofortpdf_' . config('services.stripe.subscription_price_id'),
-                    'status' => $subscription->status,
-                    'trial_ends_at' => $subscription->trial_end ? date('Y-m-d H:i:s', $subscription->trial_end) : null,
-                    'current_period_start' => date('Y-m-d H:i:s', $subscription->current_period_start),
-                    'current_period_end' => date('Y-m-d H:i:s', $subscription->current_period_end),
-                ]
-            );
+            // Stripe-IDs aktualisieren
+            $boStripe->update([
+                'id_stripe_subscription'    => $stripeSubscription->id,
+                'stripe_subscription_status'=> $stripeSubscription->status,
+                'stripe_subscription_start' => $stripeSubscription->start_date
+                    ? date('Y-m-d H:i:s', $stripeSubscription->start_date)
+                    : null,
+                'current_period_start'      => date('Y-m-d H:i:s', $stripeSubscription->current_period_start),
+                'current_period_end'        => date('Y-m-d H:i:s', $stripeSubscription->current_period_end),
+            ]);
 
-            // Benutzer automatisch einloggen
-            Auth::login($user);
+            // Subscription-Eintrag im shared `subscriptions`-Schema. Best
+            // effort — wenn bo_product_id / payment_provider_id noch nicht
+            // konfiguriert sind, wird der Insert geloggt aber Checkout läuft.
+            try {
+                Subscription::updateOrCreate(
+                    [
+                        'customer_id' => $customer->id,
+                        'website_id'  => $websiteId,
+                    ],
+                    [
+                        'bo_website_id'         => $boWebsiteId,
+                        'company_id'            => $companyId,
+                        'bo_product_id'         => (int) env('SOFORTPDF_BO_PRODUCT_ID', 0),
+                        'payment_provider_id'   => (int) env('STRIPE_PAYMENT_PROVIDER_ID', 1),
+                        'plan_type'             => 'monthly',
+                        'is_trial_active'       => $stripeSubscription->status === 'trialing',
+                        'trial_started_at'      => now(),
+                        'trial_ends_at'         => $stripeSubscription->trial_end
+                            ? date('Y-m-d H:i:s', $stripeSubscription->trial_end)
+                            : null,
+                        'is_subscription_active'=> $stripeSubscription->status === 'active',
+                        'subscription_started_at'=> $stripeSubscription->status === 'active' ? now() : null,
+                        'subscription_ends_at'  => date('Y-m-d H:i:s', $stripeSubscription->current_period_end),
+                    ]
+                );
+            } catch (\Throwable $e) {
+                Log::warning('Subscription row insert failed (DB seed pending)', [
+                    'error'       => $e->getMessage(),
+                    'customer_id' => $customer->id,
+                ]);
+            }
 
-            // Willkommens-E-Mail senden (nur fuer neue Benutzer mit generiertem Passwort).
-            // Cache-Lock verhindert ein Duplikat, falls gleichzeitig ein
-            // checkout.session.completed-Webhook ankommt.
+            // Customer automatisch einloggen
+            Auth::login($customer);
+
+            // Willkommens-E-Mail senden (nur fuer neue Customers mit generiertem Passwort).
+            // Cache-Lock verhindert Duplikate gegenüber dem Webhook-Pfad.
             if ($generatedPassword) {
-                Mail::to($user->email)->send(new WelcomeMail($user, $generatedPassword));
-                \Illuminate\Support\Facades\Cache::put('welcome_sent:' . $user->id, true, now()->addHours(24));
+                Mail::to($customer->email)->send(new WelcomeMail($customer, $generatedPassword));
+                Cache::put('welcome_sent:' . $customer->id, true, now()->addHours(24));
             }
 
             // Pruefen ob 3DS erforderlich
@@ -211,21 +269,29 @@ class CheckoutController extends Controller
             'subscription_id' => 'required|string',
         ]);
 
-        $user = $request->user();
+        $customer = $request->user();
 
-        if (!$user) {
+        if (!$customer) {
             return response()->json([
                 'error' => 'Sitzung abgelaufen. Bitte versuchen Sie es erneut.',
             ], 401);
         }
 
         try {
-            $subscription = \Stripe\Subscription::retrieve($request->input('subscription_id'));
+            $stripeSubscription = \Stripe\Subscription::retrieve($request->input('subscription_id'));
 
-            // Lokale DB aktualisieren
-            Subscription::where('stripe_subscription_id', $subscription->id)
-                ->where('customer_id', $user->id)
-                ->update(['status' => $subscription->status]);
+            // bo_stripe_customers: Stripe-Status aktualisieren
+            BoStripeCustomer::where('customer_id', $customer->id)
+                ->where('id_stripe_subscription', $stripeSubscription->id)
+                ->update(['stripe_subscription_status' => $stripeSubscription->status]);
+
+            // subscriptions: is_*_active je nach neuem Status
+            Subscription::where('customer_id', $customer->id)
+                ->where('website_id', config('services.bo.website_id'))
+                ->update([
+                    'is_trial_active'        => $stripeSubscription->status === 'trialing',
+                    'is_subscription_active' => $stripeSubscription->status === 'active',
+                ]);
 
             return response()->json([
                 'success' => true,

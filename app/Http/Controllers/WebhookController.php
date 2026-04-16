@@ -7,8 +7,9 @@ use App\Mail\SubscriptionActiveMail;
 use App\Mail\SubscriptionCanceledMail;
 use App\Mail\TrialStartedMail;
 use App\Mail\WelcomeMail;
+use App\Models\BoStripeCustomer;
+use App\Models\Customer;
 use App\Models\Subscription;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -18,22 +19,16 @@ use Stripe\Stripe;
 use Stripe\Webhook;
 
 /**
- * Verarbeitet Stripe-Webhook-Events fuer das sofortpdf-Produkt.
+ * Verarbeitet Stripe-Webhook-Events für sofortpdf.
  *
- * WICHTIG: Diese Route muss von der CSRF-Verifizierung ausgenommen sein.
+ * WICHTIG: CSRF-Verifizierung muss für diese Route deaktiviert sein.
  */
-
 class WebhookController extends Controller
 {
-    /**
-     * POST /stripe/webhook
-     *
-     * Verarbeitet eingehende Stripe-Webhook-Events.
-     */
     public function handle(Request $request)
     {
-        $payload = $request->getContent();
-        $sigHeader = $request->header('Stripe-Signature');
+        $payload       = $request->getContent();
+        $sigHeader     = $request->header('Stripe-Signature');
         $webhookSecret = config('services.stripe.webhook_secret');
 
         try {
@@ -53,229 +48,245 @@ class WebhookController extends Controller
                 case 'checkout.session.completed':
                     $this->handleCheckoutSessionCompleted($event->data->object);
                     break;
-
                 case 'customer.subscription.updated':
                     $this->handleSubscriptionUpdated($event->data->object);
                     break;
-
                 case 'customer.subscription.deleted':
                     $this->handleSubscriptionDeleted($event->data->object);
                     break;
-
                 case 'invoice.payment_succeeded':
                     $this->handleInvoicePaymentSucceeded($event->data->object);
                     break;
-
                 case 'invoice.payment_failed':
                     $this->handleInvoicePaymentFailed($event->data->object);
                     break;
-
                 default:
                     Log::info('Stripe Webhook: Nicht behandeltes Event', ['type' => $event->type]);
-                    break;
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error('Stripe Webhook: Fehler bei Verarbeitung', [
-                'type' => $event->type,
+                'type'  => $event->type,
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
             ]);
         }
 
         return response('OK', 200);
     }
 
+    /* =========================================================================
+     | Helpers
+     |======================================================================== */
+
     /**
-     * checkout.session.completed
-     *
-     * Erstellt oder aktualisiert das Abo und sendet Willkommens-E-Mails.
+     * Resolve the Customer behind a Stripe customer ID, scoped to this brand.
      */
+    private function resolveCustomerFromStripeId(?string $stripeCustomerId): ?Customer
+    {
+        if (!$stripeCustomerId) {
+            return null;
+        }
+
+        $boStripe = BoStripeCustomer::where('id_stripe_customer', $stripeCustomerId)
+            ->where('website_id', config('services.bo.website_id'))
+            ->first();
+
+        return $boStripe ? Customer::find($boStripe->customer_id) : null;
+    }
+
+    private function isSofortpdfMetadata($metadata): bool
+    {
+        return isset($metadata->product) && $metadata->product === 'sofortpdf';
+    }
+
+    /* =========================================================================
+     | Event handlers
+     |======================================================================== */
+
     protected function handleCheckoutSessionCompleted($session)
     {
-        if (!$this->isSofortpdfProduct($session->metadata)) {
+        if (!$this->isSofortpdfMetadata($session->metadata ?? null)) {
             return;
         }
 
-        $userId = $session->metadata->user_id ?? null;
-        $user = $userId ? User::find($userId) : null;
-
-        if (!$user) {
-            Log::warning('Stripe Webhook: Benutzer nicht gefunden', ['user_id' => $userId]);
+        $customer = $this->resolveCustomerFromStripeId($session->customer ?? null);
+        if (!$customer) {
+            Log::warning('Stripe Webhook: Customer nicht gefunden', ['stripe_customer' => $session->customer ?? null]);
             return;
         }
 
-        // Stripe-Abo-Details abrufen
         $stripeSubscription = \Stripe\Subscription::retrieve($session->subscription);
+        $this->upsertSubscription($customer, $stripeSubscription);
 
-        $subscription = Subscription::updateOrCreate(
-            ['stripe_subscription_id' => $stripeSubscription->id],
-            [
-                'customer_id' => $user->id,
-                'stripe_price_id' => $stripeSubscription->items->data[0]->price->id ?? null,
-                'status' => $stripeSubscription->status,
-                'trial_ends_at' => $stripeSubscription->trial_end
-                    ? Carbon::createFromTimestamp($stripeSubscription->trial_end)
-                    : null,
-                'current_period_start' => Carbon::createFromTimestamp($stripeSubscription->current_period_start),
-                'current_period_end' => Carbon::createFromTimestamp($stripeSubscription->current_period_end),
-            ]
-        );
-
-        // Willkommens-E-Mails senden. CheckoutController setzt beim
-        // Inline-Flow (generiertes Passwort) bereits eine WelcomeMail ab und
-        // markiert das im Cache, damit wir hier keinen Duplikat senden.
-        $welcomeLockKey = 'welcome_sent:' . $user->id;
+        // Welcome-Mail dedup gegen den CheckoutController-Pfad
+        $welcomeLockKey = 'welcome_sent:' . $customer->id;
         if (!Cache::has($welcomeLockKey)) {
-            Mail::to($user->email)->send(new WelcomeMail($user));
+            Mail::to($customer->email)->send(new WelcomeMail($customer));
             Cache::put($welcomeLockKey, true, now()->addHours(24));
         }
-        Mail::to($user->email)->send(new TrialStartedMail($user));
+        Mail::to($customer->email)->send(new TrialStartedMail($customer));
 
         Log::info('Stripe Webhook: Checkout abgeschlossen', [
-            'user_id' => $user->id,
-            'subscription_id' => $subscription->id,
+            'customer_id'     => $customer->id,
+            'subscription_id' => $stripeSubscription->id,
         ]);
     }
 
-    /**
-     * customer.subscription.updated
-     *
-     * Aktualisiert den Abo-Status in der Datenbank.
-     */
     protected function handleSubscriptionUpdated($stripeSubscription)
     {
-        $subscription = Subscription::where('stripe_subscription_id', $stripeSubscription->id)->first();
-
-        if (!$subscription || !$subscription->isSofortpdf()) {
+        $customer = $this->resolveCustomerFromStripeId($stripeSubscription->customer ?? null);
+        if (!$customer) {
             return;
         }
 
-        $subscription->update([
-            'status' => $stripeSubscription->status,
-            'trial_ends_at' => $stripeSubscription->trial_end
-                ? Carbon::createFromTimestamp($stripeSubscription->trial_end)
-                : null,
-            'current_period_start' => Carbon::createFromTimestamp($stripeSubscription->current_period_start),
-            'current_period_end' => Carbon::createFromTimestamp($stripeSubscription->current_period_end),
-        ]);
+        $this->upsertSubscription($customer, $stripeSubscription);
 
         Log::info('Stripe Webhook: Abo aktualisiert', [
-            'subscription_id' => $subscription->id,
-            'status' => $stripeSubscription->status,
+            'customer_id'     => $customer->id,
+            'subscription_id' => $stripeSubscription->id,
+            'status'          => $stripeSubscription->status,
         ]);
     }
 
-    /**
-     * customer.subscription.deleted
-     *
-     * Markiert das Abo als gekündigt und sendet eine Benachrichtigung.
-     */
     protected function handleSubscriptionDeleted($stripeSubscription)
     {
-        $subscription = Subscription::where('stripe_subscription_id', $stripeSubscription->id)->first();
-
-        if (!$subscription || !$subscription->isSofortpdf()) {
+        $customer = $this->resolveCustomerFromStripeId($stripeSubscription->customer ?? null);
+        if (!$customer) {
             return;
         }
 
-        $subscription->update([
-            'status' => 'canceled',
-        ]);
+        Subscription::where('customer_id', $customer->id)
+            ->where('website_id', config('services.bo.website_id'))
+            ->update([
+                'is_trial_active'        => false,
+                'is_subscription_active' => false,
+                'cancelled_at'           => now(),
+            ]);
 
-        $user = $subscription->user;
+        BoStripeCustomer::where('customer_id', $customer->id)
+            ->where('id_stripe_subscription', $stripeSubscription->id)
+            ->update([
+                'stripe_subscription_status'      => 'canceled',
+                'stripe_subscription_canceled_at' => now(),
+            ]);
 
-        if ($user) {
-            Mail::to($user->email)->send(new SubscriptionCanceledMail($user));
-        }
+        Mail::to($customer->email)->send(new SubscriptionCanceledMail($customer));
 
         Log::info('Stripe Webhook: Abo gekündigt', [
-            'subscription_id' => $subscription->id,
+            'customer_id'     => $customer->id,
+            'subscription_id' => $stripeSubscription->id,
         ]);
     }
 
-    /**
-     * invoice.payment_succeeded
-     *
-     * Aktualisiert die Abrechnungsperiode und sendet eine Bestätigung bei der ersten echten Zahlung.
-     */
     protected function handleInvoicePaymentSucceeded($invoice)
     {
-        $subscriptionId = $invoice->subscription;
-
-        if (!$subscriptionId) {
+        if (!$invoice->subscription) {
             return;
         }
 
-        $subscription = Subscription::where('stripe_subscription_id', $subscriptionId)->first();
-
-        if (!$subscription || !$subscription->isSofortpdf()) {
+        $customer = $this->resolveCustomerFromStripeId($invoice->customer ?? null);
+        if (!$customer) {
             return;
         }
 
-        // Periodenende aktualisieren
-        if (isset($invoice->lines->data[0])) {
-            $lineItem = $invoice->lines->data[0];
-            $subscription->update([
-                'current_period_end' => Carbon::createFromTimestamp($lineItem->period->end),
-                'status' => 'active',
-            ]);
-        }
+        $stripeSubscription = \Stripe\Subscription::retrieve($invoice->subscription);
+        $this->upsertSubscription($customer, $stripeSubscription);
 
-        // Erste echte Zahlung (nicht Trial): SubscriptionActiveMail senden
-        // billing_reason = 'subscription_cycle' bedeutet wiederkehrende Zahlung nach Trial
-        if ($invoice->billing_reason === 'subscription_cycle' || ($invoice->billing_reason === 'subscription_create' && $invoice->amount_paid > 0)) {
-            $user = $subscription->user;
+        // Erste echte Zahlung (nicht Trial) → SubscriptionActiveMail
+        $firstRealPayment = $invoice->billing_reason === 'subscription_cycle'
+            || ($invoice->billing_reason === 'subscription_create' && $invoice->amount_paid > 0);
 
-            if ($user) {
-                Mail::to($user->email)->send(new SubscriptionActiveMail($user));
-            }
+        if ($firstRealPayment) {
+            Mail::to($customer->email)->send(new SubscriptionActiveMail($customer));
         }
 
         Log::info('Stripe Webhook: Zahlung erfolgreich', [
-            'subscription_id' => $subscription->id,
-            'amount' => $invoice->amount_paid,
+            'customer_id' => $customer->id,
+            'amount'      => $invoice->amount_paid,
         ]);
     }
 
-    /**
-     * invoice.payment_failed
-     *
-     * Markiert das Abo als überfällig und benachrichtigt den Benutzer.
-     */
     protected function handleInvoicePaymentFailed($invoice)
     {
-        $subscriptionId = $invoice->subscription;
-
-        if (!$subscriptionId) {
+        if (!$invoice->subscription) {
             return;
         }
 
-        $subscription = Subscription::where('stripe_subscription_id', $subscriptionId)->first();
-
-        if (!$subscription || !$subscription->isSofortpdf()) {
+        $customer = $this->resolveCustomerFromStripeId($invoice->customer ?? null);
+        if (!$customer) {
             return;
         }
 
-        $subscription->update([
-            'status' => 'past_due',
-        ]);
+        Subscription::where('customer_id', $customer->id)
+            ->where('website_id', config('services.bo.website_id'))
+            ->update([
+                'is_subscription_active' => false,
+                'cancel_reason'          => 'payment_failed',
+            ]);
 
-        $user = $subscription->user;
-
-        if ($user) {
-            Mail::to($user->email)->send(new PaymentFailedMail($user));
-        }
+        Mail::to($customer->email)->send(new PaymentFailedMail($customer));
 
         Log::info('Stripe Webhook: Zahlung fehlgeschlagen', [
-            'subscription_id' => $subscription->id,
+            'customer_id' => $customer->id,
         ]);
     }
 
     /**
-     * Prüft ob das Event zum Produkt 'sofortpdf' gehört.
+     * Upsert sofortpdf subscription row from a Stripe \Subscription object.
+     * Best-effort: write fails are logged but never bubble up so webhooks
+     * keep responding 200 to Stripe.
      */
-    protected function isSofortpdfProduct($metadata): bool
+    private function upsertSubscription(Customer $customer, $stripeSubscription): void
     {
-        return isset($metadata->product) && $metadata->product === 'sofortpdf';
+        $websiteId   = (int) config('services.bo.website_id');
+        $companyId   = (int) config('company.default_company_id', 1);
+
+        $boStripe = BoStripeCustomer::where('customer_id', $customer->id)
+            ->where('website_id', $websiteId)
+            ->first();
+
+        $boWebsiteId = $boStripe && $boStripe->bo_stripe_account_id
+            ? (int) $boStripe->bo_stripe_account_id
+            : 0;
+
+        // Stripe-IDs in bo_stripe_customers refreshen
+        if ($boStripe) {
+            $boStripe->update([
+                'id_stripe_subscription'    => $stripeSubscription->id,
+                'stripe_subscription_status'=> $stripeSubscription->status,
+                'current_period_start'      => Carbon::createFromTimestamp($stripeSubscription->current_period_start),
+                'current_period_end'        => Carbon::createFromTimestamp($stripeSubscription->current_period_end),
+            ]);
+        }
+
+        try {
+            Subscription::updateOrCreate(
+                [
+                    'customer_id' => $customer->id,
+                    'website_id'  => $websiteId,
+                ],
+                [
+                    'bo_website_id'         => $boWebsiteId,
+                    'company_id'            => $companyId,
+                    'bo_product_id'         => (int) env('SOFORTPDF_BO_PRODUCT_ID', 0),
+                    'payment_provider_id'   => (int) env('STRIPE_PAYMENT_PROVIDER_ID', 1),
+                    'plan_type'             => 'monthly',
+                    'is_trial_active'       => $stripeSubscription->status === 'trialing',
+                    'trial_started_at'      => $stripeSubscription->trial_start
+                        ? Carbon::createFromTimestamp($stripeSubscription->trial_start)
+                        : null,
+                    'trial_ends_at'         => $stripeSubscription->trial_end
+                        ? Carbon::createFromTimestamp($stripeSubscription->trial_end)
+                        : null,
+                    'is_subscription_active'=> $stripeSubscription->status === 'active',
+                    'subscription_started_at'=> $stripeSubscription->status === 'active' ? now() : null,
+                    'subscription_ends_at'  => Carbon::createFromTimestamp($stripeSubscription->current_period_end),
+                ]
+            );
+        } catch (\Throwable $e) {
+            Log::warning('Webhook: Subscription upsert failed (DB seed pending)', [
+                'error'       => $e->getMessage(),
+                'customer_id' => $customer->id,
+            ]);
+        }
     }
 }

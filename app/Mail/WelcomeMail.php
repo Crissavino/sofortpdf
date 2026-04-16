@@ -2,7 +2,7 @@
 
 namespace App\Mail;
 
-use App\Models\User;
+use App\Models\Customer;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -11,10 +11,10 @@ class WelcomeMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public User $user;
+    public Customer $user;
     public string $password;
 
-    public function __construct(User $user, string $password = '')
+    public function __construct(Customer $user, string $password = '')
     {
         $this->user = $user;
         $this->password = $password;

@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Exceptions\ConversionServiceException;
-use App\Models\ConversionLog;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
@@ -956,22 +955,8 @@ class ConversionServiceClient
         ?int $fileSize,
         float $startTime
     ): void {
-        $processingTimeMs = (int) round((microtime(true) - $startTime) * 1000);
-
-        try {
-            ConversionLog::create([
-                'tool_slug' => $toolSlug,
-                'original_filename' => $originalFilename,
-                'result_filename' => $resultFilename,
-                'status' => $status,
-                'error_message' => $errorMessage,
-                'file_size' => $fileSize,
-                'processing_time_ms' => $processingTimeMs,
-            ]);
-        } catch (\Throwable $e) {
-            // Logging should never cause the main operation to fail
-            report($e);
-        }
+        // Conversion telemetry is disabled — table not present on shared DB.
+        unset($toolSlug, $originalFilename, $resultFilename, $status, $errorMessage, $fileSize, $startTime);
     }
 
     /**

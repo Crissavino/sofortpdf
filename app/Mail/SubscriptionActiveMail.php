@@ -2,7 +2,7 @@
 
 namespace App\Mail;
 
-use App\Models\User;
+use App\Models\Customer;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -11,9 +11,9 @@ class SubscriptionActiveMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public User $user;
+    public Customer $user;
 
-    public function __construct(User $user)
+    public function __construct(Customer $user)
     {
         $this->user = $user;
     }

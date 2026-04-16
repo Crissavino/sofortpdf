@@ -23,7 +23,15 @@ class LoginController extends Controller
             'password.required' => 'Bitte geben Sie Ihr Passwort ein.',
         ]);
 
-        if (!Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
+        // Customers can sign up across multiple brands with the same email,
+        // so scope login to this brand only via website_id.
+        $credentials = $request->only('email', 'password');
+        $websiteId   = config('services.bo.website_id');
+        if ($websiteId) {
+            $credentials['website_id'] = $websiteId;
+        }
+
+        if (!Auth::attempt($credentials, $request->boolean('remember'))) {
             return back()->withErrors([
                 'email' => 'Diese Anmeldedaten stimmen nicht mit unseren Aufzeichnungen überein.',
             ])->onlyInput('email');
