@@ -311,7 +311,9 @@
             <div class="mt-10 inline-flex flex-col items-center bg-white/10 backdrop-blur-md rounded-3xl px-10 py-8 ring-1 ring-white/20">
                 <span class="text-brand-100 text-sm font-medium uppercase tracking-wider mb-2">{{ __('home.cta_try_now') }}</span>
                 <div class="flex items-baseline gap-2">
-                    <span class="font-display font-bold text-2xl text-brand-300 line-through opacity-60">{{ number_format($pricing['trial_marketing'], 2, app()->getLocale() === 'de' ? ',' : '.', '') }} {{ $pricing['symbol'] }}</span>
+                    @if(($pricing['trial_marketing'] ?? 0) > ($pricing['trial'] ?? 0))
+                        <span class="font-display font-bold text-2xl text-brand-300 line-through opacity-60">{{ number_format($pricing['trial_marketing'], 2, app()->getLocale() === 'de' ? ',' : '.', '') }} {{ $pricing['symbol'] }}</span>
+                    @endif
                     <span class="font-display font-extrabold text-5xl sm:text-6xl text-white"
                           data-countup="{{ $pricing['trial'] }}"
                           data-decimals="2"
