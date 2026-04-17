@@ -1678,7 +1678,7 @@
                         '<p class="text-xs text-slate-400">' + formatSize(f.size) + '</p>' +
                     '</div>' +
                 '</div>' +
-                (window.sofortpdfPaywall && window.sofortpdfPaywall.needsPayment() && window.__loadingShown
+                (window.sofortpdfPaywall && window.sofortpdfPaywall.needsPayment()
                     ? ''
                     : '<button onclick="removeFile(' + idx + ')" class="btn-remove w-8 h-8 rounded-lg flex items-center justify-center text-slate-300 hover:text-red-500 hover:bg-red-50 flex-shrink-0 ml-3" style="transition: color 200ms ease-out, background-color 200ms ease-out, transform 160ms cubic-bezier(0.23,1,0.32,1);">' +
                         '<i data-lucide="x" class="w-4 h-4"></i>' +
