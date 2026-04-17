@@ -8,7 +8,12 @@ return [
 
     // Processing
     'processing' => 'Processing…',
-    'please_wait' => 'Please wait a moment.',
+    'please_wait' => 'Please wait, we are preparing your document.',
+    'loading_step_1' => 'Loading your document.',
+    'loading_step_2' => 'Converting your document.',
+    'loading_step_3' => 'Preparing your download.',
+    'loading_converting' => ':tool — processing.',
+    'loading_signing' => 'Processing your signature.',
 
     // Done / download
     'done' => 'Done!',

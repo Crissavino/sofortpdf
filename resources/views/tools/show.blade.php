@@ -1869,10 +1869,9 @@
                 }
             }
 
-            // Show a centered loading modal, then open the payment modal
             window.__sofortpdfShowLoadingThenPay(modalFiles, function() {
                 processBtn.click();
-            });
+            }, '{{ __("tool.loading_converting", ["tool" => $h1]) }}');
             return;
         }
 

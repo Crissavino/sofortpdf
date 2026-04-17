@@ -8,7 +8,12 @@ return [
 
     // Processing
     'processing' => 'Wird verarbeitet…',
-    'please_wait' => 'Bitte warten Sie einen Moment.',
+    'please_wait' => 'Bitte warten Sie, wir bereiten Ihr Dokument vor.',
+    'loading_step_1' => 'Ihr Dokument wird geladen.',
+    'loading_step_2' => 'Ihr Dokument wird konvertiert.',
+    'loading_step_3' => 'Ihr Dokument wird vorbereitet.',
+    'loading_converting' => ':tool — wird verarbeitet.',
+    'loading_signing' => 'Ihre Unterschrift wird verarbeitet.',
 
     // Done / download
     'done' => 'Fertig!',

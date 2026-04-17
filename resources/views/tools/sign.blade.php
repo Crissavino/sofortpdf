@@ -516,7 +516,8 @@
             && window.SofortpdfPaymentModal) {
             window.__sofortpdfShowLoadingThenPay(
                 pdfFile ? [pdfFile] : [],
-                function() { btnSubmit.click(); }
+                function() { btnSubmit.click(); },
+                '{{ __("tool.loading_signing") }}'
             );
             return;
         }

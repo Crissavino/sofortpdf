@@ -337,12 +337,28 @@
     {{-- Payment modal (rendered globally, opened on demand by tool JS) --}}
     @include('partials.payment-modal')
 
-    {{-- Loading overlay — shown before the payment modal opens --}}
+    {{-- Loading overlay — conversie-pdf style with progress bar + steps --}}
     <div id="sofortpdf-loading-overlay" style="display:none; position:fixed; inset:0; z-index:9998; background:rgba(15,23,42,0.5); backdrop-filter:blur(4px); align-items:center; justify-content:center;">
-        <div style="background:#fff; border-radius:16px; padding:40px 48px; text-align:center; box-shadow:0 24px 60px -12px rgba(15,23,42,0.35);">
-            <div style="width:48px; height:48px; border:4px solid #e2e8f0; border-top-color:#3b6cf5; border-radius:50%; margin:0 auto 16px; animation:spm-spin 0.8s linear infinite;"></div>
-            <p style="font-family:'Cabinet Grotesk',system-ui,sans-serif; font-weight:700; font-size:16px; color:#0f172a; margin:0 0 4px;">{{ __('tool.processing') }}</p>
-            <p style="font-size:13px; color:#64748b; margin:0;">{{ __('tool.please_wait') }}</p>
+        <div style="background:#fff; border-radius:16px; padding:32px 36px; text-align:center; box-shadow:0 24px 60px -12px rgba(15,23,42,0.35); width:100%; max-width:400px; margin:0 16px;">
+            <p style="font-size:13px; color:#64748b; margin:0 0 14px;">{{ __('tool.please_wait') }}</p>
+            <p id="spm-loading-pct" style="font-family:'Cabinet Grotesk',system-ui,sans-serif; font-weight:800; font-size:28px; color:#0f172a; margin:0 0 10px;">0 %</p>
+            <div style="width:100%; height:8px; background:#e2e8f0; border-radius:4px; overflow:hidden; margin:0 0 20px;">
+                <div id="spm-loading-bar" style="width:0%; height:100%; background:linear-gradient(90deg,#3b6cf5,#059669); border-radius:4px; transition:width 0.3s ease-out;"></div>
+            </div>
+            <div id="spm-loading-steps" style="text-align:left; display:flex; flex-direction:column; gap:8px;">
+                <div class="spm-load-step" data-step="1" style="display:flex; align-items:center; gap:8px; font-size:13px; color:#94a3b8;">
+                    <span class="spm-load-icon" style="width:18px; height:18px; border-radius:50%; border:1.5px solid #cbd5e1; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;"></span>
+                    <span data-label>{{ __('tool.loading_step_1') }}</span>
+                </div>
+                <div class="spm-load-step" data-step="2" style="display:flex; align-items:center; gap:8px; font-size:13px; color:#94a3b8;">
+                    <span class="spm-load-icon" style="width:18px; height:18px; border-radius:50%; border:1.5px solid #cbd5e1; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;"></span>
+                    <span data-label>{{ __('tool.loading_step_2') }}</span>
+                </div>
+                <div class="spm-load-step" data-step="3" style="display:flex; align-items:center; gap:8px; font-size:13px; color:#94a3b8;">
+                    <span class="spm-load-icon" style="width:18px; height:18px; border-radius:50%; border:1.5px solid #cbd5e1; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;"></span>
+                    <span data-label>{{ __('tool.loading_step_3') }}</span>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -356,19 +372,80 @@
             }
         };
 
-        // Global helper: show loading overlay → open payment modal
-        window.__sofortpdfShowLoadingThenPay = function(files, onSuccess) {
-            var overlay = document.getElementById('sofortpdf-loading-overlay');
-            if (overlay) { overlay.style.display = 'flex'; }
-            setTimeout(function() {
-                if (overlay) { overlay.style.display = 'none'; }
+        // Global helper: show loading overlay → open payment modal.
+        // Only shows the loading animation once per page — subsequent clicks
+        // go straight to the payment modal.
+        var __loadingShown = false;
+
+        window.__sofortpdfShowLoadingThenPay = function(files, onSuccess, stepLabel) {
+            if (__loadingShown) {
+                // Skip loading, go straight to payment
                 if (window.SofortpdfPaymentModal) {
-                    window.SofortpdfPaymentModal.open({
-                        files: files,
-                        onSuccess: onSuccess,
-                    });
+                    window.SofortpdfPaymentModal.open({ files: files, onSuccess: onSuccess });
                 }
-            }, 2500);
+                return;
+            }
+
+            var overlay = document.getElementById('sofortpdf-loading-overlay');
+            var bar     = document.getElementById('spm-loading-bar');
+            var pctEl   = document.getElementById('spm-loading-pct');
+            var steps   = document.querySelectorAll('#spm-loading-steps .spm-load-step');
+            var checkSvg = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+
+            // Update step 2 label if tool-specific text was passed
+            if (stepLabel && steps[1]) {
+                steps[1].querySelector('[data-label]').textContent = stepLabel;
+            }
+
+            // Reset
+            if (bar) bar.style.width = '0%';
+            if (pctEl) pctEl.textContent = '0 %';
+            steps.forEach(function(s) {
+                s.style.color = '#94a3b8';
+                var icon = s.querySelector('.spm-load-icon');
+                if (icon) { icon.innerHTML = ''; icon.style.background = 'transparent'; icon.style.borderColor = '#cbd5e1'; }
+            });
+
+            if (overlay) overlay.style.display = 'flex';
+
+            function activateStep(idx) {
+                if (!steps[idx]) return;
+                steps[idx].style.color = '#0f172a';
+                steps[idx].style.fontWeight = '600';
+            }
+            function completeStep(idx) {
+                if (!steps[idx]) return;
+                steps[idx].style.color = '#059669';
+                var icon = steps[idx].querySelector('.spm-load-icon');
+                if (icon) { icon.innerHTML = checkSvg; icon.style.borderColor = '#059669'; icon.style.background = '#f0fdf4'; }
+            }
+
+            // Animated sequence: 0→30% step1, 30→70% step2, 70→85% step3 → open modal
+            var pct = 0;
+            function setPct(val) { pct = val; if (bar) bar.style.width = val+'%'; if (pctEl) pctEl.textContent = val+' %'; }
+
+            activateStep(0);
+            var t1 = setInterval(function() { if (pct < 30) setPct(pct + 2); }, 50);
+
+            setTimeout(function() { clearInterval(t1); setPct(30); completeStep(0); activateStep(1); }, 800);
+
+            var t2;
+            setTimeout(function() { t2 = setInterval(function() { if (pct < 70) setPct(pct + 2); }, 50); }, 900);
+
+            setTimeout(function() { clearInterval(t2); setPct(70); completeStep(1); activateStep(2); }, 2000);
+
+            var t3;
+            setTimeout(function() { t3 = setInterval(function() { if (pct < 85) setPct(pct + 1); }, 50); }, 2100);
+
+            setTimeout(function() {
+                clearInterval(t3);
+                setPct(85);
+                if (overlay) overlay.style.display = 'none';
+                __loadingShown = true;
+                if (window.SofortpdfPaymentModal) {
+                    window.SofortpdfPaymentModal.open({ files: files, onSuccess: onSuccess });
+                }
+            }, 3000);
         };
     </script>
 
