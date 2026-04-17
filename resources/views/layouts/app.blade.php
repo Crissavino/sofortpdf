@@ -375,10 +375,10 @@
         // Global helper: show loading overlay → open payment modal.
         // Only shows the loading animation once per page — subsequent clicks
         // go straight to the payment modal.
-        var __loadingShown = false;
+        window.__loadingShown = false;
 
         window.__sofortpdfShowLoadingThenPay = function(files, onSuccess, stepLabel) {
-            if (__loadingShown) {
+            if (window.__loadingShown) {
                 // Skip loading, go straight to payment
                 if (window.SofortpdfPaymentModal) {
                     window.SofortpdfPaymentModal.open({ files: files, onSuccess: onSuccess });
@@ -441,7 +441,7 @@
                 clearInterval(t3);
                 setPct(85);
                 if (overlay) overlay.style.display = 'none';
-                __loadingShown = true;
+                window.__loadingShown = true;
                 if (window.SofortpdfPaymentModal) {
                     window.SofortpdfPaymentModal.open({ files: files, onSuccess: onSuccess });
                 }
