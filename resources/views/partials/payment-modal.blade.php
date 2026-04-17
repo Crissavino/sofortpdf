@@ -617,7 +617,6 @@
         font-family: inherit; font-size: 14px;
         background: #fff; color: #0f172a;
         transition: border-color 160ms ease-out, box-shadow 160ms ease-out;
-        display: flex; align-items: center;
     }
     .spm-field input:focus {
         outline: none;
