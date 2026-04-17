@@ -2006,7 +2006,13 @@
             // page polls /api/convert/status until it flips to completed
             // or failed.
             if (result.confirmation_url) {
-                window.location.href = result.confirmation_url;
+                var confUrl = result.confirmation_url;
+                // Append payment success flag for GTM if user just paid
+                if (window.__sofortpdfTrialJustPaid) {
+                    confUrl += (confUrl.indexOf('?') >= 0 ? '&' : '?') + 'cGF5bWVudFN1Y2Nlc3M=';
+                    window.__sofortpdfTrialJustPaid = false;
+                }
+                window.location.href = confUrl;
                 return;
             }
 

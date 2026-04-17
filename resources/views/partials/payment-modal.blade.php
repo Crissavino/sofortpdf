@@ -1204,11 +1204,20 @@
             console.log('Step 3 response:', step3.status, step3Data);
             if (!step3Data.success) { showError(step3Data.message || __m.errGeneric); setLoading(false); return; }
 
-            // Payment succeeded — redirect to confirmation with payment
-            // success flag (same as contract-kit / conversie-pdf).
-            // Payment succeeded — redirect to confirmation with only the
-            // payment success flag. The job_id is in the session, not the URL.
-            window.location.href = '/{{ app()->getLocale() }}/confirmation?cGF5bWVudFN1Y2Nlc3M=';
+            // Payment succeeded — update paywall flag so the convert button
+            // passes the server-side check, then re-trigger the conversion.
+            // The conversion flow handles the redirect to confirmation.
+            window.__sofortpdfTrialJustPaid = true;
+            if (window.sofortpdfPaywall) {
+                window.sofortpdfPaywall.userHasSubscription = true;
+            }
+            setLoading(false);
+            close(true);
+            if (typeof onSuccessCb === 'function') {
+                onSuccessCb();
+            } else {
+                window.location.reload();
+            }
         } catch (err) {
             console.error('Payment flow error:', err);
             showError(__m.errGeneric);
