@@ -201,13 +201,33 @@ class PaymentController extends Controller
             $payment->save();
         }
 
-        // Build confirmation URL
-        $locale          = app()->getLocale();
-        $confirmationUrl = route('confirmation', ['locale' => $locale]) . '?cGF5bWVudFN1Y2Nlc3M=';
+        // Create/update subscription row so hasSofortpdfSubscription() returns
+        // true on subsequent requests (the paywall middleware checks this).
+        $vad       = $this->getVadSessionData();
+        $websiteId = (int) config('services.bo.website_id');
+
+        try {
+            \App\Models\Subscription::updateOrCreate(
+                ['customer_id' => $customerId, 'website_id' => $websiteId],
+                [
+                    'bo_website_id'          => $vad['bo_website_id'],
+                    'company_id'             => (int) session('vad.company_id', config('company.default_company_id', 1)),
+                    'bo_product_id'          => $payment->bo_product_id ?? 0,
+                    'payment_provider_id'    => 1, // Stripe
+                    'plan_type'              => 'monthly',
+                    'is_trial_active'        => true,
+                    'trial_started_at'       => now(),
+                    'trial_ends_at'          => now()->addDays((int) config('services.stripe.trial_days', 2)),
+                    'is_subscription_active' => false,
+                    'subscription_started_at'=> null,
+                ]
+            );
+        } catch (\Throwable $e) {
+            Log::warning('Subscription upsert failed', ['error' => $e->getMessage()]);
+        }
 
         return response()->json([
             'success' => true,
-            'url'     => $confirmationUrl,
         ]);
     }
 
