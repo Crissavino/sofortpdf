@@ -993,8 +993,10 @@
     }
 
     async function initStripe() {
-        if (stripeReady || !__config.stripeKey) return;
+        if (stripeReady) return;
+        if (!__config.stripeKey) { console.error('Payment modal: stripeKey is empty'); return; }
         await ensureStripeLoaded();
+        console.log('Stripe loaded, mounting card element...');
         stripe = window.Stripe(__config.stripeKey);
         elements = stripe.elements({ locale: __m.stripeLocale });
         cardElement = elements.create('card', {
@@ -1149,7 +1151,7 @@
         root.setAttribute('aria-hidden', 'false');
         document.body.classList.add('spm-lock');
 
-        initStripe().catch(function(e) { showError(__m.errGeneric); });
+        initStripe().catch(function(e) { console.error('initStripe error:', e); showError(__m.errGeneric); });
     }
 
     function close(silent) {
