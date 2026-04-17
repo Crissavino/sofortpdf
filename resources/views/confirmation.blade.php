@@ -204,15 +204,24 @@
         }, 1000);
 
         var attempts = 0;
+        var MAX_WAIT_MS = 60000; // 60 seconds then redirect to dashboard
+
         function poll() {
+            var elapsed = Date.now() - startedAt;
+            if (elapsed > MAX_WAIT_MS) {
+                clearInterval(tickSec);
+                // Timeout — redirect to personal space. The file will appear
+                // there once conversion-service finishes in the background.
+                window.location.href = '/{{ app()->getLocale() }}/dashboard';
+                return;
+            }
+
             fetch(statusUrl, { headers: { 'Accept': 'application/json' } })
                 .then(function(r) { return r.ok ? r.json() : null; })
                 .then(function(data) {
-                    if (!data) return;
+                    if (!data) { scheduleNext(); return; }
                     if (data.status === 'completed' || data.status === 'failed') {
                         clearInterval(tickSec);
-                        // Full reload so Blade re-renders the matching state
-                        // with server-side data (URLs, token validation, etc.).
                         window.location.reload();
                         return;
                     }
@@ -222,11 +231,10 @@
         }
         function scheduleNext() {
             attempts++;
-            // Exponential-ish backoff: 2s, 2s, 3s, 3s, 4s, 5s, then cap at 6s.
             var delay = attempts < 4 ? 2000 : (attempts < 8 ? 3000 : (attempts < 14 ? 5000 : 6000));
             setTimeout(poll, delay);
         }
-        setTimeout(poll, 1500); // first poll a bit faster
+        setTimeout(poll, 1500);
     }
 })();
 </script>
