@@ -143,20 +143,18 @@
 
             {{-- ═════ RIGHT: PAYMENT FORM ═════ --}}
             <div class="spm-right">
-                <div class="spm-price-header">
+                <div class="spm-price-header" style="text-align:center; padding:20px 16px 14px; position:relative;">
                     @if ($discountPct > 0)
                         <span class="spm-price-discount">-{{ $discountPct }}%</span>
                     @endif
-                    <div class="spm-price-header-row">
-                        <span class="spm-price-label">{{ __('payment.total_label') }}</span>
-                        <span class="spm-price-values">
-                            @if ($hasTrialDiscount)
-                                <span class="spm-price-strike">{{ $trialMarketingFormatted }}</span>
-                            @endif
-                            <span class="spm-price-value">{{ $trialPriceFormatted }}</span>
-                        </span>
+                    <div style="display:flex; align-items:baseline; justify-content:center; gap:8px;">
+                        <span class="spm-price-label" style="font-size:14px;">{{ __('payment.total_label') }}:</span>
+                        @if ($hasTrialDiscount)
+                            <span class="spm-price-strike">{{ $trialMarketingFormatted }}</span>
+                        @endif
+                        <span class="spm-price-value">{{ $trialPriceFormatted }}</span>
                     </div>
-                    <p class="spm-price-footnote">{{ __('payment.full_price_label', ['price' => $subscriptionPriceFormatted]) }} &middot; {{ __('payment.promo_label') }}</p>
+                    <p class="spm-price-footnote" style="margin-top:4px;">{{ __('payment.promo_label') }}</p>
                 </div>
 
                 <form id="spm-form" class="spm-form" novalidate>
