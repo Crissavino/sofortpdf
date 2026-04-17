@@ -143,18 +143,18 @@
 
             {{-- ═════ RIGHT: PAYMENT FORM ═════ --}}
             <div class="spm-right">
-                <div class="spm-price-header" style="text-align:center; padding:20px 16px 14px; position:relative;">
+                <div class="spm-price-header" style="text-align:center; padding:22px 20px 16px; position:relative; background:#f0fdf4; border-radius:14px; border:1px solid #dcfce7;">
                     @if ($discountPct > 0)
-                        <span class="spm-price-discount">-{{ $discountPct }}%</span>
+                        <span style="position:absolute; top:-1px; right:-1px; background:#dc2626; color:#fff; font-size:12px; font-weight:800; padding:4px 10px; border-radius:0 14px 0 10px;">-{{ $discountPct }}%</span>
                     @endif
-                    <div style="display:flex; align-items:baseline; justify-content:center; gap:8px;">
-                        <span class="spm-price-label" style="font-size:14px;">{{ __('payment.total_label') }}:</span>
+                    <div style="display:flex; align-items:baseline; justify-content:center; gap:10px; flex-wrap:wrap;">
+                        <span style="font-size:14px; color:#64748b; font-weight:500;">{{ __('payment.total_label') }}:</span>
                         @if ($hasTrialDiscount)
-                            <span class="spm-price-strike">{{ $trialMarketingFormatted }}</span>
+                            <span style="font-size:18px; color:#94a3b8; text-decoration:line-through; font-weight:500;">{{ $trialMarketingFormatted }} {{ $currency }}</span>
                         @endif
-                        <span class="spm-price-value">{{ $trialPriceFormatted }}</span>
+                        <span style="font-size:32px; font-weight:800; color:#047857; font-family:'Cabinet Grotesk',system-ui,sans-serif; letter-spacing:-0.5px;">{{ $trialPriceFormatted }} {{ $currency }}</span>
                     </div>
-                    <p class="spm-price-footnote" style="margin-top:4px;">{{ __('payment.promo_label') }}</p>
+                    <p style="margin:6px 0 0; font-size:13px; color:#059669; font-weight:500; font-style:italic;">{{ __('payment.promo_label') }}</p>
                 </div>
 
                 <form id="spm-form" class="spm-form" novalidate>
