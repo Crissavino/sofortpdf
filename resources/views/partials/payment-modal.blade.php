@@ -1108,9 +1108,8 @@
         hideError();
         setLoading(false);
         tcCheckbox.checked = false;
-        if (cardholder) cardholder.value = '';
-        if (nameInput)  nameInput.value  = options.defaultName  || '';
-        if (emailInput) emailInput.value = options.defaultEmail || '';
+        if (nameInput)  nameInput.value  = options.defaultName  || nameInput.value || '';
+        if (emailInput) emailInput.value = options.defaultEmail || emailInput.value || '';
 
         // Collapse the mobile preview by default — user taps the toggle to
         // reveal it. Desktop ignores this class (CSS always shows .spm-left).
