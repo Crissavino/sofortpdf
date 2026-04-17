@@ -192,36 +192,60 @@ class PaymentController extends Controller
 
     /* ── Helpers ── */
 
+    private function getVadSessionData(): array
+    {
+        $vad = session('vad.used_vad', []);
+        return [
+            'bo_website_id' => (int) ($vad['bo_website_id'] ?? 0),
+            'bo_vad_id'     => (int) ($vad['bo_vad_id'] ?? session('bo_vad_id', 0)),
+            'bo_product_id' => null, // resolved by BO from the stripe product
+        ];
+    }
+
     private function savePaymentSuccess(int $customerId): int
     {
+        $vad = $this->getVadSessionData();
+
+        // Find bo_product_id from the VAD product chain
+        $boProductId = null;
+        try {
+            $vadProduct = $this->stripeService->getVadProduct();
+            $boProductId = $vadProduct ? $vadProduct->bo_product_id : null;
+        } catch (\Throwable $e) {}
+
         try {
             $payment = Payment::create([
                 'customer_id'       => $customerId,
                 'payment_status_id' => 4, // in progress
-                'bo_website_id'     => session('vad.used_vad.bo_website_id', 0),
-                'bo_vad_id'         => session('bo_vad_id', 0),
+                'bo_website_id'     => $vad['bo_website_id'],
+                'bo_vad_id'         => $vad['bo_vad_id'],
+                'bo_product_id'     => $boProductId,
                 'is_test'           => !app()->isProduction(),
             ]);
+
+            Log::info('Payment saved', ['id' => $payment->id, 'customer_id' => $customerId, 'bo_website_id' => $vad['bo_website_id']]);
             return $payment->id;
         } catch (\Throwable $e) {
-            Log::warning('savePaymentSuccess failed', ['error' => $e->getMessage()]);
+            Log::error('savePaymentSuccess failed', ['error' => $e->getMessage(), 'customer_id' => $customerId]);
             return 0;
         }
     }
 
     private function savePaymentFailed(int $customerId, string $error): void
     {
+        $vad = $this->getVadSessionData();
+
         try {
             Payment::create([
                 'customer_id'       => $customerId,
                 'payment_status_id' => 3, // failed
                 'error_return'      => Str::limit($error, 250),
-                'bo_website_id'     => session('vad.used_vad.bo_website_id', 0),
-                'bo_vad_id'         => session('bo_vad_id', 0),
+                'bo_website_id'     => $vad['bo_website_id'],
+                'bo_vad_id'         => $vad['bo_vad_id'],
                 'is_test'           => !app()->isProduction(),
             ]);
         } catch (\Throwable $e) {
-            Log::warning('savePaymentFailed failed', ['error' => $e->getMessage()]);
+            Log::error('savePaymentFailed failed', ['error' => $e->getMessage()]);
         }
     }
 }
