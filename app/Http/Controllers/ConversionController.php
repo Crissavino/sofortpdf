@@ -87,9 +87,13 @@ class ConversionController extends Controller
             ]), $ttl);
         }
 
+        // Store in session so the confirmation page can pick it up without
+        // needing the job_id in the URL (cleaner URLs, better for GTM).
+        session(['last_job_id' => $jobId]);
+
         return response()->json([
             'job_id' => $jobId,
-            'confirmation_url' => route('confirmation', ['locale' => $locale, 't' => $jobId]),
+            'confirmation_url' => route('confirmation', ['locale' => $locale]),
             'message' => __('tool.processing'),
         ]);
     }

@@ -9,16 +9,19 @@ use Illuminate\Support\Facades\URL;
 class ConfirmationController extends Controller
 {
     /**
-     * GET /{locale}/confirmation?t=<download_token>[&cGF5bWVudFN1Y2Nlc3M=]
+     * GET /{locale}/confirmation[?cGF5bWVudFN1Y2Nlc3M=]
      *
-     * Shown after every successful tool conversion. The optional
-     * cGF5bWVudFN1Y2Nlc3M= flag (base64 of "paymentSuccess") is added
-     * by CheckoutController::success only the first time a user pays
-     * for the trial — UI shows an extra confirmation message in that case.
+     * Shown after every successful tool conversion. The job_id is read
+     * from the session (set by ConversionController) so it doesn't need
+     * to be in the URL. Legacy ?t= param is still supported as fallback.
+     *
+     * The optional cGF5bWVudFN1Y2Nlc3M= flag (base64 of "paymentSuccess")
+     * is present when the user just completed a trial payment.
      */
     public function show(Request $request)
     {
-        $token = (string) $request->query('t', '');
+        // Job ID: session first, URL fallback for legacy/direct links
+        $token = (string) ($request->query('t', '') ?: session('last_job_id', ''));
         $paymentSuccess = $request->query->has('cGF5bWVudFN1Y2Nlc3M=');
 
         $filename = null;
