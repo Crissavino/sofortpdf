@@ -1239,20 +1239,31 @@
         });
     }
 
-    // Preview zoom toggle
+    // Preview zoom — opens OVER the payment modal, closing returns to the modal
     var zoomBackdrop = root.querySelector('[data-spm-zoom-backdrop]');
     if (previewWrap) {
-        function toggleZoom() {
-            var zoomed = previewWrap.classList.toggle('is-zoomed');
-            if (zoomBackdrop) zoomBackdrop.classList.toggle('is-active', zoomed);
+        function openZoom() {
+            previewWrap.classList.add('is-zoomed');
+            if (zoomBackdrop) zoomBackdrop.classList.add('is-active');
+        }
+        function closeZoom() {
+            previewWrap.classList.remove('is-zoomed');
+            if (zoomBackdrop) zoomBackdrop.classList.remove('is-active');
         }
         previewWrap.addEventListener('click', function(e) {
-            // Don't zoom on ribbon badge clicks
             if (e.target.closest('.spm-preview-ribbon')) return;
-            toggleZoom();
+            e.stopPropagation(); // don't bubble to modal backdrop
+            if (previewWrap.classList.contains('is-zoomed')) {
+                closeZoom();
+            } else {
+                openZoom();
+            }
         });
         if (zoomBackdrop) {
-            zoomBackdrop.addEventListener('click', toggleZoom);
+            zoomBackdrop.addEventListener('click', function(e) {
+                e.stopPropagation(); // don't close the payment modal
+                closeZoom();
+            });
         }
     }
 
