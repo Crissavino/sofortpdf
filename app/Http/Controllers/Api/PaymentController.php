@@ -73,7 +73,28 @@ class PaymentController extends Controller
             $customer->update(['password' => Hash::make($plainPassword)]);
         }
 
+        // Preserve VAD session data across the login (Auth::login regenerates
+        // the session, which would wipe the vad.* keys set by ResolveVad).
+        $vadData = [
+            'vad.used_vad'        => session('vad.used_vad'),
+            'vad.company_id'      => session('vad.company_id'),
+            'vad.currency'        => session('vad.currency'),
+            'vad.currency_id'     => session('vad.currency_id'),
+            'vad.segment'         => session('vad.segment'),
+            'vad.pricing'         => session('vad.pricing'),
+            'bo_vad_id'           => session('bo_vad_id'),
+            'bo_payment_route_id' => session('bo_payment_route_id'),
+            'country_code'        => session('country_code'),
+        ];
+
         Auth::login($customer);
+
+        // Restore VAD + set customer id
+        foreach ($vadData as $key => $value) {
+            if ($value !== null) {
+                session([$key => $value]);
+            }
+        }
         session(['idCustomer' => $customer->id]);
 
         // Forward to BO to create Stripe customer
