@@ -54,7 +54,6 @@
     $__spmFilesCountJson = json_encode(__('payment.files_count'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
 
     // Strike-through uses the marketing trial price (e.g., €2.00 → €0.69).
-    // Discount % signals the visual saving on the trial step.
     $hasTrialDiscount = $trialMarketingPrice > $trialPrice;
     $discountPct = $hasTrialDiscount
         ? (int) round((($trialMarketingPrice - $trialPrice) / $trialMarketingPrice) * 100)
@@ -162,6 +161,17 @@
 
                 <form id="spm-form" class="spm-form" novalidate>
                     @csrf
+
+                    <div class="spm-secure-header">
+                        <span class="spm-secure-label">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 12 15 16 10" stroke="#059669" stroke-width="2.5"/></svg>
+                            {{ __('payment.secure_payment') }}
+                        </span>
+                        <span class="spm-card-brands">
+                            <img src="https://cdn.jsdelivr.net/gh/nicehash/Logos@master/payment/visa.svg" alt="Visa" height="20" style="height:20px">
+                            <img src="https://cdn.jsdelivr.net/gh/nicehash/Logos@master/payment/mastercard.svg" alt="Mastercard" height="20" style="height:20px">
+                        </span>
+                    </div>
 
                     <div class="spm-field">
                         <label for="spm-name">{{ __('payment.form_full_name') }}</label>
@@ -629,6 +639,19 @@
     }
     .spm-stripe.StripeElement--invalid { border-color: #ef4444; }
 
+    .spm-secure-header {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 10px 0 12px;
+        border-bottom: 1px solid #f1f5f9;
+        margin-bottom: 14px;
+    }
+    .spm-secure-label {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: 13px; font-weight: 600; color: #059669;
+    }
+    .spm-card-brands {
+        display: inline-flex; align-items: center; gap: 6px;
+    }
     .spm-enc {
         display: inline-flex; align-items: center; gap: 3px;
         font-size: 10px; color: #94a3b8; font-weight: 400;
