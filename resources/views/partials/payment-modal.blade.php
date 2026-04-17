@@ -1159,7 +1159,7 @@
             };
 
             var csrf = document.querySelector('meta[name="csrf-token"]').content;
-            var res = await fetch('/checkout/create-subscription', {
+            var res = await fetch('/{{ app()->getLocale() }}/checkout/create-subscription', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf },
                 body: JSON.stringify(payload),
@@ -1174,7 +1174,7 @@
                 });
                 if (confirmRes.error) { showError(confirmRes.error.message); setLoading(false); return; }
 
-                var confirm = await fetch('/checkout/confirm-payment', {
+                var confirm = await fetch('/{{ app()->getLocale() }}/checkout/confirm-payment', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf },
                     body: JSON.stringify({ subscription_id: data.subscription_id }),
