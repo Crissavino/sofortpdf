@@ -234,14 +234,26 @@ class PaymentController extends Controller
             $boProductId = $vadProduct ? $vadProduct->bo_product_id : null;
         } catch (\Throwable $e) {}
 
+        // Resolve pricing from StripeService
+        $boProduct = null;
+        $currencyId = null;
+        try {
+            $boProduct = $this->stripeService->getBoProduct();
+            $vadProduct = $this->stripeService->getVadProduct();
+            $currencyId = $vadProduct ? $vadProduct->currency_id : null;
+        } catch (\Throwable $e) {}
+
         try {
             $payment = Payment::create([
-                'customer_id'       => $customerId,
-                'payment_status_id' => 4, // in progress
-                'bo_website_id'     => $vad['bo_website_id'],
-                'bo_vad_id'         => $vad['bo_vad_id'],
-                'bo_product_id'     => $boProductId,
-                'is_test'           => !app()->isProduction(),
+                'customer_id'         => $customerId,
+                'payment_status_id'   => 4, // in progress
+                'currency_id'         => $currencyId ?? 2, // EUR fallback
+                'bo_website_id'       => $vad['bo_website_id'],
+                'bo_vad_id'           => $vad['bo_vad_id'],
+                'bo_product_id'       => $boProductId,
+                'subscription_amount' => $boProduct ? $boProduct->subscription_price : null,
+                'rebill_amount'       => $boProduct ? $boProduct->periodical_price : null,
+                'is_test'             => !app()->isProduction(),
             ]);
 
             Log::info('Payment saved', ['id' => $payment->id, 'customer_id' => $customerId, 'bo_website_id' => $vad['bo_website_id']]);
