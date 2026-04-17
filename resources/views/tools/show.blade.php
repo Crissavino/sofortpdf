@@ -1859,6 +1859,14 @@
         // run before the upload so the modal sees the final array).
         if (window.sofortpdfPaywall && window.sofortpdfPaywall.needsPayment()
             && window.SofortpdfPaymentModal) {
+            // Show loading state for a few seconds before opening the payment
+            // modal — simulates processing so the user feels their document
+            // is "ready" and they just need to pay (same UX as conversie-pdf).
+            processBtn.disabled = true;
+            btnText.textContent = '{{ __("tool.processing") }}';
+            btnSpinner.classList.remove('hidden');
+            btnArrow.classList.add('hidden');
+
             var modalFiles = selectedFiles.slice();
             if (mergeMode) {
                 var cards = fileList.querySelectorAll('.merge-card');
@@ -1868,19 +1876,20 @@
                     }).filter(Boolean);
                 }
             }
-            window.SofortpdfPaymentModal.open({
-                files: modalFiles,
-                onSuccess: function() {
-                    // Retry the conversion. The flag `__sofortpdfTrialJustPaid`
-                    // is read below when the confirmation_url is built.
-                    processBtn.click();
-                },
-            });
-            // Unlock the button so the user can close the modal and try again.
-            processBtn.disabled = false;
-            btnText.textContent = '{{ $actionLabel }}';
-            btnSpinner.classList.add('hidden');
-            btnArrow.classList.remove('hidden');
+
+            setTimeout(function() {
+                window.SofortpdfPaymentModal.open({
+                    files: modalFiles,
+                    onSuccess: function() {
+                        processBtn.click();
+                    },
+                });
+                // Restore the button so user can click again after closing the modal
+                processBtn.disabled = false;
+                btnText.textContent = '{{ $actionLabel }}';
+                btnSpinner.classList.add('hidden');
+                btnArrow.classList.remove('hidden');
+            }, 2500);
             return;
         }
 
