@@ -294,20 +294,23 @@ class ResolveVad
                 $stripeService = app(\App\Services\Payment\StripeService::class);
                 $data = $stripeService->resolvePaymentData();
 
+                $currency = $data['currency'] ?: 'EUR';
                 $pricing = [
-                    'trial'        => $data['trial_price'] ?: 0.69,
-                    'subscription' => $data['subscription_price'] ?: 39.90,
-                    'currency'     => $data['currency'] ?: 'EUR',
-                    'symbol'       => $this->currencySymbol($data['currency'] ?: 'EUR'),
+                    'trial'           => $data['trial_price'] ?: 0.69,
+                    'trial_marketing' => (float) env('TRIAL_MARKETING_PRICE', 2.00),
+                    'subscription'    => $data['subscription_price'] ?: 39.90,
+                    'currency'        => $currency,
+                    'symbol'          => $this->currencySymbol($currency),
                 ];
                 session(['vad.pricing' => $pricing]);
             } catch (\Throwable $e) {
                 Log::debug('ResolveVad: pricing resolution failed', ['error' => $e->getMessage()]);
                 $pricing = [
-                    'trial'        => 0.69,
-                    'subscription' => 39.90,
-                    'currency'     => 'EUR',
-                    'symbol'       => '€',
+                    'trial'           => 0.69,
+                    'trial_marketing' => (float) env('TRIAL_MARKETING_PRICE', 2.00),
+                    'subscription'    => 39.90,
+                    'currency'        => 'EUR',
+                    'symbol'          => '€',
                 ];
             }
         }

@@ -13,12 +13,16 @@
     $loc = app()->getLocale();
     $isEn = $loc === 'en';
     $trialPrice = $pricing['trial'] ?? 0.69;
+    $trialMarketingPrice = $pricing['trial_marketing'] ?? 2.00;
     $trialDays = (int) config('services.stripe.trial_days', 2);
     $subscriptionPrice = $pricing['subscription'] ?? 39.90;
     $currency = $pricing['symbol'] ?? '€';
     $trialPriceFormatted = $isEn
         ? number_format($trialPrice, 2, '.', ',') . ' ' . $currency
         : number_format($trialPrice, 2, ',', '.') . ' ' . $currency;
+    $trialMarketingFormatted = $isEn
+        ? number_format($trialMarketingPrice, 2, '.', ',') . ' ' . $currency
+        : number_format($trialMarketingPrice, 2, ',', '.') . ' ' . $currency;
     $subscriptionPriceFormatted = $isEn
         ? number_format($subscriptionPrice, 2, '.', ',') . ' ' . $currency
         : number_format($subscriptionPrice, 2, ',', '.') . ' ' . $currency;
@@ -39,9 +43,11 @@
     ], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
     $__spmFilesCountJson = json_encode(__('payment.files_count'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
 
-    // Discount % for the strike-through: (full - trial) / full
-    $discountPct = ($subscriptionPrice > 0 && $subscriptionPrice > $trialPrice)
-        ? (int) round((($subscriptionPrice - $trialPrice) / $subscriptionPrice) * 100)
+    // Strike-through uses the marketing trial price (e.g., €2.00 → €0.69).
+    // Discount % signals the visual saving on the trial step.
+    $hasTrialDiscount = $trialMarketingPrice > $trialPrice;
+    $discountPct = $hasTrialDiscount
+        ? (int) round((($trialMarketingPrice - $trialPrice) / $trialMarketingPrice) * 100)
         : 0;
 @endphp
 
@@ -135,8 +141,8 @@
                     <div class="spm-price-header-row">
                         <span class="spm-price-label">{{ __('payment.total_label') }}</span>
                         <span class="spm-price-values">
-                            @if ($discountPct > 0)
-                                <span class="spm-price-strike">{{ $subscriptionPriceFormatted }}</span>
+                            @if ($hasTrialDiscount)
+                                <span class="spm-price-strike">{{ $trialMarketingFormatted }}</span>
                             @endif
                             <span class="spm-price-value">{{ $trialPriceFormatted }}</span>
                         </span>

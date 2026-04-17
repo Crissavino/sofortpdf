@@ -2,12 +2,12 @@
 
 @php
     $isEnLocale = app()->getLocale() === 'en';
-    $trialPriceFormatted = $isEnLocale
-        ? number_format($trialPrice, 2, '.', ',')
-        : number_format($trialPrice, 2, ',', '.');
-    $subscriptionPriceFormatted = $isEnLocale
-        ? number_format($subscriptionPrice, 2, '.', ',')
-        : number_format($subscriptionPrice, 2, ',', '.');
+    $dec = $isEnLocale ? '.' : ',';
+    $trialPriceFormatted = number_format($trialPrice, 2, $dec, '');
+    $trialMarketingFormatted = number_format($pricing['trial_marketing'] ?? 2.00, 2, $dec, '');
+    $subscriptionPriceFormatted = number_format($subscriptionPrice, 2, $dec, '');
+    $sym = $pricing['symbol'] ?? '€';
+    $hasTrialDiscount = ($pricing['trial_marketing'] ?? 0) > $trialPrice;
 @endphp
 
 @section('content')
@@ -32,8 +32,13 @@
                 <p class="text-xs text-slate-500 mt-0.5">{{ __('checkout.plan_tagline') }}</p>
             </div>
             <div class="text-right">
-                <p class="font-display font-bold text-brand-700">{{ $trialPriceFormatted }} {{ $pricing['symbol'] ?? '€' }}</p>
-                <p class="text-xs text-slate-400">{{ __('checkout.then_per_month', ['price' => $subscriptionPriceFormatted]) }}</p>
+                <p class="font-display font-bold text-brand-700">
+                    @if($hasTrialDiscount)
+                        <span class="text-slate-400 line-through text-sm font-normal mr-1">{{ $trialMarketingFormatted }} {{ $sym }}</span>
+                    @endif
+                    {{ $trialPriceFormatted }} {{ $sym }}
+                </p>
+                <p class="text-xs text-slate-400">{{ __('checkout.then_per_month', ['price' => $subscriptionPriceFormatted . ' ' . $sym]) }}</p>
             </div>
         </div>
     </div>
