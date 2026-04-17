@@ -9,9 +9,34 @@ use Illuminate\Support\Facades\Cache;
 class DownloadController extends Controller
 {
     /**
+     * Permanent download from the documents table (authenticated users).
+     */
+    public function downloadDocument(Request $request, int $id)
+    {
+        $customer = $request->user();
+        $document = \App\Models\Document::where('id', $id)
+            ->where('customer_id', $customer->id)
+            ->first();
+
+        if (!$document) {
+            abort(404, 'Document not found.');
+        }
+
+        $filePath = $document->file_path;
+
+        if (!$filePath || !file_exists($filePath)) {
+            abort(404, 'File no longer available.');
+        }
+
+        // Mark as downloaded
+        $document->update(['download' => 1]);
+
+        return response()->download($filePath, $document->target_name ?: $document->original_filename);
+    }
+
+    /**
      * Download tokens are stored in the cache for both guest and
-     * authenticated flows (the local downloads table doesn't exist on the
-     * shared DB).
+     * authenticated flows.
      */
     public function download(Request $request, string $token)
     {

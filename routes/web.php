@@ -71,6 +71,10 @@ Route::post('/api/webhooks/conversion', [ConversionController::class, 'webhook']
 | Download (no locale prefix, auth required)
 |--------------------------------------------------------------------------
 */
+Route::get('/download/document/{id}', [DownloadController::class, 'downloadDocument'])
+     ->name('download.document')
+     ->middleware('auth');
+
 Route::get('/download/{token}', [DownloadController::class, 'download'])
      ->middleware('paywall')
      ->name('download');

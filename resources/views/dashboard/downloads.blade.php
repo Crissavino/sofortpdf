@@ -17,7 +17,8 @@
                                     <th class="text-left font-medium text-slate-500 pb-3 pr-4">{{ __('dashboard.col_date') }}</th>
                                     <th class="text-left font-medium text-slate-500 pb-3 pr-4">Tool</th>
                                     <th class="text-left font-medium text-slate-500 pb-3 pr-4">{{ __('dashboard.col_filename') }}</th>
-                                    <th class="text-left font-medium text-slate-500 pb-3">{{ __('dashboard.downloads_col_status') }}</th>
+                                    <th class="text-left font-medium text-slate-500 pb-3 pr-4">{{ __('dashboard.downloads_col_status') }}</th>
+                                    <th class="text-left font-medium text-slate-500 pb-3"></th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-50">
@@ -42,6 +43,16 @@
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                                     {{ __('dashboard.conv_processing') }}
                                                 </span>
+                                            @endif
+                                        </td>
+                                        <td class="py-3">
+                                            @if($conversion->status === 'completed' && $conversion->file_path && file_exists($conversion->file_path))
+                                                <a href="{{ route('download.document', $conversion->id) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white text-xs font-medium rounded-lg transition-colors">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                                    Download
+                                                </a>
+                                            @else
+                                                <span class="text-slate-400">&mdash;</span>
                                             @endif
                                         </td>
                                     </tr>

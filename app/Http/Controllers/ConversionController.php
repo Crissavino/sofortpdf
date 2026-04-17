@@ -172,7 +172,11 @@ class ConversionController extends Controller
         }
 
         $outputExt = (string) ($request->input('output_extension') ?: $file->getClientOriginalExtension() ?: 'pdf');
-        $outputPath = storage_path('app/temp/' . (string) Str::uuid() . '.' . $outputExt);
+
+        // Paid users: store in permanent directory. Guest/bypass: temp (cleaned hourly).
+        $isPaid = !empty($entry['user_id']);
+        $dir    = $isPaid ? 'app/documents' : 'app/temp';
+        $outputPath = storage_path($dir . '/' . (string) Str::uuid() . '.' . $outputExt);
         if (! is_dir(dirname($outputPath))) {
             @mkdir(dirname($outputPath), 0755, true);
         }
