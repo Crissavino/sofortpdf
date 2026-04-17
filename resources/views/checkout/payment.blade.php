@@ -32,7 +32,7 @@
                 <p class="text-xs text-slate-500 mt-0.5">{{ __('checkout.plan_tagline') }}</p>
             </div>
             <div class="text-right">
-                <p class="font-display font-bold text-brand-700">{{ $trialPriceFormatted }} &euro;</p>
+                <p class="font-display font-bold text-brand-700">{{ $trialPriceFormatted }} {{ $pricing['symbol'] ?? '€' }}</p>
                 <p class="text-xs text-slate-400">{{ __('checkout.then_per_month', ['price' => $subscriptionPriceFormatted]) }}</p>
             </div>
         </div>

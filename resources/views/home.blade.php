@@ -260,11 +260,16 @@
             </div>
 
             @php
+                $faqPricing = [
+                    'trial_price' => number_format($pricing['trial'], 2, app()->getLocale() === 'de' ? ',' : '.', ''),
+                    'sub_price'   => number_format($pricing['subscription'], 2, app()->getLocale() === 'de' ? ',' : '.', ''),
+                    'currency'    => $pricing['symbol'],
+                ];
                 $homeFaqs = [];
                 for ($i = 1; $i <= 6; $i++) {
                     $homeFaqs[] = [
-                        'q' => __("home.faq_{$i}_q"),
-                        'a' => __("home.faq_{$i}_a"),
+                        'q' => __("home.faq_{$i}_q", $faqPricing),
+                        'a' => __("home.faq_{$i}_a", $faqPricing),
                     ];
                 }
             @endphp
@@ -307,10 +312,10 @@
                 <span class="text-brand-100 text-sm font-medium uppercase tracking-wider mb-2">{{ __('home.cta_try_now') }}</span>
                 <div class="flex items-baseline gap-1">
                     <span class="font-display font-extrabold text-5xl sm:text-6xl text-white"
-                          data-countup="{{ config('services.stripe.trial_price', 1.5) }}"
+                          data-countup="{{ $pricing['trial'] }}"
                           data-decimals="2"
-                          data-locale="{{ app()->getLocale() === 'de' ? 'de-DE' : 'en-US' }}">{{ app()->getLocale() === 'de' ? '1,50' : '1.50' }}</span>
-                    <span class="font-display font-bold text-2xl text-brand-200">&euro;</span>
+                          data-locale="{{ app()->getLocale() === 'de' ? 'de-DE' : 'en-US' }}">{{ number_format($pricing['trial'], 2, app()->getLocale() === 'de' ? ',' : '.', '') }}</span>
+                    <span class="font-display font-bold text-2xl text-brand-200">{{ $pricing['symbol'] }}</span>
                 </div>
                 <span class="text-brand-200 text-sm mt-1">{{ __('home.cta_trial_days', ['days' => config('services.stripe.trial_days', 2)]) }}</span>
             </div>

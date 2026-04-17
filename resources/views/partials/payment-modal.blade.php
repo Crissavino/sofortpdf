@@ -12,10 +12,10 @@
 @php
     $loc = app()->getLocale();
     $isEn = $loc === 'en';
-    $trialPrice = (float) config('services.stripe.trial_price', 1.50);
+    $trialPrice = $pricing['trial'] ?? 0.69;
     $trialDays = (int) config('services.stripe.trial_days', 2);
-    $subscriptionPrice = (float) config('services.stripe.subscription_price', 39.99);
-    $currency = '€';
+    $subscriptionPrice = $pricing['subscription'] ?? 39.90;
+    $currency = $pricing['symbol'] ?? '€';
     $trialPriceFormatted = $isEn
         ? number_format($trialPrice, 2, '.', ',') . ' ' . $currency
         : number_format($trialPrice, 2, ',', '.') . ' ' . $currency;

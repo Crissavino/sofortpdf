@@ -20,9 +20,8 @@
         </p>
 
         <p class="text-gray-500 mb-8">
-            {{ __('checkout.success_renewal_info', ['price' => app()->getLocale() === 'en'
-                ? number_format(config('services.stripe.subscription_price'), 2, '.', ',')
-                : number_format(config('services.stripe.subscription_price'), 2, ',', '.')]) }}
+            {{ __('checkout.success_renewal_info', ['price' => number_format($pricing['subscription'] ?? 39.90, 2, app()->getLocale() === 'de' ? ',' : '.', '')
+                . ' ' . ($pricing['symbol'] ?? '€')]) }}
         </p>
 
         <a href="{{ route('home') }}"

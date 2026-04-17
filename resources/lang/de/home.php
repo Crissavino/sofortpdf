@@ -72,7 +72,7 @@ return [
     'faq_heading' => 'Häufig gestellte Fragen',
     'faq_subheading' => 'Alles, was Sie über sofortpdf wissen müssen.',
     'faq_1_q' => 'Ist sofortpdf kostenlos?',
-    'faq_1_a' => 'sofortpdf bietet einen Testzeitraum für 1,50 € an. Danach kostet das Abonnement 39,99 €/Monat. Jederzeit kündbar.',
+    'faq_1_a' => 'sofortpdf bietet einen Testzeitraum für :trial_price :currency an. Danach kostet das Abonnement :sub_price :currency/Monat. Jederzeit kündbar.',
     'faq_2_q' => 'Sind meine Daten sicher?',
     'faq_2_a' => 'Ja. Alle Dateien werden über SSL verschlüsselt, auf EU-Servern verarbeitet und nach 1 Stunde automatisch gelöscht.',
     'faq_3_q' => 'Welche Dateiformate werden unterstützt?',

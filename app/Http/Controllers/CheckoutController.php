@@ -50,14 +50,20 @@ class CheckoutController extends Controller
 
         $returnUrl = $request->get('return_to', route('home'));
 
+        // Pricing comes from the VAD-resolved BoProduct — shared via $pricing
+        // by the ResolveVad middleware. Pass them to the view explicitly too
+        // so the checkout form can embed the right Stripe price IDs.
+        $stripeService = app(\App\Services\Payment\StripeService::class);
+        $paymentData   = $stripeService->resolvePaymentData();
+
         return view('checkout.payment', [
-            'stripeKey' => config('services.stripe.key'),
-            'trialPrice' => config('services.stripe.trial_price', 1.50),
-            'trialDays' => config('services.stripe.trial_days', 2),
-            'subscriptionPrice' => config('services.stripe.subscription_price', 39.99),
-            'returnUrl' => $returnUrl,
-            'pageTitle' => 'Zahlungsinformationen',
-            'slug' => '',
+            'stripeKey'         => $paymentData['stripe_public_key'] ?: config('services.stripe.key'),
+            'trialPrice'        => $paymentData['trial_price'] ?: ($pricing['trial'] ?? 0.69),
+            'trialDays'         => (int) config('services.stripe.trial_days', 2),
+            'subscriptionPrice' => $paymentData['subscription_price'] ?: ($pricing['subscription'] ?? 39.90),
+            'returnUrl'         => $returnUrl,
+            'pageTitle'         => 'Zahlungsinformationen',
+            'slug'              => '',
         ]);
     }
 

@@ -21,7 +21,7 @@
                             <h3 class="font-display font-bold text-slate-900">sofortpdf Pro</h3>
                             <p class="text-sm text-slate-500 mt-0.5">{{ __('dashboard.plan_active_desc') }}</p>
                             <p class="text-sm text-slate-700 mt-2 font-medium">
-                                {{ __('dashboard.next_payment_amount', ['date' => $subscription->current_period_end->format(__('dashboard.date_format_short'))]) }}<span class="text-brand-600">&euro;39,99</span>
+                                {{ __('dashboard.next_payment_amount', ['date' => $subscription->current_period_end->format(__('dashboard.date_format_short'))]) }}<span class="text-brand-600">{{ $pricing['symbol'] ?? '€' }}{{ number_format($pricing['subscription'] ?? 39.90, 2, app()->getLocale() === 'de' ? ',' : '.', '') }}</span>
                             </p>
                         </div>
                     </div>

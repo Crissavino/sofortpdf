@@ -284,5 +284,43 @@ class ResolveVad
         View::share('company', $profile);
         View::share('companyEmail', config('company.email'));
         View::share('companyWebsite', config('company.website'));
+
+        // Pricing — resolved once per session from bo_products via the VAD
+        // route, cached so subsequent requests skip the DB queries.
+        $pricing = session('vad.pricing');
+
+        if (!$pricing) {
+            try {
+                $stripeService = app(\App\Services\Payment\StripeService::class);
+                $data = $stripeService->resolvePaymentData();
+
+                $pricing = [
+                    'trial'        => $data['trial_price'] ?: 0.69,
+                    'subscription' => $data['subscription_price'] ?: 39.90,
+                    'currency'     => $data['currency'] ?: 'EUR',
+                    'symbol'       => $this->currencySymbol($data['currency'] ?: 'EUR'),
+                ];
+                session(['vad.pricing' => $pricing]);
+            } catch (\Throwable $e) {
+                Log::debug('ResolveVad: pricing resolution failed', ['error' => $e->getMessage()]);
+                $pricing = [
+                    'trial'        => 0.69,
+                    'subscription' => 39.90,
+                    'currency'     => 'EUR',
+                    'symbol'       => '€',
+                ];
+            }
+        }
+
+        View::share('pricing', $pricing);
+    }
+
+    private function currencySymbol(string $currency): string
+    {
+        $map = [
+            'EUR' => '€', 'USD' => '$', 'GBP' => '£', 'RON' => 'lei',
+            'CHF' => 'CHF', 'HUF' => 'Ft', 'CZK' => 'Kč', 'PLN' => 'zł',
+        ];
+        return $map[strtoupper($currency)] ?? $currency;
     }
 }

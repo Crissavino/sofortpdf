@@ -72,7 +72,7 @@ return [
     'faq_heading' => 'Frequently Asked Questions',
     'faq_subheading' => 'Everything you need to know about sofortpdf.',
     'faq_1_q' => 'Is sofortpdf free?',
-    'faq_1_a' => 'sofortpdf offers a trial period for €1.50. After that, the subscription costs €39.99/month. Cancel anytime.',
+    'faq_1_a' => 'sofortpdf offers a trial period for :trial_price :currency. After that, the subscription costs :sub_price :currency/month. Cancel anytime.',
     'faq_2_q' => 'Is my data secure?',
     'faq_2_a' => 'Yes. All files are encrypted via SSL, processed on EU servers and automatically deleted after 1 hour.',
     'faq_3_q' => 'Which file formats are supported?',
