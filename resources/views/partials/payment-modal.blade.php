@@ -452,13 +452,17 @@
     }
     .spm-preview.is-zoomed {
         position: fixed;
-        inset: 20px;
-        z-index: 100;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90vw; height: 90vh;
+        max-width: 700px;
+        z-index: 10001;
         aspect-ratio: auto;
         border-radius: 14px;
         box-shadow: 0 24px 60px -12px rgba(15,23,42,0.5);
         cursor: zoom-out;
         background: #fff;
+        padding: 16px;
     }
     .spm-preview.is-zoomed img,
     .spm-preview.is-zoomed canvas {
@@ -472,7 +476,6 @@
         backdrop-filter: blur(4px);
     }
     .spm-zoom-backdrop.is-active { display: block; }
-    .spm-preview.is-zoomed { z-index: 10001; }
     .spm-preview-ribbon {
         position: absolute;
         top: 8px; right: 8px;
