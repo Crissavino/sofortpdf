@@ -243,40 +243,79 @@ class PaymentController extends Controller
         ];
     }
 
+    /**
+     * Generate a unique order number — same format as conversie-pdf:
+     * unix_timestamp-ABC (3 random uppercase letters).
+     */
+    private function generateOrderNumber(): string
+    {
+        do {
+            $chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            $rand  = '';
+            for ($i = 0; $i < 3; $i++) {
+                $rand .= $chars[random_int(0, 25)];
+            }
+            $orderNumber = time() . '-' . $rand;
+        } while (Payment::where('order_number', $orderNumber)->exists());
+
+        return $orderNumber;
+    }
+
+    /**
+     * Save payment when trial charge succeeds — mirrors conversie-pdf's
+     * savePaymentWhenStartTheProcess(). All fields populated from the
+     * VAD route + StripeService so the BO has complete data.
+     */
     private function savePaymentSuccess(int $customerId): int
     {
         $vad = $this->getVadSessionData();
 
-        // Find bo_product_id from the VAD product chain
+        $vadProduct  = null;
+        $boProduct   = null;
+        $currencyId  = null;
         $boProductId = null;
+
         try {
-            $vadProduct = $this->stripeService->getVadProduct();
+            $vadProduct  = $this->stripeService->getVadProduct();
+            $boProduct   = $this->stripeService->getBoProduct();
+            $currencyId  = $vadProduct ? $vadProduct->currency_id : null;
             $boProductId = $vadProduct ? $vadProduct->bo_product_id : null;
         } catch (\Throwable $e) {}
 
-        // Resolve pricing from StripeService
-        $boProduct = null;
-        $currencyId = null;
-        try {
-            $boProduct = $this->stripeService->getBoProduct();
-            $vadProduct = $this->stripeService->getVadProduct();
-            $currencyId = $vadProduct ? $vadProduct->currency_id : null;
-        } catch (\Throwable $e) {}
+        // Check if customer already has a payment (reuse like conversie-pdf)
+        $payment = Payment::where('customer_id', $customerId)->first();
+        $isNew   = !$payment;
 
         try {
-            $payment = Payment::create([
+            $data = [
                 'customer_id'         => $customerId,
-                'payment_status_id'   => 4, // in progress
-                'currency_id'         => $currencyId ?? 2, // EUR fallback
+                'payment_status_id'   => 4, // in progress (en_cours)
+                'product_id'          => $boProduct ? $boProduct->id : null,
+                'currency_id'         => $currencyId ?? 2,
                 'bo_website_id'       => $vad['bo_website_id'],
                 'bo_vad_id'           => $vad['bo_vad_id'],
                 'bo_product_id'       => $boProductId,
                 'subscription_amount' => $boProduct ? $boProduct->subscription_price : null,
                 'rebill_amount'       => $boProduct ? $boProduct->periodical_price : null,
+                'vad'                 => session('vad.used_vad.vad_name'),
+                'first_vad'           => session('vad.used_vad.vad_name'),
+                'order_number'        => $isNew ? $this->generateOrderNumber() : ($payment->order_number ?: $this->generateOrderNumber()),
                 'is_test'             => !app()->isProduction(),
-            ]);
+            ];
 
-            Log::info('Payment saved', ['id' => $payment->id, 'customer_id' => $customerId, 'bo_website_id' => $vad['bo_website_id']]);
+            if ($isNew) {
+                $payment = Payment::create($data);
+            } else {
+                $payment->update($data);
+            }
+
+            Log::info('Payment saved', [
+                'id'            => $payment->id,
+                'customer_id'   => $customerId,
+                'order_number'  => $payment->order_number,
+                'bo_website_id' => $vad['bo_website_id'],
+                'vad'           => $data['vad'],
+            ]);
             return $payment->id;
         } catch (\Throwable $e) {
             Log::error('savePaymentSuccess failed', ['error' => $e->getMessage(), 'customer_id' => $customerId]);
@@ -289,13 +328,26 @@ class PaymentController extends Controller
         $vad = $this->getVadSessionData();
 
         try {
+            $vadProduct  = $this->stripeService->getVadProduct();
+            $boProduct   = $this->stripeService->getBoProduct();
+            $currencyId  = $vadProduct ? $vadProduct->currency_id : null;
+            $boProductId = $vadProduct ? $vadProduct->bo_product_id : null;
+
             Payment::create([
-                'customer_id'       => $customerId,
-                'payment_status_id' => 3, // failed
-                'error_return'      => Str::limit($error, 250),
-                'bo_website_id'     => $vad['bo_website_id'],
-                'bo_vad_id'         => $vad['bo_vad_id'],
-                'is_test'           => !app()->isProduction(),
+                'customer_id'         => $customerId,
+                'payment_status_id'   => 3, // failed
+                'product_id'          => $boProduct ? $boProduct->id : null,
+                'currency_id'         => $currencyId ?? 2,
+                'bo_website_id'       => $vad['bo_website_id'],
+                'bo_vad_id'           => $vad['bo_vad_id'],
+                'bo_product_id'       => $boProductId,
+                'subscription_amount' => $boProduct ? $boProduct->subscription_price : null,
+                'rebill_amount'       => $boProduct ? $boProduct->periodical_price : null,
+                'vad'                 => session('vad.used_vad.vad_name'),
+                'first_vad'           => session('vad.used_vad.vad_name'),
+                'order_number'        => $this->generateOrderNumber(),
+                'error_return'        => Str::limit($error, 250),
+                'is_test'             => !app()->isProduction(),
             ]);
         } catch (\Throwable $e) {
             Log::error('savePaymentFailed failed', ['error' => $e->getMessage()]);

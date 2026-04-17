@@ -39,6 +39,10 @@ class Payment extends Model
         'stripe_status',
         'is_test',
         'is_payment_confirmed',
+        'vad',
+        'vad2',
+        'first_vad',
+        'nb_try_vad',
     ];
 
     public function customer(): BelongsTo
