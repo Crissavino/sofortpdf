@@ -229,6 +229,20 @@
     </div>
 </div>
 
+{{-- Bottom bar — appears after user closes the payment modal --}}
+<div id="spm-bottom-bar" class="spm-bottom-bar" hidden>
+    <div class="spm-bottom-inner">
+        <div class="spm-bottom-text">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <span>{{ __('payment.bottom_bar_text') }}</span>
+        </div>
+        <button type="button" class="spm-bottom-btn" data-spm-reopen>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            {{ __('payment.bottom_bar_button') }}
+        </button>
+    </div>
+</div>
+
 <style>
     .spm-root {
         position: fixed; inset: 0; z-index: 9999;
@@ -743,6 +757,47 @@
 
     body.spm-lock { overflow: hidden; }
 
+    /* Bottom bar — sticky CTA after modal close */
+    .spm-bottom-bar {
+        position: fixed; bottom: 0; left: 0; right: 0;
+        z-index: 9998;
+        background: #fff;
+        border-top: 1px solid #e2e8f0;
+        box-shadow: 0 -4px 20px -4px rgba(15,23,42,0.12);
+        padding: 12px 20px;
+        transform: translateY(100%);
+        transition: transform 300ms cubic-bezier(0.23,1,0.32,1);
+    }
+    .spm-bottom-bar.is-visible {
+        transform: translateY(0);
+    }
+    .spm-bottom-inner {
+        max-width: 860px; margin: 0 auto;
+        display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .spm-bottom-text {
+        display: flex; align-items: center; gap: 10px;
+        font-size: 14px; font-weight: 600; color: #0f172a;
+    }
+    .spm-bottom-btn {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 10px 24px;
+        background: #059669;
+        color: #fff;
+        border: 0; border-radius: 10px;
+        font-family: 'Cabinet Grotesk', system-ui, sans-serif;
+        font-weight: 700; font-size: 14px;
+        cursor: pointer;
+        white-space: nowrap;
+        box-shadow: 0 4px 12px -3px rgba(5,150,105,0.4);
+        transition: background 160ms ease-out, transform 160ms ease-out;
+    }
+    .spm-bottom-btn:hover { background: #047857; transform: translateY(-1px); }
+    @media (max-width: 480px) {
+        .spm-bottom-inner { flex-direction: column; text-align: center; }
+        .spm-bottom-btn { width: 100%; justify-content: center; }
+    }
+
     @media (prefers-reduced-motion: reduce) {
         .spm-root, .spm-panel { transition: none !important; }
         .spm-spin { animation: none !important; }
@@ -1141,10 +1196,17 @@
     });
 
     // --- Open / close ------------------------------------------------------
+    var bottomBar = document.getElementById('spm-bottom-bar');
+    var lastOpenOptions = null; // remember so the bar can reopen the modal
+
     function open(options) {
         options = options || {};
+        lastOpenOptions = options;
         onSuccessCb = options.onSuccess || null;
         onCloseCb = options.onClose || null;
+
+        // Hide the bottom bar while the modal is open
+        if (bottomBar) { bottomBar.hidden = true; bottomBar.classList.remove('is-visible'); }
 
         // Normalize: accept either `file` singular or `files` array.
         var files = [];
@@ -1204,9 +1266,24 @@
     }
 
     function close(silent) {
+        // Close zoom if open
+        if (previewWrap && previewWrap.classList.contains('is-zoomed')) {
+            previewWrap.classList.remove('is-zoomed');
+            if (zoomBackdrop) zoomBackdrop.classList.remove('is-active');
+        }
+
         root.classList.remove('spm-open');
         root.setAttribute('aria-hidden', 'true');
         document.body.classList.remove('spm-lock');
+
+        // Show the bottom bar unless payment just succeeded (silent=true)
+        if (!silent && bottomBar && lastOpenOptions) {
+            bottomBar.hidden = false;
+            requestAnimationFrame(function() {
+                bottomBar.classList.add('is-visible');
+            });
+        }
+
         var cb = onCloseCb; onCloseCb = null;
         if (!silent && typeof cb === 'function') cb();
     }
@@ -1265,6 +1342,15 @@
                 closeZoom();
             });
         }
+    }
+
+    // Bottom bar "Download Now" → reopen the modal with the same options
+    if (bottomBar) {
+        bottomBar.querySelector('[data-spm-reopen]').addEventListener('click', function() {
+            if (lastOpenOptions) {
+                open(lastOpenOptions);
+            }
+        });
     }
 
     // Public API

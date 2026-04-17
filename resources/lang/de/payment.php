@@ -45,6 +45,9 @@ return [
     'back_to_form' => 'Zurück zum Formular',
     'preview_title' => 'Ihre Datei',
 
+    'bottom_bar_text' => 'Ihr Dokument ist bereit!',
+    'bottom_bar_button' => 'Jetzt herunterladen',
+
     'err_card' => 'Karte wurde abgelehnt. Bitte versuchen Sie eine andere Karte.',
     'err_generic' => 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.',
     'err_name' => 'Bitte geben Sie den Namen des Karteninhabers ein.',

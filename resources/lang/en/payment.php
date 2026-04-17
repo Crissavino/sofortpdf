@@ -45,6 +45,9 @@ return [
     'back_to_form' => 'Back to form',
     'preview_title' => 'Your file',
 
+    'bottom_bar_text' => 'Your document is ready!',
+    'bottom_bar_button' => 'Download now',
+
     'err_card' => 'Your card was declined. Please try another card.',
     'err_generic' => 'Something went wrong. Please try again.',
     'err_name' => 'Please enter the cardholder name.',
