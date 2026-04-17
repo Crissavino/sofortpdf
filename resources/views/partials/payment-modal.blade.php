@@ -1144,7 +1144,10 @@
         setLoading(true);
         try {
             var sanitizedName = sanitizeStripeName(fullName) || fullName;
+            var csrf = document.querySelector('meta[name="csrf-token"]').content;
+            var headers = { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf };
 
+            // Create Stripe PaymentMethod on the client
             var pm = await stripe.createPaymentMethod({
                 type: 'card',
                 card: cardElement,
@@ -1152,48 +1155,60 @@
             });
             if (pm.error) { showError(pm.error.message); setLoading(false); return; }
 
-            var payload = {
-                payment_method_id: pm.paymentMethod.id,
-                name: sanitizedName,
-                email: email,
-            };
+            var paymentMethodId = pm.paymentMethod.id;
 
-            var csrf = document.querySelector('meta[name="csrf-token"]').content;
-            var res = await fetch('/{{ app()->getLocale() }}/checkout/create-subscription', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf },
-                body: JSON.stringify(payload),
+            // ═══ Step 1: Create customer (local + BO → Stripe) ═══
+            var step1 = await fetch('/api/payment/create-customer', {
+                method: 'POST', headers: headers,
+                body: JSON.stringify({
+                    full_name: sanitizedName,
+                    email: email,
+                    payment_method_id: paymentMethodId,
+                }),
             });
-            var data = await res.json();
+            var step1Data = await step1.json();
+            if (!step1Data.success) { showError(step1Data.message || __m.errGeneric); setLoading(false); return; }
 
-            if (data.error) { showError(data.error); setLoading(false); return; }
-
-            if (data.requires_action) {
-                var confirmRes = await stripe.confirmCardPayment(data.client_secret, {
-                    payment_method: pm.paymentMethod.id,
-                });
-                if (confirmRes.error) { showError(confirmRes.error.message); setLoading(false); return; }
-
-                var confirm = await fetch('/{{ app()->getLocale() }}/checkout/confirm-payment', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf },
-                    body: JSON.stringify({ subscription_id: data.subscription_id }),
-                });
-                var confirmData = await confirm.json();
-                if (confirmData.error) { showError(confirmData.error); setLoading(false); return; }
-            } else if (!data.success) {
-                showError(__m.errGeneric);
-                setLoading(false);
-                return;
+            // Update CSRF token (session may have rotated after login)
+            if (step1Data.csrf_token) {
+                csrf = step1Data.csrf_token;
+                headers['X-CSRF-TOKEN'] = csrf;
+                var metaTag = document.querySelector('meta[name="csrf-token"]');
+                if (metaTag) metaTag.setAttribute('content', csrf);
             }
 
-            // Payment succeeded — mark the flag + close modal + hand control back.
+            // ═══ Step 2: Pay trial (BO → Stripe charge) ═══
+            var step2 = await fetch('/api/payment/pay-trial', {
+                method: 'POST', headers: headers,
+                body: JSON.stringify({ payment_method_id: paymentMethodId }),
+            });
+            var step2Data = await step2.json();
+            if (!step2Data.success) { showError(step2Data.message || __m.errGeneric); setLoading(false); return; }
+
+            // Handle 3D Secure if required
+            if (step2Data.paymentIntent && step2Data.paymentIntent.status === 'requires_action') {
+                var confirmRes = await stripe.confirmCardPayment(step2Data.paymentIntent.client_secret, {
+                    payment_method: paymentMethodId,
+                });
+                if (confirmRes.error) { showError(confirmRes.error.message); setLoading(false); return; }
+            }
+
+            // ═══ Step 3: Create subscription (BO → Stripe subscription) ═══
+            var step3 = await fetch('/api/payment/create-subscription', {
+                method: 'POST', headers: headers,
+                body: JSON.stringify({ payment_method_id: paymentMethodId }),
+            });
+            var step3Data = await step3.json();
+            if (!step3Data.success) { showError(step3Data.message || __m.errGeneric); setLoading(false); return; }
+
+            // Payment succeeded — close modal + trigger the tool conversion
             window.__sofortpdfTrialJustPaid = true;
             setLoading(false);
             var cb = onSuccessCb;
             close(true); // silent close (skip onClose callback)
             if (typeof cb === 'function') cb();
         } catch (err) {
+            console.error('Payment flow error:', err);
             showError(__m.errGeneric);
             setLoading(false);
         }

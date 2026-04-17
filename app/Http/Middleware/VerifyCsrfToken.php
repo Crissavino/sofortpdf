@@ -15,5 +15,6 @@ class VerifyCsrfToken extends Middleware
         '/stripe/webhook',
         '/stripe/webhook-jack',
         '/api/webhooks/conversion',
+        '/api/payment/*',
     ];
 }

@@ -42,6 +42,11 @@ Route::post('/stripe/webhook-jack', [WebhookController::class, 'handleJack'])->n
 */
 Route::prefix('api')->group(function () {
     Route::post('/upload', [UploadController::class, 'store']);
+
+    // Payment — 3-step flow delegated to BO (same as contract-kit)
+    Route::post('/payment/create-customer', [\App\Http\Controllers\Api\PaymentController::class, 'createCustomer']);
+    Route::post('/payment/pay-trial', [\App\Http\Controllers\Api\PaymentController::class, 'payTrial']);
+    Route::post('/payment/create-subscription', [\App\Http\Controllers\Api\PaymentController::class, 'createSubscription']);
 });
 
 Route::middleware(['paywall'])->prefix('api')->group(function () {
