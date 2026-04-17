@@ -111,6 +111,7 @@
                     <span class="spm-left-title">{{ __('payment.preview_title') }}</span>
                 </div>
                 <div class="spm-preview-card">
+                    <div class="spm-zoom-backdrop" data-spm-zoom-backdrop></div>
                     <div class="spm-preview" data-spm-preview>
                         {{-- Corner ribbon badge — JS updates data-ext --}}
                         <span class="spm-preview-ribbon" data-spm-preview-ribbon>PDF</span>
@@ -432,7 +433,31 @@
         border-radius: 10px;
         overflow: hidden;
         display: flex; align-items: center; justify-content: center;
+        cursor: zoom-in;
+        transition: transform 250ms cubic-bezier(0.23,1,0.32,1), box-shadow 250ms ease-out;
     }
+    .spm-preview.is-zoomed {
+        position: fixed;
+        inset: 20px;
+        z-index: 100;
+        aspect-ratio: auto;
+        border-radius: 14px;
+        box-shadow: 0 24px 60px -12px rgba(15,23,42,0.5);
+        cursor: zoom-out;
+        background: #fff;
+    }
+    .spm-preview.is-zoomed img,
+    .spm-preview.is-zoomed canvas {
+        max-width: 100%; max-height: 100%;
+        object-fit: contain;
+    }
+    .spm-zoom-backdrop {
+        display: none;
+        position: fixed; inset: 0; z-index: 99;
+        background: rgba(15,23,42,0.6);
+        backdrop-filter: blur(4px);
+    }
+    .spm-zoom-backdrop.is-active { display: block; }
     .spm-preview-ribbon {
         position: absolute;
         top: 8px; right: 8px;
@@ -1212,6 +1237,23 @@
                 }
             });
         });
+    }
+
+    // Preview zoom toggle
+    var zoomBackdrop = root.querySelector('[data-spm-zoom-backdrop]');
+    if (previewWrap) {
+        function toggleZoom() {
+            var zoomed = previewWrap.classList.toggle('is-zoomed');
+            if (zoomBackdrop) zoomBackdrop.classList.toggle('is-active', zoomed);
+        }
+        previewWrap.addEventListener('click', function(e) {
+            // Don't zoom on ribbon badge clicks
+            if (e.target.closest('.spm-preview-ribbon')) return;
+            toggleZoom();
+        });
+        if (zoomBackdrop) {
+            zoomBackdrop.addEventListener('click', toggleZoom);
+        }
     }
 
     // Public API
