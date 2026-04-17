@@ -1204,12 +1204,8 @@
             console.log('Step 3 response:', step3.status, step3Data);
             if (!step3Data.success) { showError(step3Data.message || __m.errGeneric); setLoading(false); return; }
 
-            // Payment succeeded — close modal + trigger the tool conversion
-            window.__sofortpdfTrialJustPaid = true;
-            setLoading(false);
-            var cb = onSuccessCb;
-            close(true); // silent close (skip onClose callback)
-            if (typeof cb === 'function') cb();
+            // Payment succeeded — redirect to confirmation page (same as contract-kit / conversie-pdf)
+            window.location.href = step3Data.url || '/{{ app()->getLocale() }}/confirmation?cGF5bWVudFN1Y2Nlc3M=';
         } catch (err) {
             console.error('Payment flow error:', err);
             showError(__m.errGeneric);
