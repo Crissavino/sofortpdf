@@ -143,6 +143,11 @@
 
             {{-- ═════ RIGHT: PAYMENT FORM ═════ --}}
             <div class="spm-right">
+                @php
+                    // Formatted prices WITHOUT symbol (symbol goes once at the end of the big price)
+                    $trialNum = $isEn ? number_format($trialPrice, 2, '.', ',') : number_format($trialPrice, 2, ',', '.');
+                    $marketingNum = $isEn ? number_format($trialMarketingPrice, 2, '.', ',') : number_format($trialMarketingPrice, 2, ',', '.');
+                @endphp
                 <div class="spm-price-header" style="text-align:center; padding:22px 20px 16px; position:relative; background:#f0fdf4; border-radius:14px; border:1px solid #dcfce7;">
                     @if ($discountPct > 0)
                         <span style="position:absolute; top:-1px; right:-1px; background:#dc2626; color:#fff; font-size:12px; font-weight:800; padding:4px 10px; border-radius:0 14px 0 10px;">-{{ $discountPct }}%</span>
@@ -150,9 +155,9 @@
                     <div style="display:flex; align-items:baseline; justify-content:center; gap:10px; flex-wrap:wrap;">
                         <span style="font-size:14px; color:#64748b; font-weight:500;">{{ __('payment.total_label') }}:</span>
                         @if ($hasTrialDiscount)
-                            <span style="font-size:18px; color:#94a3b8; text-decoration:line-through; font-weight:500;">{{ $trialMarketingFormatted }} {{ $currency }}</span>
+                            <span style="font-size:18px; color:#94a3b8; text-decoration:line-through; font-weight:500;">{{ $marketingNum }} {{ $currency }}</span>
                         @endif
-                        <span style="font-size:32px; font-weight:800; color:#047857; font-family:'Cabinet Grotesk',system-ui,sans-serif; letter-spacing:-0.5px;">{{ $trialPriceFormatted }} {{ $currency }}</span>
+                        <span style="font-size:32px; font-weight:800; color:#047857; font-family:'Cabinet Grotesk',system-ui,sans-serif; letter-spacing:-0.5px;">{{ $trialNum }} {{ $currency }}</span>
                     </div>
                     <p style="margin:6px 0 0; font-size:13px; color:#059669; font-weight:500; font-style:italic;">{{ __('payment.promo_label') }}</p>
                 </div>
@@ -166,8 +171,8 @@
                             {{ __('payment.secure_payment') }}
                         </span>
                         <span class="spm-card-brands">
-                            <img src="https://cdn.jsdelivr.net/gh/nicehash/Logos@master/payment/visa.svg" alt="Visa" height="20" style="height:20px">
-                            <img src="https://cdn.jsdelivr.net/gh/nicehash/Logos@master/payment/mastercard.svg" alt="Mastercard" height="20" style="height:20px">
+                            <span style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:22px;background:#fff;border:1px solid #e5e7eb;border-radius:4px;"><span style="font-size:8px;font-weight:800;color:#1e3a8a;">VISA</span></span>
+                            <span style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:22px;background:#fff;border:1px solid #e5e7eb;border-radius:4px;"><span style="display:flex;margin-left:-3px;"><span style="width:10px;height:10px;border-radius:50%;background:#ef4444;"></span><span style="width:10px;height:10px;border-radius:50%;background:#facc15;margin-left:-4px;"></span></span></span>
                         </span>
                     </div>
 
