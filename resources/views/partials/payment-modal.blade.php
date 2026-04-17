@@ -38,8 +38,18 @@
         'errGeneric'   => __('payment.err_generic'),
         'tcRequired'   => __('payment.tc_required'),
     ], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
+    // Stripe public key from the VAD-resolved account (bo_stripe_accounts),
+    // falling back to the .env value if StripeService hasn't resolved yet.
+    $__stripePublicKey = '';
+    try {
+        $__stripeAccount = app(\App\Services\Payment\StripeService::class)->getStripeAccount();
+        $__stripePublicKey = $__stripeAccount->public_api_key ?? '';
+    } catch (\Throwable $e) {}
+    if (!$__stripePublicKey) {
+        $__stripePublicKey = (string) config('services.stripe.key', '');
+    }
     $__spmJsConfig = json_encode([
-        'stripeKey' => (string) config('services.stripe.key', ''),
+        'stripeKey' => $__stripePublicKey,
     ], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
     $__spmFilesCountJson = json_encode(__('payment.files_count'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
 
@@ -153,42 +163,26 @@
                 <form id="spm-form" class="spm-form" novalidate>
                     @csrf
 
-                    @guest
-                        <div class="spm-field">
-                            <label for="spm-name">{{ __('payment.form_full_name') }}</label>
-                            <input type="text" id="spm-name" autocomplete="name" required>
-                        </div>
-                        <div class="spm-field">
-                            <label for="spm-email">{{ __('payment.form_email') }}</label>
-                            <input type="email" id="spm-email" autocomplete="email" required>
-                        </div>
-                    @endguest
-
                     <div class="spm-field">
-                        <label for="spm-cardholder">{{ __('payment.form_cardholder') }}</label>
-                        <input type="text" id="spm-cardholder" autocomplete="cc-name" required>
+                        <label for="spm-name">{{ __('payment.form_full_name') }}</label>
+                        <input type="text" id="spm-name" autocomplete="name" required
+                               value="{{ auth()->check() ? auth()->user()->name : '' }}">
+                    </div>
+                    <div class="spm-field">
+                        <label for="spm-email">{{ __('payment.form_email') }}</label>
+                        <input type="email" id="spm-email" autocomplete="email" required
+                               value="{{ auth()->check() ? auth()->user()->email : '' }}">
                     </div>
 
                     <div class="spm-field">
                         <label>
-                            {{ __('payment.form_card_number') }}
+                            {{ __('payment.form_card_details') }}
                             <span class="spm-enc">
                                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                                 {{ __('payment.form_encrypted') }}
                             </span>
                         </label>
-                        <div id="spm-card-number" class="spm-stripe"></div>
-                    </div>
-
-                    <div class="spm-field-grid">
-                        <div class="spm-field">
-                            <label>{{ __('payment.form_expiry') }}</label>
-                            <div id="spm-card-expiry" class="spm-stripe"></div>
-                        </div>
-                        <div class="spm-field">
-                            <label>CVC</label>
-                            <div id="spm-card-cvc" class="spm-stripe"></div>
-                        </div>
+                        <div id="spm-card" class="spm-stripe"></div>
                     </div>
 
                     <div id="spm-error" class="spm-error" hidden></div>
@@ -739,17 +733,14 @@
     var submitText     = root.querySelector('#spm-submit-text');
     var submitLock     = root.querySelector('#spm-submit-lock');
     var submitSpinner  = root.querySelector('#spm-submit-spinner');
-    var nameInput      = root.querySelector('#spm-name');        // guest-only field
-    var emailInput     = root.querySelector('#spm-email');       // guest-only field
-    var cardholder     = root.querySelector('#spm-cardholder');
+    var nameInput      = root.querySelector('#spm-name');
+    var emailInput     = root.querySelector('#spm-email');
     var tcCheckbox     = root.querySelector('#spm-tc');
 
     // --- State -------------------------------------------------------------
     var stripe = null;
     var elements = null;
-    var cardNumberEl = null;
-    var cardExpiryEl = null;
-    var cardCvcEl = null;
+    var cardElement = null;   // unified card element (like contract-kit)
     var stripeReady = false;
     var onSuccessCb = null;
     var onCloseCb = null;
@@ -1006,27 +997,22 @@
         await ensureStripeLoaded();
         stripe = window.Stripe(__config.stripeKey);
         elements = stripe.elements({ locale: __m.stripeLocale });
-        var style = {
-            base: {
-                fontFamily: '"DM Sans", system-ui, sans-serif',
-                fontSize: '14px',
-                color: '#0f172a',
-                '::placeholder': { color: '#94a3b8' },
+        cardElement = elements.create('card', {
+            hidePostalCode: true,
+            style: {
+                base: {
+                    fontFamily: 'Inter, "DM Sans", system-ui, sans-serif',
+                    fontSize: '14px',
+                    color: '#0f172a',
+                    '::placeholder': { color: '#94a3b8' },
+                },
+                invalid: { color: '#ef4444' },
             },
-            invalid: { color: '#ef4444' },
-        };
-        cardNumberEl = elements.create('cardNumber', { style: style, showIcon: true });
-        cardExpiryEl = elements.create('cardExpiry', { style: style });
-        cardCvcEl    = elements.create('cardCvc',    { style: style });
-        cardNumberEl.mount(root.querySelector('#spm-card-number'));
-        cardExpiryEl.mount(root.querySelector('#spm-card-expiry'));
-        cardCvcEl.mount(root.querySelector('#spm-card-cvc'));
-        [cardNumberEl, cardExpiryEl, cardCvcEl].forEach(function(el) {
-            el.on('focus', function(e) { /* class handled by Stripe */ });
-            el.on('change', function(event) {
-                if (event.error) showError(event.error.message);
-                else hideError();
-            });
+        });
+        cardElement.mount(root.querySelector('#spm-card'));
+        cardElement.on('change', function(event) {
+            if (event.error) showError(event.error.message);
+            else hideError();
         });
         stripeReady = true;
     }
@@ -1037,36 +1023,29 @@
         hideError();
 
         if (!tcCheckbox.checked) { showError(__m.tcRequired); return; }
-        var cardName = cardholder.value.trim();
-        if (!cardName) { showError(__m.errName); return; }
 
-        var accountName = nameInput ? nameInput.value.trim() : '';
-        var accountEmail = emailInput ? emailInput.value.trim() : '';
+        var fullName = nameInput ? nameInput.value.trim() : '';
+        var email    = emailInput ? emailInput.value.trim() : '';
 
-        if (nameInput && !accountName) { showError(__m.errName); return; }
-        if (emailInput && (!accountEmail || accountEmail.indexOf('@') < 0)) { showError(__m.errEmail); return; }
+        if (!fullName) { showError(__m.errName); return; }
+        if (!email || email.indexOf('@') < 0) { showError(__m.errEmail); return; }
 
         setLoading(true);
         try {
-            var sanitizedCardName = sanitizeStripeName(cardName) || cardName;
-            var sanitizedAccountName = sanitizeStripeName(accountName) || accountName;
+            var sanitizedName = sanitizeStripeName(fullName) || fullName;
 
             var pm = await stripe.createPaymentMethod({
                 type: 'card',
-                card: cardNumberEl,
-                billing_details: { name: sanitizedCardName, email: accountEmail || undefined },
+                card: cardElement,
+                billing_details: { name: sanitizedName, email: email },
             });
             if (pm.error) { showError(pm.error.message); setLoading(false); return; }
 
-            var payload = { payment_method_id: pm.paymentMethod.id };
-            if (sanitizedAccountName) payload.name = sanitizedAccountName;
-            if (accountEmail) payload.email = accountEmail;
-            @auth
-                // /checkout/create-subscription requires email/name even for
-                // logged-in users (validation), so populate from the server.
-                payload.email = @json(auth()->user()->email ?? '');
-                payload.name  = @json(auth()->user()->name ?? '');
-            @endauth
+            var payload = {
+                payment_method_id: pm.paymentMethod.id,
+                name: sanitizedName,
+                email: email,
+            };
 
             var csrf = document.querySelector('meta[name="csrf-token"]').content;
             var res = await fetch('/checkout/create-subscription', {

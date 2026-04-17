@@ -26,9 +26,7 @@ return [
 
     'form_full_name' => 'Vollständiger Name',
     'form_email' => 'E-Mail-Adresse',
-    'form_cardholder' => 'Karteninhaber',
-    'form_card_number' => 'Kartennummer',
-    'form_expiry' => 'MM/JJ',
+    'form_card_details' => 'Kartendetails',
     'form_encrypted' => 'Verschlüsselt',
 
     'pay_button' => 'Jetzt :price bezahlen',

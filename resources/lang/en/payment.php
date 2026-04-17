@@ -26,9 +26,7 @@ return [
 
     'form_full_name' => 'Full name',
     'form_email' => 'Email address',
-    'form_cardholder' => 'Cardholder',
-    'form_card_number' => 'Card number',
-    'form_expiry' => 'MM/YY',
+    'form_card_details' => 'Card details',
     'form_encrypted' => 'Encrypted',
 
     'pay_button' => 'Pay :price now',
