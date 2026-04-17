@@ -30,7 +30,10 @@ Route::get('/', function () {
 | Stripe Webhook (no locale, no CSRF)
 |--------------------------------------------------------------------------
 */
-Route::post('/stripe/webhook', [WebhookController::class, 'handle'])->name('stripe.webhook');
+// Stripe webhooks — one route per Stripe account (same pattern as conversie-pdf).
+// Each account is configured in Stripe Dashboard to point to its endpoint.
+Route::post('/stripe/webhook',      [WebhookController::class, 'handle'])->name('stripe.webhook');
+Route::post('/stripe/webhook-jack', [WebhookController::class, 'handleJack'])->name('stripe.webhook.jack');
 
 /*
 |--------------------------------------------------------------------------

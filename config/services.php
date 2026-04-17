@@ -48,7 +48,10 @@ return [
     ],
 
     'bo' => [
+        'base_uri'   => env('BO_BASE_URI', 'https://avocode-bo.online'),
         'website_id' => env('WEBSITE_ID'),
+        'is_jack'    => env('BO_IS_JACK', 'true'),
+        'is_avocode' => env('BO_IS_AVOCODE', 'false'),
     ],
 
     'ipdata' => [
