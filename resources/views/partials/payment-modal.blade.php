@@ -1167,6 +1167,7 @@
                 }),
             });
             var step1Data = await step1.json();
+            console.log('Step 1 response:', step1.status, step1Data);
             if (!step1Data.success) { showError(step1Data.message || __m.errGeneric); setLoading(false); return; }
 
             // Update CSRF token (session may have rotated after login)
@@ -1183,6 +1184,7 @@
                 body: JSON.stringify({ payment_method_id: paymentMethodId }),
             });
             var step2Data = await step2.json();
+            console.log('Step 2 response:', step2.status, step2Data);
             if (!step2Data.success) { showError(step2Data.message || __m.errGeneric); setLoading(false); return; }
 
             // Handle 3D Secure if required
@@ -1199,6 +1201,7 @@
                 body: JSON.stringify({ payment_method_id: paymentMethodId }),
             });
             var step3Data = await step3.json();
+            console.log('Step 3 response:', step3.status, step3Data);
             if (!step3Data.success) { showError(step3Data.message || __m.errGeneric); setLoading(false); return; }
 
             // Payment succeeded — close modal + trigger the tool conversion
