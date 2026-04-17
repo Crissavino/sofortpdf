@@ -17,6 +17,30 @@ class Payment extends Model
     const CREATED_AT = 'create_time';
     const UPDATED_AT = null;
 
+    protected $fillable = [
+        'customer_id',
+        'payment_status_id',
+        'product_id',
+        'currency_id',
+        'bo_website_id',
+        'bo_vad_id',
+        'bo_product_id',
+        'payment_code',
+        'error_return',
+        'hash_card',
+        'last_four_digit',
+        'processed',
+        'cardholders_name',
+        'order_number',
+        'subscription_amount',
+        'rebill_amount',
+        'current_period_start',
+        'current_period_end',
+        'stripe_status',
+        'is_test',
+        'is_payment_confirmed',
+    ];
+
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class, 'customer_id');
