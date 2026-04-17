@@ -514,20 +514,10 @@
 
         if (window.sofortpdfPaywall && window.sofortpdfPaywall.needsPayment()
             && window.SofortpdfPaymentModal) {
-            // Show loading before opening payment modal
-            btnSubmit.disabled = true;
-            btnSubmitText.textContent = __t.submitting;
-            btnSubmitSpinner.classList.remove('hidden');
-
-            setTimeout(function() {
-                window.SofortpdfPaymentModal.open({
-                    files: pdfFile ? [pdfFile] : [],
-                    onSuccess: function() { btnSubmit.click(); },
-                });
-                btnSubmit.disabled = false;
-                btnSubmitText.textContent = __t.submit;
-                btnSubmitSpinner.classList.add('hidden');
-            }, 2500);
+            window.__sofortpdfShowLoadingThenPay(
+                pdfFile ? [pdfFile] : [],
+                function() { btnSubmit.click(); }
+            );
             return;
         }
 

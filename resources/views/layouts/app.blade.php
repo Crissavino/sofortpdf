@@ -337,6 +337,15 @@
     {{-- Payment modal (rendered globally, opened on demand by tool JS) --}}
     @include('partials.payment-modal')
 
+    {{-- Loading overlay — shown before the payment modal opens --}}
+    <div id="sofortpdf-loading-overlay" style="display:none; position:fixed; inset:0; z-index:9998; background:rgba(15,23,42,0.5); backdrop-filter:blur(4px); align-items:center; justify-content:center;">
+        <div style="background:#fff; border-radius:16px; padding:40px 48px; text-align:center; box-shadow:0 24px 60px -12px rgba(15,23,42,0.35);">
+            <div style="width:48px; height:48px; border:4px solid #e2e8f0; border-top-color:#3b6cf5; border-radius:50%; margin:0 auto 16px; animation:spm-spin 0.8s linear infinite;"></div>
+            <p style="font-family:'Cabinet Grotesk',system-ui,sans-serif; font-weight:700; font-size:16px; color:#0f172a; margin:0 0 4px;">{{ __('tool.processing') }}</p>
+            <p style="font-size:13px; color:#64748b; margin:0;">{{ __('tool.please_wait') }}</p>
+        </div>
+    </div>
+
     {{-- Global paywall flags for client-side gating --}}
     <script>
         window.sofortpdfPaywall = {
@@ -345,6 +354,21 @@
             needsPayment: function() {
                 return !this.bypassed && !this.userHasSubscription;
             }
+        };
+
+        // Global helper: show loading overlay → open payment modal
+        window.__sofortpdfShowLoadingThenPay = function(files, onSuccess) {
+            var overlay = document.getElementById('sofortpdf-loading-overlay');
+            if (overlay) { overlay.style.display = 'flex'; }
+            setTimeout(function() {
+                if (overlay) { overlay.style.display = 'none'; }
+                if (window.SofortpdfPaymentModal) {
+                    window.SofortpdfPaymentModal.open({
+                        files: files,
+                        onSuccess: onSuccess,
+                    });
+                }
+            }, 2500);
         };
     </script>
 
