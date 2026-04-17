@@ -1320,20 +1320,32 @@
         });
     }
 
-    // Preview zoom — opens OVER the payment modal, closing returns to the modal
+    // Preview zoom — moves the preview OUT of the panel into `body` so it
+    // escapes the panel's overflow:hidden + transform clipping context.
     var zoomBackdrop = root.querySelector('[data-spm-zoom-backdrop]');
+    var previewParent = previewWrap ? previewWrap.parentNode : null;
+    var previewNextSibling = previewWrap ? previewWrap.nextSibling : null;
+
     if (previewWrap) {
         function openZoom() {
+            // Move to body to escape clipping
+            document.body.appendChild(previewWrap);
             previewWrap.classList.add('is-zoomed');
-            if (zoomBackdrop) zoomBackdrop.classList.add('is-active');
+            if (zoomBackdrop) { document.body.appendChild(zoomBackdrop); zoomBackdrop.classList.add('is-active'); }
         }
         function closeZoom() {
             previewWrap.classList.remove('is-zoomed');
             if (zoomBackdrop) zoomBackdrop.classList.remove('is-active');
+            // Move back into the modal panel
+            if (previewParent) {
+                if (previewNextSibling) { previewParent.insertBefore(previewWrap, previewNextSibling); }
+                else { previewParent.appendChild(previewWrap); }
+            }
+            if (zoomBackdrop) root.insertBefore(zoomBackdrop, root.children[1]);
         }
         previewWrap.addEventListener('click', function(e) {
             if (e.target.closest('.spm-preview-ribbon')) return;
-            e.stopPropagation(); // don't bubble to modal backdrop
+            e.stopPropagation();
             if (previewWrap.classList.contains('is-zoomed')) {
                 closeZoom();
             } else {
@@ -1342,7 +1354,7 @@
         });
         if (zoomBackdrop) {
             zoomBackdrop.addEventListener('click', function(e) {
-                e.stopPropagation(); // don't close the payment modal
+                e.stopPropagation();
                 closeZoom();
             });
         }
