@@ -24,8 +24,8 @@
                             <tbody class="divide-y divide-slate-50">
                                 @foreach($conversions as $conversion)
                                     <tr>
-                                        <td class="py-3 pr-4 text-slate-600 whitespace-nowrap">{{ $conversion->created_at->format(__('dashboard.date_format')) }}</td>
-                                        <td class="py-3 pr-4 text-slate-600">{{ str_replace('sofortpdf_', '', $conversion->tool_slug) }}</td>
+                                        <td class="py-3 pr-4 text-slate-600 whitespace-nowrap">{{ $conversion->create_time->format(__('dashboard.date_format')) }}</td>
+                                        <td class="py-3 pr-4 text-slate-600">{{ $conversion->tool_slug }}</td>
                                         <td class="py-3 pr-4 text-slate-900 font-medium truncate max-w-[200px]">{{ $conversion->original_filename }}</td>
                                         <td class="py-3 pr-4">
                                             @if($conversion->status === 'completed')

@@ -198,7 +198,9 @@ class ConversionController extends Controller
             'completed_at' => now()->toIso8601String(),
         ]), $ttl);
 
-        $this->logConversion($entry, 'completed', $outputPath, null);
+        // Save document to the shared `documents` table (same as conversie-pdf)
+        $this->saveDocument($entry, $originalName, $outputExt, $outputPath);
+
         $this->cleanupInputs($entry);
 
         return response()->json(['ok' => true, 'status' => 'completed']);
@@ -350,11 +352,36 @@ class ConversionController extends Controller
         return 'conversion_job:' . $id;
     }
 
+    private function saveDocument(array $entry, string $originalName, string $outputExt, string $outputPath): void
+    {
+        try {
+            $srcName = $entry['original_filename'] ?? $entry['original_names'][0] ?? 'unknown';
+            $srcExt  = pathinfo($srcName, PATHINFO_EXTENSION) ?: 'pdf';
+            $tool    = $entry['tool'] ?? 'convert';
+
+            \App\Models\Document::create([
+                'name'               => base64_encode($srcName),
+                'service'            => $tool,
+                'file_path'          => $outputPath,
+                'source_name'        => $srcName,
+                'source_extension'   => $srcExt,
+                'target_name'        => $originalName,
+                'target_extension'   => $outputExt,
+                'targer_url'         => null,
+                'customer_id'        => $entry['user_id'] ?? null,
+                'download'           => 0,
+                'task_id'            => null,
+                'website_id'         => (int) config('services.bo.website_id'),
+                'document_status_id' => 3, // completed
+            ]);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Document save failed', ['error' => $e->getMessage()]);
+        }
+    }
+
     private function logConversion(array $entry, string $status, ?string $resultPath, ?string $errorMessage): void
     {
-        // Conversion logging is disabled until the shared DB has a sofortpdf
-        // conversion table. The writes used to silently fail anyway — we
-        // just skip the call entirely now to keep logs clean.
+        // Legacy — replaced by saveDocument() above.
     }
 
     private function cleanupInputs(array $entry): void

@@ -64,32 +64,54 @@ class DashboardController extends Controller
 
     public function index()
     {
-        $customer = Auth::user();
-
+        $customer   = Auth::user();
+        $websiteId  = (int) config('services.bo.website_id');
         $subscription = $this->currentSubscription($customer);
 
         $quickTools = collect(ToolConfig::allEnabled(app()->getLocale()))
             ->take(6)->values()->all();
 
-        // Conversion telemetry isn't persisted to the shared DB yet, so
-        // we render the empty state for stats + recent activity. UI hides
-        // sections cleanly when the values are zero / empty.
+        // Stats + recent from shared `documents` table
+        $docsQuery = \App\Models\Document::where('customer_id', $customer->id)
+            ->where('website_id', $websiteId);
+
+        $stats = ['this_month' => 0, 'total' => 0, 'top_tool' => null];
+        try {
+            $stats['total']      = (clone $docsQuery)->count();
+            $stats['this_month'] = (clone $docsQuery)->where('create_time', '>=', now()->startOfMonth())->count();
+            $topRow = (clone $docsQuery)->selectRaw('service, COUNT(*) as n')
+                ->groupBy('service')->orderByDesc('n')->first();
+            if ($topRow) {
+                $stats['top_tool'] = $topRow->service;
+            }
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
+        $recentConversions = (clone $docsQuery)->latest('id')->take(5)->get();
+
         return view('dashboard.index', [
             'user'              => $customer,
             'subscription'      => $subscription,
-            'recentConversions' => collect(),
-            'stats'             => ['this_month' => 0, 'total' => 0, 'top_tool' => null],
+            'recentConversions' => $recentConversions,
+            'stats'             => $stats,
             'quickTools'        => $quickTools,
         ]);
     }
 
     public function downloads()
     {
-        $customer = Auth::user();
+        $customer  = Auth::user();
+        $websiteId = (int) config('services.bo.website_id');
+
+        $conversions = \App\Models\Document::where('customer_id', $customer->id)
+            ->where('website_id', $websiteId)
+            ->latest('id')
+            ->paginate(50);
 
         return view('dashboard.downloads', [
             'user'        => $customer,
-            'conversions' => collect()->paginate(50),
+            'conversions' => $conversions,
         ]);
     }
 
