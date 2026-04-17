@@ -1206,6 +1206,8 @@
 
             // Payment succeeded — redirect to confirmation with payment
             // success flag (same as contract-kit / conversie-pdf).
+            // Payment succeeded — redirect to confirmation with only the
+            // payment success flag. The job_id is in the session, not the URL.
             window.location.href = '/{{ app()->getLocale() }}/confirmation?cGF5bWVudFN1Y2Nlc3M=';
         } catch (err) {
             console.error('Payment flow error:', err);

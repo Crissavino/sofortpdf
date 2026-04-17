@@ -2006,15 +2006,7 @@
             // page polls /api/convert/status until it flips to completed
             // or failed.
             if (result.confirmation_url) {
-                var confUrl = result.confirmation_url;
-                // First-payment marker (base64 of "paymentSuccess"). Appended
-                // only when the user just completed the trial payment in
-                // the payment modal.
-                if (window.__sofortpdfTrialJustPaid) {
-                    confUrl += (confUrl.indexOf('?') >= 0 ? '&' : '?') + 'cGF5bWVudFN1Y2Nlc3M=';
-                    try { delete window.__sofortpdfTrialJustPaid; } catch (e) { window.__sofortpdfTrialJustPaid = false; }
-                }
-                window.location.href = confUrl;
+                window.location.href = result.confirmation_url;
                 return;
             }
 
