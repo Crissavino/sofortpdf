@@ -32,9 +32,9 @@ return [
     'pay_button' => 'Pay :price now',
     'processing' => 'Processing…',
 
-    'tc_label' => 'I declare that I have read and accepted the terms.',
-    'tc_details_label' => 'View details',
-    'tc_text' => 'After the :days-day trial for :trialPrice, the subscription auto-renews at :fullPrice per month. You can cancel anytime.',
+    'tc_label' => 'I declare that I have read and accepted the T&C.',
+    'tc_details_label' => 'View subscription details',
+    'tc_text' => 'I agree to the Subscription Terms and confirm my order for a monthly unlimited subscription at the price of :fullPrice. I understand that I am eligible for a promotional trial offer of :days days at the cost of only :trialPrice. After the trial period, my subscription will auto-renew monthly and the subscription fee will be charged from the same payment method used for the trial offer.',
     'tc_required' => 'You must accept the terms to continue.',
 
     'bank_statement' => ':name will appear on your bank statement.',

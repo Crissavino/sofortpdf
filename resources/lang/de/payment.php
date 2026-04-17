@@ -32,9 +32,9 @@ return [
     'pay_button' => 'Jetzt :price bezahlen',
     'processing' => 'Verarbeitung…',
 
-    'tc_label' => 'Ich erkläre, dass ich die Bedingungen gelesen und akzeptiert habe.',
-    'tc_details_label' => 'Details anzeigen',
-    'tc_text' => 'Nach dem Testzeitraum von :days Tagen für :trialPrice verlängert sich das Abonnement automatisch zu :fullPrice pro Monat. Sie können jederzeit kündigen.',
+    'tc_label' => 'Ich erkläre, dass ich die AGB gelesen und akzeptiert habe.',
+    'tc_details_label' => 'Abonnementdetails anzeigen',
+    'tc_text' => 'Ich stimme den Abonnementbedingungen zu und bestätige meine Bestellung für ein monatliches unbegrenztes Abonnement zum Preis von :fullPrice. Ich verstehe, dass ich für ein Werbeangebot von :days Tagen zum Preis von nur :trialPrice berechtigt bin. Nach der Probezeit wird mein Abonnement automatisch monatlich verlängert und die Abonnementgebühr wird über dieselbe Zahlungsmethode abgebucht, die für das Probeangebot verwendet wurde.',
     'tc_required' => 'Sie müssen die Bedingungen akzeptieren, um fortzufahren.',
 
     'bank_statement' => ':name erscheint auf Ihrem Kontoauszug.',
