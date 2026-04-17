@@ -1204,8 +1204,20 @@
             console.log('Step 3 response:', step3.status, step3Data);
             if (!step3Data.success) { showError(step3Data.message || __m.errGeneric); setLoading(false); return; }
 
-            // Payment succeeded — redirect to confirmation page (same as contract-kit / conversie-pdf)
-            window.location.href = step3Data.url || '/{{ app()->getLocale() }}/confirmation?cGF5bWVudFN1Y2Nlc3M=';
+            // Payment succeeded — mark as paid so the paywall gate passes
+            // on the re-click, then close modal and re-trigger conversion.
+            window.__sofortpdfTrialJustPaid = true;
+            if (window.sofortpdfPaywall) {
+                window.sofortpdfPaywall.userHasSubscription = true;
+            }
+            setLoading(false);
+            close(true); // silent close
+            if (typeof onSuccessCb === 'function') {
+                onSuccessCb();
+            } else {
+                // Fallback: reload the page (subscription is active now)
+                window.location.reload();
+            }
         } catch (err) {
             console.error('Payment flow error:', err);
             showError(__m.errGeneric);
