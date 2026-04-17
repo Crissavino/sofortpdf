@@ -62,6 +62,7 @@
 
 <div id="sofortpdf-payment-modal" class="spm-root" aria-hidden="true" role="dialog" aria-modal="true">
     <div class="spm-backdrop" data-spm-close></div>
+    <div class="spm-zoom-backdrop" data-spm-zoom-backdrop></div>
 
     <div class="spm-panel" role="document">
         <button type="button" class="spm-close" data-spm-close aria-label="{{ __('payment.close_button') }}">
@@ -111,7 +112,6 @@
                     <span class="spm-left-title">{{ __('payment.preview_title') }}</span>
                 </div>
                 <div class="spm-preview-card">
-                    <div class="spm-zoom-backdrop" data-spm-zoom-backdrop></div>
                     <div class="spm-preview" data-spm-preview>
                         {{-- Corner ribbon badge — JS updates data-ext --}}
                         <span class="spm-preview-ribbon" data-spm-preview-ribbon>PDF</span>
@@ -467,11 +467,12 @@
     }
     .spm-zoom-backdrop {
         display: none;
-        position: fixed; inset: 0; z-index: 99;
+        position: fixed; inset: 0; z-index: 10000;
         background: rgba(15,23,42,0.6);
         backdrop-filter: blur(4px);
     }
     .spm-zoom-backdrop.is-active { display: block; }
+    .spm-preview.is-zoomed { z-index: 10001; }
     .spm-preview-ribbon {
         position: absolute;
         top: 8px; right: 8px;
