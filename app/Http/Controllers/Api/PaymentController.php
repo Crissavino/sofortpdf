@@ -38,8 +38,24 @@ class PaymentController extends Controller
      * Step 1: Create/find customer locally + forward to BO to create
      * the Stripe customer. Returns customer_id for the next steps.
      */
+    /**
+     * Resolve locale from session/referer for API routes (they don't pass
+     * through the locale middleware).
+     */
+    private function setLocale(Request $request): void
+    {
+        $locale = session('locale', 'de');
+        if (!$locale || !in_array($locale, ['de', 'en'])) {
+            $referer = $request->headers->get('referer', '');
+            $locale = str_contains($referer, '/en/') ? 'en' : 'de';
+        }
+        app()->setLocale($locale);
+    }
+
     public function createCustomer(Request $request): JsonResponse
     {
+        $this->setLocale($request);
+
         $validated = $request->validate([
             'email'             => 'required|email',
             'full_name'         => 'required|string|max:255',
@@ -132,6 +148,8 @@ class PaymentController extends Controller
      */
     public function payTrial(Request $request): JsonResponse
     {
+        $this->setLocale($request);
+
         $validated = $request->validate([
             'payment_method_id' => 'required|string',
         ]);
@@ -163,6 +181,8 @@ class PaymentController extends Controller
      */
     public function createSubscription(Request $request): JsonResponse
     {
+        $this->setLocale($request);
+
         $validated = $request->validate([
             'payment_method_id' => 'required|string',
         ]);

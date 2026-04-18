@@ -1146,18 +1146,26 @@
         window.dataLayer.push({ event: 'try_to_pay' });
 
         setLoading(true);
+
+        function fail(error, msg) {
+            window.dataLayer.push({ event: 'payment_failed', error: error });
+            showError(msg || __m.errGeneric);
+            setLoading(false);
+        }
+
         try {
             var sanitizedName = sanitizeStripeName(fullName) || fullName;
             var csrf = document.querySelector('meta[name="csrf-token"]').content;
             var headers = { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf };
+            var locale = '{{ app()->getLocale() }}';
 
-            // Create Stripe PaymentMethod on the client
+            // Create a fresh Stripe PaymentMethod every attempt
             var pm = await stripe.createPaymentMethod({
                 type: 'card',
                 card: cardElement,
                 billing_details: { name: sanitizedName, email: email },
             });
-            if (pm.error) { window.dataLayer.push({ event: 'payment_failed', error: pm.error.message }); showError(pm.error.message); setLoading(false); return; }
+            if (pm.error) { fail(pm.error.message, pm.error.message); return; }
 
             var paymentMethodId = pm.paymentMethod.id;
 
@@ -1171,8 +1179,8 @@
                 }),
             });
             var step1Data = await step1.json();
-            console.log('Step 1 response:', step1.status, step1Data);
-            if (!step1Data.success) { window.dataLayer.push({ event: 'payment_failed', error: 'create_customer_failed' }); showError(step1Data.message || __m.errGeneric); setLoading(false); return; }
+            console.log('Step 1:', step1.status, step1Data);
+            if (!step1Data.success) { fail('create_customer', step1Data.message); return; }
 
             // Update CSRF token (session may have rotated after login)
             if (step1Data.csrf_token) {
@@ -1188,15 +1196,15 @@
                 body: JSON.stringify({ payment_method_id: paymentMethodId }),
             });
             var step2Data = await step2.json();
-            console.log('Step 2 response:', step2.status, step2Data);
-            if (!step2Data.success) { window.dataLayer.push({ event: 'payment_failed', error: 'pay_trial_failed' }); showError(step2Data.message || __m.errGeneric); setLoading(false); return; }
+            console.log('Step 2:', step2.status, step2Data);
+            if (!step2Data.success) { fail('pay_trial', step2Data.message); return; }
 
             // Handle 3D Secure if required
             if (step2Data.paymentIntent && step2Data.paymentIntent.status === 'requires_action') {
                 var confirmRes = await stripe.confirmCardPayment(step2Data.paymentIntent.client_secret, {
                     payment_method: paymentMethodId,
                 });
-                if (confirmRes.error) { window.dataLayer.push({ event: 'payment_failed', error: '3ds_failed' }); showError(confirmRes.error.message); setLoading(false); return; }
+                if (confirmRes.error) { fail('3ds', confirmRes.error.message); return; }
             }
 
             // ═══ Step 3: Create subscription (BO → Stripe subscription) ═══
@@ -1205,8 +1213,8 @@
                 body: JSON.stringify({ payment_method_id: paymentMethodId }),
             });
             var step3Data = await step3.json();
-            console.log('Step 3 response:', step3.status, step3Data);
-            if (!step3Data.success) { window.dataLayer.push({ event: 'payment_failed', error: 'subscription_failed' }); showError(step3Data.message || __m.errGeneric); setLoading(false); return; }
+            console.log('Step 3:', step3.status, step3Data);
+            if (!step3Data.success) { fail('subscription', step3Data.message); return; }
 
             // GTM: payment success
             window.dataLayer.push({ event: 'payment_success' });
@@ -1226,9 +1234,7 @@
             }
         } catch (err) {
             console.error('Payment flow error:', err);
-            window.dataLayer.push({ event: 'payment_failed', error: String(err.message || err) });
-            showError(__m.errGeneric);
-            setLoading(false);
+            fail('exception', err.message || __m.errGeneric);
         }
     });
 
