@@ -197,12 +197,23 @@ class ConversionController extends Controller
         }
         $file->move(dirname($outputPath), basename($outputPath));
 
+        // Detect actual file type via magic bytes — the CS may report
+        // output_extension=jpg but deliver a ZIP (multi-page pdf-to-jpg).
+        if (file_exists($outputPath)) {
+            $magic = file_get_contents($outputPath, false, null, 0, 4);
+            if ($magic === "PK\x03\x04" && strtolower($outputExt) !== 'zip') {
+                $outputExt = 'zip';
+                $newPath = preg_replace('/\.[^.]+$/', '.zip', $outputPath);
+                rename($outputPath, $newPath);
+                $outputPath = $newPath;
+            }
+        }
+
         // Issue a download token using the same DB-or-cache rules as before.
         $user = ! empty($entry['user_id']) ? \App\Models\Customer::find($entry['user_id']) : null;
         $originalName = $entry['output_filename'] ?? ('converted.' . $outputExt);
 
-        // Honor the stored original extension if it doesn't match the result
-        // (e.g. compress preserves input extension; pdf-to-jpg returns zip).
+        // Honor the stored original extension if it doesn't match the result.
         if (! str_ends_with(strtolower($originalName), '.' . strtolower($outputExt))) {
             $originalName = pathinfo($originalName, PATHINFO_FILENAME) . '.' . $outputExt;
         }
