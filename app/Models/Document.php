@@ -24,6 +24,7 @@ class Document extends Model
         'customer_id',
         'download',
         'task_id',
+        'pdf_service_id',
         'website_id',
         'document_status_id',
     ];

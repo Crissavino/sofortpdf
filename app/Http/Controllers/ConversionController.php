@@ -503,6 +503,7 @@ class ConversionController extends Controller
                 'customer_id'        => $entry['user_id'] ?? null,
                 'download'           => 0,
                 'task_id'            => null,
+                'pdf_service_id'     => 1, // generic "convert" service
                 'website_id'         => (int) config('services.bo.website_id'),
                 'document_status_id' => 3, // completed
             ]);
