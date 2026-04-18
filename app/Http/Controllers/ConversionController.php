@@ -364,6 +364,33 @@ class ConversionController extends Controller
      * If the user is on "PDF to Word" but uploads a .docx, silently swap
      * to "Word to PDF". Works for all conversion pairs.
      */
+    /**
+     * Map tool slug → pdf_services.id (same IDs as conversie-pdf).
+     */
+    protected function toolToPdfServiceId(string $tool): int
+    {
+        return match ($tool) {
+            'word-to-pdf'   => 1,
+            'pdf-to-word'   => 2,
+            'excel-to-pdf'  => 3,
+            'pdf-to-excel'  => 4,
+            'ppt-to-pdf'    => 5,
+            'pdf-to-ppt'    => 6,
+            'jpg-to-pdf'    => 7,
+            'pdf-to-jpg'    => 8,
+            'png-to-pdf'    => 9,
+            'pdf-to-png'    => 10,
+            'merge'         => 11,
+            'split'         => 12,
+            'edit'          => 13,
+            'sign'          => 14,
+            'compress'      => 15,
+            'protect'       => 22,
+            'unlock'        => 23,
+            default         => 1,
+        };
+    }
+
     protected function autoDetectTool(string $requestedTool, array $filenames): string
     {
         if (empty($filenames)) {
@@ -491,6 +518,16 @@ class ConversionController extends Controller
             $srcExt  = pathinfo($srcName, PATHINFO_EXTENSION) ?: 'pdf';
             $tool    = $entry['tool'] ?? 'convert';
 
+            // Update pdf_service_id on customer (same as conversie-pdf)
+            $customerId = $entry['user_id'] ?? null;
+            if ($customerId) {
+                $customer = \App\Models\Customer::find($customerId);
+                if ($customer && !$customer->pdf_service_id) {
+                    $customer->pdf_service_id = $this->toolToPdfServiceId($tool);
+                    $customer->save();
+                }
+            }
+
             \App\Models\Document::create([
                 'name'               => base64_encode($srcName),
                 'service'            => $tool,
@@ -503,7 +540,7 @@ class ConversionController extends Controller
                 'customer_id'        => $entry['user_id'] ?? null,
                 'download'           => 0,
                 'task_id'            => null,
-                'pdf_service_id'     => 1, // generic "convert" service
+                'pdf_service_id'     => $this->toolToPdfServiceId($tool),
                 'website_id'         => (int) config('services.bo.website_id'),
                 'document_status_id' => 3, // completed
             ]);
