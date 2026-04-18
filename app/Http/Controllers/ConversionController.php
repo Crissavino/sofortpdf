@@ -46,6 +46,21 @@ class ConversionController extends Controller
         $filePaths = collect($uploadedFiles)->pluck('path')->toArray();
         $originalNames = collect($uploadedFiles)->pluck('original_name')->toArray();
 
+        // Smart tool swap: if the uploaded file doesn't match the selected
+        // tool, auto-switch to the correct one. E.g., user is on "PDF to Word"
+        // but uploads a .docx → swap to "Word to PDF" silently.
+        $originalTool = $tool;
+        $tool = $this->autoDetectTool($tool, $originalNames);
+
+        // If tool was swapped, log it for analytics
+        if ($tool !== $originalTool) {
+            Log::info("Tool auto-swapped for user experience", [
+                'requested' => $originalTool,
+                'actual'    => $tool,
+                'file'      => $originalNames[0] ?? null,
+            ]);
+        }
+
         // Generate a job_id the browser will poll on and the webhook will key against.
         $jobId = (string) Str::uuid();
         $ttl = now()->addHours((int) config('sofortpdf.guest_download_ttl_hours', 4));
@@ -319,6 +334,94 @@ class ConversionController extends Controller
      * Map our tool keys to the operation strings the conversion-service accepts.
      * Returns null when there's no async path (caller falls back).
      */
+    /**
+     * Auto-detect the correct tool based on the uploaded file extension.
+     * If the user is on "PDF to Word" but uploads a .docx, silently swap
+     * to "Word to PDF". Works for all conversion pairs.
+     */
+    protected function autoDetectTool(string $requestedTool, array $filenames): string
+    {
+        if (empty($filenames)) {
+            return $requestedTool;
+        }
+
+        $ext = strtolower(pathinfo($filenames[0], PATHINFO_EXTENSION));
+
+        // Map of: tool → expected input extension(s)
+        $expectedInputs = [
+            'pdf-to-word'  => ['pdf'],
+            'pdf-to-excel' => ['pdf'],
+            'pdf-to-ppt'   => ['pdf'],
+            'pdf-to-jpg'   => ['pdf'],
+            'pdf-to-png'   => ['pdf'],
+            'word-to-pdf'  => ['doc', 'docx'],
+            'excel-to-pdf' => ['xls', 'xlsx'],
+            'ppt-to-pdf'   => ['ppt', 'pptx'],
+            'jpg-to-pdf'   => ['jpg', 'jpeg'],
+            'png-to-pdf'   => ['png'],
+            'compress'     => ['pdf'],
+            'merge'        => ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png', 'xls', 'xlsx', 'ppt', 'pptx'],
+            'rotate'       => ['pdf'],
+            'split'        => ['pdf'],
+            'sign'         => ['pdf'],
+            'unlock'       => ['pdf'],
+            'watermark'    => ['pdf'],
+            'ocr'          => ['pdf', 'jpg', 'jpeg', 'png'],
+            'remove-pages' => ['pdf'],
+            'extract-pages'=> ['pdf'],
+            'optimize'     => ['pdf'],
+        ];
+
+        // Reverse map: extension → what tool converts it TO PDF (or from PDF)
+        $extToTool = [
+            'doc'  => 'word-to-pdf',
+            'docx' => 'word-to-pdf',
+            'xls'  => 'excel-to-pdf',
+            'xlsx' => 'excel-to-pdf',
+            'ppt'  => 'ppt-to-pdf',
+            'pptx' => 'ppt-to-pdf',
+            'jpg'  => 'jpg-to-pdf',
+            'jpeg' => 'jpg-to-pdf',
+            'png'  => 'png-to-pdf',
+        ];
+
+        // Reverse: PDF uploaded on a "X-to-PDF" tool → swap to "PDF-to-X"
+        $pdfSwaps = [
+            'word-to-pdf'  => 'pdf-to-word',
+            'excel-to-pdf' => 'pdf-to-excel',
+            'ppt-to-pdf'   => 'pdf-to-ppt',
+            'jpg-to-pdf'   => 'pdf-to-jpg',
+            'png-to-pdf'   => 'pdf-to-png',
+        ];
+
+        $expected = $expectedInputs[$requestedTool] ?? null;
+
+        // If the file matches the expected input, no swap needed
+        if ($expected && in_array($ext, $expected, true)) {
+            return $requestedTool;
+        }
+
+        // Case 1: user is on "PDF to Word" but uploaded a .docx → swap to "Word to PDF"
+        if (str_starts_with($requestedTool, 'pdf-to-') && isset($extToTool[$ext])) {
+            Log::info("Auto-swap tool: {$requestedTool} → {$extToTool[$ext]} (uploaded .{$ext})");
+            return $extToTool[$ext];
+        }
+
+        // Case 2: user is on "Word to PDF" but uploaded a .pdf → swap to "PDF to Word"
+        if ($ext === 'pdf' && isset($pdfSwaps[$requestedTool])) {
+            Log::info("Auto-swap tool: {$requestedTool} → {$pdfSwaps[$requestedTool]} (uploaded .pdf)");
+            return $pdfSwaps[$requestedTool];
+        }
+
+        // Case 3: user is on compress/merge/etc but uploaded a non-PDF → convert to PDF first
+        if ($ext !== 'pdf' && isset($extToTool[$ext]) && in_array($requestedTool, ['compress', 'rotate', 'split', 'unlock', 'watermark', 'remove-pages', 'extract-pages', 'optimize'])) {
+            Log::info("Auto-swap tool: {$requestedTool} → {$extToTool[$ext]} (uploaded .{$ext} on PDF-only tool)");
+            return $extToTool[$ext];
+        }
+
+        return $requestedTool;
+    }
+
     protected function toolToOperation(string $tool): ?string
     {
         return match ($tool) {

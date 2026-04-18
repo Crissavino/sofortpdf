@@ -1,5 +1,7 @@
 # sofortpdf — Google Ads Implementation Plan
 
+> Validated with Semrush DE data (April 2026)
+
 ## Setup Checklist
 
 - [ ] Create Google Ads account (ads.google.com)
@@ -11,6 +13,19 @@
 - [ ] Location targeting: Germany, Austria, Switzerland — **"Presence" only** (not "Presence or Interest")
 - [ ] Language: German + English
 - [ ] Network: Search only (disable Display + Search Partners initially)
+
+---
+
+## Budget Overview
+
+| Campaign | Daily € | Monthly € | % |
+|---|---|---|---|
+| BRAND | €3 | €90 | 5% |
+| SEARCH_HIGH (3 tools) | €40 | €1,200 | 60% |
+| SEARCH_MID (problem-aware) | €13 | €400 | 20% |
+| SEARCH_COMP (competitors) | €7 | €210 | 10% |
+| PMAX | €10 | €100 | 5% |
+| **Total** | **€73** | **€2,000** | **100%** |
 
 ---
 
@@ -42,8 +57,8 @@ H9: 256-Bit SSL-Verschlüsselung
 H10: Automatische Datei-Löschung
 H11: sofortpdf — Schnell & Sicher
 H12: PDF-Tools direkt im Browser
-H13: Kostenlos testen · Jederzeit kündbar
-H14: Vertrauen von 10.000+ Nutzern
+H13: Jetzt testen · Jederzeit kündbar
+H14: Tausende zufriedene Nutzer
 H15: PDF bearbeiten in Sekunden
 
 Descriptions (4):
@@ -58,24 +73,17 @@ D4: PDF zu Word, Word zu PDF, JPG zu PDF und mehr. Keine Installation nötig. Pr
 ## Campaign 2: SEARCH_HIGH — High Intent Tools (€40/day)
 
 **Goal:** Capture users searching for the top 3 PDF tools
-**Bidding:** Maximize Conversions (switch to tCPA after 15+ conversions/month)
+**Bidding:** Maximize Clicks (cap CPC: €1.50) for first 2-3 weeks → switch to Maximize Conversions after 15+ conversions → then tCPA
 **Note:** Start with 3 ad groups only. Add more tools once these are profitable.
 
-### Ad Group 1: PDF zu Word (PRIMARY — highest volume)
-| Match Type | Keyword |
-|---|---|
-| Exact | [pdf zu word] |
-| Exact | [pdf in word umwandeln] |
-| Exact | [pdf zu word konvertieren] |
-| Exact | [pdf zu word online] |
-| Exact | [pdf zu docx] |
-| Exact | [pdf to word] |
-| Exact | [convert pdf to word] |
-| Exact | [pdf in word umwandeln online kostenlos] |
-| Phrase | "pdf zu word" |
-| Phrase | "pdf in word" |
+### Semrush volume validation (DE)
+| Tool | Monthly searches (DE) | CPC range |
+|---|---|---|
+| PDF zusammenfügen | 368,000 | $0.13-$0.50 |
+| PDF komprimieren | 110,000 | $0.20-$0.60 |
+| PDF zu Word | 86,000 (combined variants) | $0.30-$1.04 |
 
-### Ad Group 2: PDF zusammenfügen (Merge — 2nd highest)
+### Ad Group 1: PDF zusammenfügen (Merge — HIGHEST volume: 368K/mo)
 | Match Type | Keyword |
 |---|---|
 | Exact | [pdf zusammenfügen] |
@@ -83,12 +91,13 @@ D4: PDF zu Word, Word zu PDF, JPG zu PDF und mehr. Keine Installation nötig. Pr
 | Exact | [pdf zusammenfügen online] |
 | Exact | [pdfs zusammenfügen] |
 | Exact | [mehrere pdf zusammenfügen] |
+| Exact | [pdf zusammenfügen online kostenlos] |
 | Exact | [merge pdf] |
 | Exact | [merge pdf online] |
 | Exact | [combine pdf] |
 | Phrase | "pdf zusammenfügen" |
 
-### Ad Group 3: PDF komprimieren (Compress — 3rd)
+### Ad Group 2: PDF komprimieren (Compress — 110K/mo)
 | Match Type | Keyword |
 |---|---|
 | Exact | [pdf komprimieren] |
@@ -96,17 +105,34 @@ D4: PDF zu Word, Word zu PDF, JPG zu PDF und mehr. Keine Installation nötig. Pr
 | Exact | [pdf komprimieren online] |
 | Exact | [pdf datei verkleinern] |
 | Exact | [pdf größe reduzieren] |
+| Exact | [pdf komprimieren online kostenlos] |
 | Exact | [compress pdf] |
 | Exact | [reduce pdf size] |
 | Phrase | "pdf komprimieren" |
 | Phrase | "pdf verkleinern" |
 
-### Future ad groups (add when top 3 are profitable)
-- PDF zu JPG / JPG zu PDF
-- Word zu PDF
-- PDF unterschreiben (Sign)
-- PDF trennen (Split)
-- PDF zu Excel / Excel zu PDF
+### Ad Group 3: PDF zu Word (86K/mo combined)
+| Match Type | Keyword |
+|---|---|
+| Exact | [pdf zu word] |
+| Exact | [pdf in word umwandeln] |
+| Exact | [pdf zu word konvertieren] |
+| Exact | [pdf zu word online] |
+| Exact | [pdf zu docx] |
+| Exact | [pdf in word umwandeln online kostenlos] |
+| Exact | [pdf to word] |
+| Exact | [convert pdf to word] |
+| Phrase | "pdf zu word" |
+| Phrase | "pdf in word" |
+
+### Phase 2 expansion (by volume, add when top 3 profitable)
+| Tool | Monthly DE | Priority |
+|---|---|---|
+| PDF trennen / split | 22,200 | 1st |
+| PDF umwandeln (generic convert) | 18,100 | 2nd |
+| Word zu PDF | 12,100 | 3rd |
+| PDF zu JPG | 9,900 | 4th |
+| PDF unterschreiben (sign) | 8,100 | 5th (high CPC = strong commercial intent) |
 
 ### RSA Ad Copy per Ad Group
 
@@ -115,7 +141,7 @@ D4: PDF zu Word, Word zu PDF, JPG zu PDF und mehr. Keine Installation nötig. Pr
 Headlines (15):
 H1: {Tool} — Sofort online ← PIN to Position 1
 H2: Ohne Installation · Sofort loslegen
-H3: Jetzt für 0,69 € testen
+H3: Jetzt für nur 0,69 € testen
 H4: DSGVO-konform · Server in der EU
 H5: {Tool} in Sekunden
 H6: 256-Bit SSL · Sicher & schnell
@@ -123,11 +149,11 @@ H7: Professionelle Ergebnisse
 H8: Keine Software nötig
 H9: {Tool} direkt im Browser
 H10: Automatische Datei-Löschung
-H11: Alle PDF-Tools in einem Ort
+H11: Alle PDF-Tools an einem Ort
 H12: 19 Tools · Ein Preis
 H13: Jederzeit kündbar
-H14: 10.000+ zufriedene Nutzer
-H15: Kostenlos ausprobieren →
+H14: Schnell, sicher & einfach
+H15: Jetzt ausprobieren →
 
 Descriptions (4):
 D1: {Tool} — schnell, sicher und ohne Software. DSGVO-konform, Server in der EU. Automatische Löschung. Jetzt für nur 0,69 € testen →
@@ -139,9 +165,9 @@ D4: Warum kompliziert? {Tool} online — einfach Datei hochladen, verarbeiten, h
 **H1 per Ad Group:**
 | Ad Group | H1 (pinned) |
 |---|---|
-| PDF zu Word | PDF zu Word — Sofort konvertieren |
 | PDF zusammenfügen | PDF zusammenfügen — Sofort online |
 | PDF komprimieren | PDF komprimieren — Sofort & sicher |
+| PDF zu Word | PDF zu Word — Sofort konvertieren |
 
 ---
 
@@ -215,11 +241,11 @@ D4: Warum kompliziert? {Tool} online — einfach Datei hochladen, verarbeiten, h
 ### RSA Ad Copy (Competitor campaigns)
 ```
 Headlines (15):
-H1: Sichere PDF-Alternative
+H1: Die sichere PDF-Alternative
 H2: Server in der EU · DSGVO-konform
 H3: Alle PDF-Tools ab 0,69 €
 H4: Warum Daten ins Ausland senden?
-H5: 19 Tools · Deutsche Qualität
+H5: 19 Tools · Europäische Qualität
 H6: Ohne Installation · Sofort starten
 H7: 256-Bit SSL-Verschlüsselung
 H8: Automatische Datei-Löschung
@@ -228,22 +254,23 @@ H10: PDF-Tools mit EU-Datenschutz
 H11: Jetzt testen · Jederzeit kündbar
 H12: Alle Formate unterstützt
 H13: Professionell & erschwinglich
-H14: Die sichere Alternative
-H15: 10.000+ Nutzer vertrauen uns
+H14: Ihre Daten bleiben in Europa
+H15: Jetzt wechseln & sparen
 
 Descriptions (4):
-D1: Warum Ihre sensiblen Dokumente außerhalb der EU verarbeiten? sofortpdf: Alle PDF-Tools, Server in Deutschland, DSGVO-konform. Ab 0,69 €.
+D1: Warum Ihre sensiblen Dokumente außerhalb der EU verarbeiten? sofortpdf: Alle PDF-Tools, Server in der EU, DSGVO-konform. Ab 0,69 €.
 D2: PDF zusammenfügen, komprimieren, konvertieren — sicher und schnell. Die europäische Alternative zu internationalen PDF-Diensten.
 D3: 19 professionelle PDF-Tools zum fairen Preis. Keine versteckten Kosten. Server in der EU. Automatische Löschung. Jetzt testen →
-D4: Wechseln Sie zu sofortpdf: Schneller, sicherer, günstiger. Alle PDF-Tools in einem Abo. DSGVO-konform. Kostenlos ausprobieren.
+D4: Wechseln Sie zu sofortpdf: Schneller, sicherer, günstiger. Alle PDF-Tools in einem Abo. DSGVO-konform. Jetzt ausprobieren.
 ```
 
 ---
 
-## Campaign 5: PMAX — Performance Max (€3/day)
+## Campaign 5: PMAX — Performance Max (€10/day)
 
 **Goal:** Discover new audiences via Google AI
 **Bidding:** Maximize Conversions
+**Note:** €10/day minimum for PMax to have enough data for the algorithm to learn.
 
 ### Asset Group: All Tools
 ```
@@ -261,7 +288,7 @@ Descriptions (5):
 - Professionelle PDF-Bearbeitung ohne Installation. DSGVO-konform, EU-Server, 256-Bit SSL. 19 Tools, ein Preis. Jetzt loslegen →
 
 Images: upload logo + tool screenshots
-Audience signals: Custom intent (pdf zusammenfügen, pdf komprimieren, etc.)
+Audience signals: Custom intent (pdf zusammenfügen, pdf komprimieren, pdf zu word)
 ```
 
 ### PMax Settings
@@ -271,15 +298,10 @@ Audience signals: Custom intent (pdf zusammenfügen, pdf komprimieren, etc.)
 
 ---
 
-## Negative Keywords (Shared List — Account Level)
+## Negative Keywords (Shared Lists — Account Level)
 
-### List: "Informational & Free Intent"
+### List: "Informational"
 ```
-[kostenlos]
-[gratis]
-[free]
-[freeware]
-[open source]
 "was ist"
 "wie funktioniert"
 [tutorial]
@@ -288,6 +310,25 @@ Audience signals: Custom intent (pdf zusammenfügen, pdf komprimieren, etc.)
 [software download]
 [offline]
 [desktop app]
+[lernen]
+[kurs]
+```
+
+### List: "Free — TEST as separate campaign first"
+> ⚠️ "kostenlos" has massive volume in DE. With a €0.69 trial, we CAN
+> capture this traffic. Start by ALLOWING it in SEARCH_HIGH (keywords
+> like [pdf zusammenfügen online kostenlos] are included). Monitor CPA.
+> If CPA is too high after 2 weeks, move "kostenlos" keywords to their
+> own ad group with lower bids, or add as negative.
+```
+[gratis]
+[free]
+[freeware]
+[open source]
+[crack]
+[keygen]
+[torrent]
+[pirate]
 ```
 
 ### List: "Job Seekers"
@@ -302,7 +343,7 @@ Audience signals: Custom intent (pdf zusammenfügen, pdf komprimieren, etc.)
 [vacancy]
 ```
 
-### List: "Irrelevant"
+### List: "Developer/Technical"
 ```
 [api]
 [developer]
@@ -311,10 +352,8 @@ Audience signals: Custom intent (pdf zusammenfügen, pdf komprimieren, etc.)
 [github]
 [code]
 [library]
-[crack]
-[keygen]
-[torrent]
-[pirate]
+[npm]
+[python]
 ```
 
 ---
@@ -348,23 +387,49 @@ Audience signals: Custom intent (pdf zusammenfügen, pdf komprimieren, etc.)
 
 ## Landing Page Strategy
 
-Each high-intent ad group should link to its **specific tool page** (not the homepage):
+Each high-intent ad group links to its **specific tool page**:
 
 | Ad Group | Landing Page |
 |---|---|
-| PDF zu Word | sofortpdf.com/de/pdf-zu-word |
 | PDF zusammenfügen | sofortpdf.com/de/pdf-zusammenfuegen |
 | PDF komprimieren | sofortpdf.com/de/pdf-komprimieren |
+| PDF zu Word | sofortpdf.com/de/pdf-zu-word |
 | Competitor / Brand / PMAX | sofortpdf.com/de (homepage) |
+
+---
+
+## Bidding Strategy Progression
+
+| Phase | When | Strategy | Rationale |
+|---|---|---|---|
+| 1. Learning | Weeks 1-3 | Maximize Clicks (cap CPC €1.50) | No conversion data yet — gather clicks + conversions |
+| 2. Optimize | After 15+ conv/month | Maximize Conversions | Enough data for Smart Bidding to learn |
+| 3. Efficiency | After 30+ conv/month | Target CPA | Set CPA target based on Month 1-2 actual data |
+
+---
+
+## Expected Unit Economics (Semrush-validated)
+
+| Metric | Estimate | Source |
+|---|---|---|
+| Avg CPC (DE) | €0.15-€1.00 | Semrush: $0.13-$1.04 |
+| CTR (Search) | 5-8% | Industry benchmark |
+| Landing page CVR | 2-4% | Tool-specific landing = higher intent |
+| Trial CPA | €8-€25 | Based on CPC range |
+| Trial → Subscription | 20-30% | Low-ticket SaaS benchmark |
+| Subscriber CPA | €30-€80 | Trial CPA / conversion rate |
+| LTV (6 months) | €240 | €39.90 × 6 months |
+| LTV:CAC | 3:1 - 8:1 | Very healthy |
 
 ---
 
 ## Weekly Optimization Checklist
 
-- [ ] Review Search Terms Report → add negatives
-- [ ] Check conversion tracking is firing
+- [ ] Review Search Terms Report → add negatives (especially "kostenlos" performance)
+- [ ] Check conversion tracking is firing correctly
 - [ ] Kill keywords with spend > 3x target CPA and 0 conversions
 - [ ] Pause ads with CTR < 2%
 - [ ] Scale ad groups with CPA < target by +20% budget
 - [ ] Check Quality Scores → improve ad relevance for QS < 5
 - [ ] Review Auction Insights → monitor competitor activity
+- [ ] Monitor "kostenlos" keywords separately — are they converting?
