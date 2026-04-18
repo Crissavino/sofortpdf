@@ -307,10 +307,18 @@ class PaymentController extends Controller
         $isNew   = !$payment;
 
         try {
+            // product_id FK → `products` table (NOT bo_products).
+            // Resolve from bo_stripe_products.product_id which maps correctly.
+            $productId = null;
+            try {
+                $trialProduct = $this->stripeService->getTrialProduct();
+                $productId = $trialProduct ? $trialProduct->product_id : null;
+            } catch (\Throwable $e) {}
+
             $data = [
                 'customer_id'         => $customerId,
                 'payment_status_id'   => 4, // in progress (en_cours)
-                'product_id'          => $boProduct ? $boProduct->id : null,
+                'product_id'          => $productId,
                 'currency_id'         => $currencyId ?? 2,
                 'bo_website_id'       => $vad['bo_website_id'],
                 'bo_vad_id'           => $vad['bo_vad_id'],
@@ -348,15 +356,16 @@ class PaymentController extends Controller
         $vad = $this->getVadSessionData();
 
         try {
-            $vadProduct  = $this->stripeService->getVadProduct();
-            $boProduct   = $this->stripeService->getBoProduct();
-            $currencyId  = $vadProduct ? $vadProduct->currency_id : null;
-            $boProductId = $vadProduct ? $vadProduct->bo_product_id : null;
+            $vadProduct    = $this->stripeService->getVadProduct();
+            $boProduct     = $this->stripeService->getBoProduct();
+            $trialProduct  = $this->stripeService->getTrialProduct();
+            $currencyId    = $vadProduct ? $vadProduct->currency_id : null;
+            $boProductId   = $vadProduct ? $vadProduct->bo_product_id : null;
 
             Payment::create([
                 'customer_id'         => $customerId,
                 'payment_status_id'   => 3, // failed
-                'product_id'          => $boProduct ? $boProduct->id : null,
+                'product_id'          => $trialProduct ? $trialProduct->product_id : null,
                 'currency_id'         => $currencyId ?? 2,
                 'bo_website_id'       => $vad['bo_website_id'],
                 'bo_vad_id'           => $vad['bo_vad_id'],
