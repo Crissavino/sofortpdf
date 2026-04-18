@@ -1219,6 +1219,10 @@
 @push('scripts')
 <script>
 (function() {
+    // GTM: tool page view
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event: 'tool_view', tool: '{{ $tool["key"] ?? "" }}' });
+
     const __t = @json($jsMessages);
     const zone = document.getElementById('upload-zone');
     const fileInput = document.getElementById('file-input');

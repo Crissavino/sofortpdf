@@ -51,6 +51,7 @@ class ResolveVad
         }
 
         $this->shareCompanyData();
+        $this->captureUtmParams($request);
 
         return $next($request);
     }
@@ -316,6 +317,35 @@ class ResolveVad
         }
 
         View::share('pricing', $pricing);
+    }
+
+    /**
+     * Capture UTM parameters on first visit and persist in session.
+     * Only overwrites if new UTM params are present (preserves original attribution).
+     */
+    private function captureUtmParams(Request $request): void
+    {
+        $utmKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
+        $hasNew  = false;
+        $params  = [];
+
+        foreach ($utmKeys as $key) {
+            $val = $request->query($key);
+            if ($val !== null && $val !== '') {
+                $params[$key] = $val;
+                $hasNew = true;
+            }
+        }
+
+        if ($hasNew) {
+            session(['utm_params' => $params]);
+            if ($request->query('gclid')) {
+                session(['gclid' => $request->query('gclid')]);
+            }
+            if ($request->query('fbclid')) {
+                session(['fbclid' => $request->query('fbclid')]);
+            }
+        }
     }
 
     private function currencySymbol(string $currency): string

@@ -185,6 +185,8 @@
 
     // Auto-download on ready
     if (state === 'ready') {
+        window.dataLayer.push({ event: 'file_download' });
+
         var anchor = document.getElementById('confirmation-download');
         if (anchor && anchor.href) {
             var a = document.createElement('a');

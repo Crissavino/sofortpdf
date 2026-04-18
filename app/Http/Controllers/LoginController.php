@@ -38,6 +38,7 @@ class LoginController extends Controller
         }
 
         $request->session()->regenerate();
+        session()->flash('gtm_event', 'login');
 
         return redirect()->intended('/dashboard');
     }

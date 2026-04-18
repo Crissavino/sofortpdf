@@ -1182,6 +1182,9 @@
             console.log('Step 1:', step1.status, step1Data);
             if (!step1Data.success) { fail('create_customer', step1Data.message); return; }
 
+            // GTM: signup (new customer created during payment)
+            window.dataLayer.push({ event: 'signup', method: 'payment' });
+
             // Update CSRF token (session may have rotated after login)
             if (step1Data.csrf_token) {
                 csrf = step1Data.csrf_token;
@@ -1216,8 +1219,21 @@
             console.log('Step 3:', step3.status, step3Data);
             if (!step3Data.success) { fail('subscription', step3Data.message); return; }
 
-            // GTM: payment success
+            // GTM: purchase event (GA4 ecommerce)
             window.dataLayer.push({ event: 'payment_success' });
+            window.dataLayer.push({
+                event: 'purchase',
+                ecommerce: {
+                    transaction_id: step1Data.customer_id + '-' + Date.now(),
+                    value: {{ $pricing['trial'] ?? 0.69 }},
+                    currency: '{{ $pricing['currency'] ?? "EUR" }}',
+                    items: [{
+                        item_name: 'sofortpdf Trial',
+                        price: {{ $pricing['trial'] ?? 0.69 }},
+                        quantity: 1,
+                    }]
+                }
+            });
 
             // Payment succeeded — update paywall flag so the convert button
             // passes the server-side check, then re-trigger the conversion.

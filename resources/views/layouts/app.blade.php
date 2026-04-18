@@ -388,6 +388,28 @@
             }
         };
 
+        // GTM: user properties + UTM attribution (on every page)
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+            user_logged_in: {{ auth()->check() ? 'true' : 'false' }},
+            @if(auth()->check())
+            user_id: '{{ auth()->user()->id }}',
+            user_plan: '{{ auth()->user()->hasSofortpdfSubscription() ? "subscriber" : "trial" }}',
+            @endif
+            @if(session('utm_params'))
+            utm_source: '{{ session("utm_params.utm_source", "") }}',
+            utm_medium: '{{ session("utm_params.utm_medium", "") }}',
+            utm_campaign: '{{ session("utm_params.utm_campaign", "") }}',
+            utm_content: '{{ session("utm_params.utm_content", "") }}',
+            utm_term: '{{ session("utm_params.utm_term", "") }}',
+            @endif
+        });
+
+        // GTM: server-side flash events (login, signup, etc.)
+        @if(session('gtm_event'))
+        window.dataLayer.push({ event: '{{ session("gtm_event") }}' });
+        @endif
+
         // Global helper: show loading overlay → open payment modal.
         // Only shows the loading animation once per page — subsequent clicks
         // go straight to the payment modal.
