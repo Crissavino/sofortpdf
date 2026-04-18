@@ -177,6 +177,12 @@
     var state = card.getAttribute('data-state');
     var statusUrl = card.getAttribute('data-status-url');
 
+    // GTM: conversion complete
+    if (state === 'ready') {
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({ event: 'conversion_complete' });
+    }
+
     // Auto-download on ready
     if (state === 'ready') {
         var anchor = document.getElementById('confirmation-download');

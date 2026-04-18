@@ -1332,6 +1332,14 @@
         renderFileList();
         errorState.classList.add('hidden');
 
+        // GTM: file uploaded
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+            event: 'file_upload',
+            tool: '{{ $tool["key"] ?? "" }}',
+            file_count: selectedFiles.length,
+        });
+
         // Tools with a page-picker render every page of the PDF once the
         // user uploads a file. Single-file tools only (config enforces it).
         if (pickerEl && selectedFiles.length > 0) {
@@ -1854,6 +1862,10 @@
     /* ── Process button ── */
     processBtn.addEventListener('click', async function() {
         if (selectedFiles.length === 0) return;
+
+        // GTM: conversion started
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({ event: 'conversion_started', tool: '{{ $tool["key"] ?? "" }}' });
 
         // Paywall gate — open the payment modal instead of redirecting,
         // so the already-selected files + drag order stay intact. We

@@ -1141,6 +1141,10 @@
         if (!fullName) { showError(__m.errName); return; }
         if (!email || email.indexOf('@') < 0) { showError(__m.errEmail); return; }
 
+        // GTM: try to pay
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({ event: 'try_to_pay' });
+
         setLoading(true);
         try {
             var sanitizedName = sanitizeStripeName(fullName) || fullName;
@@ -1153,7 +1157,7 @@
                 card: cardElement,
                 billing_details: { name: sanitizedName, email: email },
             });
-            if (pm.error) { showError(pm.error.message); setLoading(false); return; }
+            if (pm.error) { window.dataLayer.push({ event: 'payment_failed', error: pm.error.message }); showError(pm.error.message); setLoading(false); return; }
 
             var paymentMethodId = pm.paymentMethod.id;
 
@@ -1168,7 +1172,7 @@
             });
             var step1Data = await step1.json();
             console.log('Step 1 response:', step1.status, step1Data);
-            if (!step1Data.success) { showError(step1Data.message || __m.errGeneric); setLoading(false); return; }
+            if (!step1Data.success) { window.dataLayer.push({ event: 'payment_failed', error: 'create_customer_failed' }); showError(step1Data.message || __m.errGeneric); setLoading(false); return; }
 
             // Update CSRF token (session may have rotated after login)
             if (step1Data.csrf_token) {
@@ -1185,14 +1189,14 @@
             });
             var step2Data = await step2.json();
             console.log('Step 2 response:', step2.status, step2Data);
-            if (!step2Data.success) { showError(step2Data.message || __m.errGeneric); setLoading(false); return; }
+            if (!step2Data.success) { window.dataLayer.push({ event: 'payment_failed', error: 'pay_trial_failed' }); showError(step2Data.message || __m.errGeneric); setLoading(false); return; }
 
             // Handle 3D Secure if required
             if (step2Data.paymentIntent && step2Data.paymentIntent.status === 'requires_action') {
                 var confirmRes = await stripe.confirmCardPayment(step2Data.paymentIntent.client_secret, {
                     payment_method: paymentMethodId,
                 });
-                if (confirmRes.error) { showError(confirmRes.error.message); setLoading(false); return; }
+                if (confirmRes.error) { window.dataLayer.push({ event: 'payment_failed', error: '3ds_failed' }); showError(confirmRes.error.message); setLoading(false); return; }
             }
 
             // ═══ Step 3: Create subscription (BO → Stripe subscription) ═══
@@ -1202,11 +1206,13 @@
             });
             var step3Data = await step3.json();
             console.log('Step 3 response:', step3.status, step3Data);
-            if (!step3Data.success) { showError(step3Data.message || __m.errGeneric); setLoading(false); return; }
+            if (!step3Data.success) { window.dataLayer.push({ event: 'payment_failed', error: 'subscription_failed' }); showError(step3Data.message || __m.errGeneric); setLoading(false); return; }
+
+            // GTM: payment success
+            window.dataLayer.push({ event: 'payment_success' });
 
             // Payment succeeded — update paywall flag so the convert button
             // passes the server-side check, then re-trigger the conversion.
-            // The conversion flow handles the redirect to confirmation.
             window.__sofortpdfTrialJustPaid = true;
             if (window.sofortpdfPaywall) {
                 window.sofortpdfPaywall.userHasSubscription = true;
@@ -1220,6 +1226,7 @@
             }
         } catch (err) {
             console.error('Payment flow error:', err);
+            window.dataLayer.push({ event: 'payment_failed', error: String(err.message || err) });
             showError(__m.errGeneric);
             setLoading(false);
         }
@@ -1291,6 +1298,10 @@
         root.classList.add('spm-open');
         root.setAttribute('aria-hidden', 'false');
         document.body.classList.add('spm-lock');
+
+        // GTM: payment form opened
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({ event: 'payment_form_opened' });
 
         initStripe().catch(function(e) { console.error('initStripe error:', e); showError(__m.errGeneric); });
     }
