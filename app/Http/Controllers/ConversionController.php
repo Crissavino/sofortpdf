@@ -314,6 +314,20 @@ class ConversionController extends Controller
             unset($params['pages']);
         }
 
+        // Set output_extension so the CS saves with the right extension
+        // and the webhook receives the correct file type.
+        $toolExtensions = [
+            'pdf-to-word' => 'docx', 'pdf-to-excel' => 'xlsx', 'pdf-to-powerpoint' => 'pptx',
+            'pdf-to-jpg' => 'jpg', 'pdf-to-png' => 'png',
+            'office-to-pdf' => 'pdf', 'compress' => 'pdf', 'rotate' => 'pdf',
+            'unlock' => 'pdf', 'watermark' => 'pdf', 'optimize' => 'pdf',
+            'ocr-pdf' => 'pdf', 'remove-pages' => 'pdf', 'extract-pages' => 'pdf',
+            'split-by-ranges' => 'zip',
+        ];
+        if (!isset($params['output_extension']) && isset($toolExtensions[$operation])) {
+            $params['output_extension'] = $toolExtensions[$operation];
+        }
+
         // Forward tool params the cs convertAsync validator allows:
         // quality, password, pages, ranges, text, fontSize, opacity, angle,
         // language, output_extension, rotations.
