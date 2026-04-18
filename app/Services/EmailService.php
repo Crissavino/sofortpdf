@@ -124,11 +124,11 @@ class EmailService
         }
     }
 
-    public function sendDownloadReady(Customer $customer, string $filename, string $downloadUrl, string $locale = 'de'): void
+    public function sendDownloadReady(Customer $customer, string $filename, string $downloadUrl, string $tool = 'convert', string $locale = 'de'): void
     {
         try {
-            $this->withLocale($locale, function () use ($customer, $filename, $downloadUrl) {
-                Mail::to($customer->email)->send(new DownloadReadyMail($customer, $filename, $downloadUrl));
+            $this->withLocale($locale, function () use ($customer, $filename, $downloadUrl, $tool) {
+                Mail::to($customer->email)->send(new DownloadReadyMail($customer, $filename, $downloadUrl, $tool));
             });
         } catch (\Throwable $e) {
             Log::error('EmailService::sendDownloadReady failed', ['error' => $e->getMessage(), 'email' => $customer->email]);

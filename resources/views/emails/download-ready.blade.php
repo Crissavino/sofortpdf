@@ -6,7 +6,7 @@
     <h1 style="margin: 0 0 16px 0; font-size: 22px; color: #111827;">{{ __('email.download_ready_heading', ['name' => $user->name]) }}</h1>
 
     <p style="margin: 0 0 16px 0; font-size: 15px; color: #374151; line-height: 1.6;">
-        {{ __('email.download_ready_intro') }}
+        {{ __('email.download_ready_service_' . str_replace('-', '_', $tool), [], __('email.download_ready_intro')) }}
     </p>
 
     <div style="background-color: #f3f4f6; border-radius: 8px; padding: 16px; margin: 0 0 24px 0;">

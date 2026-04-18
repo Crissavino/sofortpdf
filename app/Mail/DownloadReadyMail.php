@@ -14,12 +14,14 @@ class DownloadReadyMail extends Mailable
     public Customer $user;
     public string $filename;
     public string $downloadUrl;
+    public string $tool;
 
-    public function __construct(Customer $user, string $filename, string $downloadUrl)
+    public function __construct(Customer $user, string $filename, string $downloadUrl, string $tool = 'convert')
     {
         $this->user = $user;
         $this->filename = $filename;
         $this->downloadUrl = $downloadUrl;
+        $this->tool = $tool;
     }
 
     public function build(): self
