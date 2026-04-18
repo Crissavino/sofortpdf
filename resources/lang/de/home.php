@@ -90,7 +90,7 @@ return [
     'cta_try_now' => 'Jetzt testen',
     'cta_trial_days' => 'für :days Tage testen',
     'cta_unlock' => 'Jetzt freischalten',
-    'cta_no_auto_renewal' => 'Keine automatische Verlängerung. Jederzeit kündbar.',
+    'cta_no_auto_renewal' => 'Jederzeit kündbar. Keine Verpflichtung.',
 
     // Meta
     'meta_title' => 'Online PDF-Tools — Schnell & Sicher',

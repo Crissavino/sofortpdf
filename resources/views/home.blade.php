@@ -324,7 +324,7 @@
             </div>
 
             <div class="mt-10">
-                <a href="{{ route('checkout.start') }}"
+                <a href="{{ \App\Services\LocaleHelper::toolUrl('pdf-to-word') }}"
                    class="btn-press inline-flex items-center gap-2.5 bg-white text-brand-700 font-display font-bold px-10 py-4 rounded-2xl shadow-xl shadow-brand-900/20 transition-all duration-200 text-lg"
                    style="transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);">
                     {{ __('home.cta_unlock') }}

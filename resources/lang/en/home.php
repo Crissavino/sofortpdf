@@ -90,7 +90,7 @@ return [
     'cta_try_now' => 'Try now',
     'cta_trial_days' => 'for :days days trial',
     'cta_unlock' => 'Unlock now',
-    'cta_no_auto_renewal' => 'No automatic renewal. Cancel anytime.',
+    'cta_no_auto_renewal' => 'Cancel anytime. No commitment.',
 
     // Meta
     'meta_title' => 'Online PDF Tools — Fast & Secure',
