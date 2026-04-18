@@ -77,6 +77,11 @@ class Customer extends Authenticatable
     /**
      * True if this customer currently has an active or trialing subscription
      * scoped to the sofortpdf website.
+     *
+     * Checks bo_stripe_customers first (source of truth from Stripe via BO).
+     * If Stripe says canceled, the subscription is dead — regardless of
+     * what the local subscriptions table says (which may be stale because
+     * webhooks are processed by the BO, not sofortpdf).
      */
     public function hasSofortpdfSubscription(): bool
     {
@@ -85,6 +90,19 @@ class Customer extends Authenticatable
             return false;
         }
 
+        // Check Stripe status via BO (source of truth)
+        $boStripe = $this->boStripeCustomer;
+        if ($boStripe) {
+            $status = $boStripe->stripe_subscription_status;
+            if (in_array($status, ['canceled', 'cancelled', 'unpaid', 'incomplete_expired'])) {
+                return false;
+            }
+            if (in_array($status, ['active', 'trialing'])) {
+                return true;
+            }
+        }
+
+        // Fallback to local subscriptions table
         return $this->subscriptions()
             ->where('website_id', $websiteId)
             ->where(function ($q) {
@@ -92,6 +110,26 @@ class Customer extends Authenticatable
                   ->orWhere('is_trial_active', 1);
             })
             ->exists();
+    }
+
+    /**
+     * Subscription status for UI display — reads from both sources.
+     */
+    public function getSubscriptionStatus(): string
+    {
+        $boStripe = $this->boStripeCustomer;
+        if ($boStripe && $boStripe->stripe_subscription_status) {
+            return $boStripe->stripe_subscription_status;
+        }
+
+        $websiteId = config('services.bo.website_id');
+        $sub = $this->subscriptions()->where('website_id', $websiteId)->latest('id')->first();
+
+        if (!$sub) return 'none';
+        if ($sub->cancelled_at) return 'canceled';
+        if ($sub->is_trial_active) return 'trialing';
+        if ($sub->is_subscription_active) return 'active';
+        return 'inactive';
     }
 
     /**

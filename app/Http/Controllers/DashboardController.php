@@ -233,9 +233,40 @@ class DashboardController extends Controller
             return null;
         }
 
-        return $customer->subscriptions()
+        $sub = $customer->subscriptions()
             ->where('website_id', $websiteId)
             ->latest('id')
             ->first();
+
+        if (!$sub) return null;
+
+        // Sync status from bo_stripe_customers (source of truth from Stripe).
+        // The BO processes webhooks and updates bo_stripe_customers, but not
+        // our subscriptions table — so it may be stale.
+        $boStripe = $customer->boStripeCustomer;
+        if ($boStripe && $boStripe->stripe_subscription_status) {
+            $stripeStatus = $boStripe->stripe_subscription_status;
+
+            if (in_array($stripeStatus, ['canceled', 'cancelled'])) {
+                $sub->is_trial_active = false;
+                $sub->is_subscription_active = false;
+                $sub->cancelled_at = $sub->cancelled_at ?? $boStripe->stripe_subscription_canceled_at ?? now();
+            } elseif ($stripeStatus === 'active') {
+                $sub->is_trial_active = false;
+                $sub->is_subscription_active = true;
+                $sub->cancelled_at = null;
+            } elseif ($stripeStatus === 'trialing') {
+                $sub->is_trial_active = true;
+                $sub->is_subscription_active = false;
+                $sub->cancelled_at = null;
+            }
+
+            // Sync period end from Stripe
+            if ($boStripe->current_period_end) {
+                $sub->subscription_ends_at = $boStripe->current_period_end;
+            }
+        }
+
+        return $sub;
     }
 }
