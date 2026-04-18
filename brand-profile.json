@@ -1,0 +1,62 @@
+{
+  "schema_version": "1.0",
+  "brand_name": "sofortpdf",
+  "website_url": "https://sofortpdf.com",
+  "extracted_at": "2026-04-18T12:00:00Z",
+
+  "voice": {
+    "formal_casual": 6,
+    "rational_emotional": 4,
+    "playful_serious": 4,
+    "bold_subtle": 7,
+    "traditional_innovative": 6,
+    "expert_accessible": 7,
+    "descriptors": ["professional", "direct", "trustworthy", "approachable", "efficient"]
+  },
+
+  "colors": {
+    "primary": "#3b6cf5",
+    "secondary": ["#059669", "#1d3ad7"],
+    "forbidden": ["#FF0000"],
+    "background": "#f8fafc",
+    "text": "#0f172a"
+  },
+
+  "typography": {
+    "heading_font": "Cabinet Grotesk",
+    "body_font": "DM Sans",
+    "pairing_descriptor": "modern geometric display + clean humanist sans-serif, professional yet friendly"
+  },
+
+  "imagery": {
+    "style": "flat design",
+    "subjects": ["document icons", "PDF file previews", "conversion arrows", "security shields"],
+    "composition": "clean backgrounds, generous whitespace, centered elements, subtle gradients",
+    "forbidden": ["cheesy stock photos", "corporate handshakes", "cluttered layouts", "generic office scenes"]
+  },
+
+  "aesthetic": {
+    "mood_keywords": ["trustworthy", "modern", "clean", "efficient", "secure"],
+    "texture": "minimal",
+    "negative_space": "generous"
+  },
+
+  "brand_values": ["security", "simplicity", "speed", "GDPR compliance", "EU-hosted"],
+
+  "target_audience": {
+    "age_range": "25-55",
+    "profession": "professionals, small business owners, freelancers, students in German-speaking markets",
+    "pain_points": [
+      "need to convert/merge PDFs quickly without installing software",
+      "worried about data security when using online tools",
+      "frustrated by slow or ad-heavy free PDF tools",
+      "need GDPR-compliant solution for business documents"
+    ],
+    "aspirations": [
+      "handle document tasks instantly without disrupting workflow",
+      "trust that sensitive documents are safe",
+      "have one reliable tool for all PDF needs",
+      "look professional with properly formatted documents"
+    ]
+  }
+}

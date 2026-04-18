@@ -22,15 +22,15 @@
     @include('partials.seo')
 
     {{-- Fonts: DM Sans (body) + Cabinet Grotesk via Fontshare --}}
-    <link rel="preconnect" href="https://api.fontshare.com">
-    <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@700,800&f[]=dm-sans@400,500,700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://api.fontshare.com" data-cookieconsent="ignore">
+    <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@700,800&f[]=dm-sans@400,500,700&display=swap" rel="stylesheet" data-cookieconsent="ignore">
 
     {{-- Lucide Icons --}}
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script data-cookieconsent="ignore" src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 
-    {{-- Tailwind via CDN --}}
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
+    {{-- Tailwind via CDN — must not be blocked by Cookiebot --}}
+    <script data-cookieconsent="ignore" src="https://cdn.tailwindcss.com"></script>
+    <script data-cookieconsent="ignore">
         tailwind.config = {
             theme: {
                 extend: {
