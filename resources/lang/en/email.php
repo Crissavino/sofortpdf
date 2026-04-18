@@ -90,4 +90,22 @@ return [
     'payment_failed_body'      => 'You can easily update your credit card or payment method via our billing portal. Just click the button below.',
     'payment_failed_cta'       => 'Update payment method',
     'payment_failed_help'      => 'If you have any questions, simply reply to this email. We will be happy to help.',
+
+    // Order confirmation
+    'order_subject'            => 'Your order at sofortpdf.com',
+    'order_heading'            => 'Thank you for your order, :name!',
+    'order_intro'              => 'We have successfully received your payment. Your access to all sofortpdf tools is now active.',
+    'order_details_title'      => 'Order details:',
+    'order_plan'               => 'sofortpdf Pro — All PDF tools',
+    'order_amount'             => 'Amount: :amount',
+    'order_cancel_notice'      => 'You can cancel your subscription at any time via your personal space.',
+    'order_cta'                => 'Go to my PDF tools',
+
+    // Download ready
+    'download_ready_subject'       => 'Your document is ready — sofortpdf.com',
+    'download_ready_heading'       => 'Your document is ready, :name!',
+    'download_ready_intro'         => 'Your file has been successfully processed and is ready for download.',
+    'download_ready_file_label'    => 'File:',
+    'download_ready_cta'           => 'Download now',
+    'download_ready_expiry_notice' => 'This download link is always available in your personal space.',
 ];

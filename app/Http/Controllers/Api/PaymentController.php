@@ -246,6 +246,20 @@ class PaymentController extends Controller
             Log::warning('Subscription upsert failed', ['error' => $e->getMessage()]);
         }
 
+        // Send order confirmation + welcome emails
+        $customer = \App\Models\Customer::find($customerId);
+        if ($customer) {
+            $emailService = app(\App\Services\EmailService::class);
+            $locale = app()->getLocale();
+            $trialPrice = session('vad.pricing.trial', 0.69);
+            $symbol = session('vad.pricing.symbol', '€');
+            $amount = number_format($trialPrice, 2, ',', '') . ' ' . $symbol;
+
+            $emailService->sendOrderConfirmation($customer, $amount, $locale);
+            $emailService->sendWelcome($customer, '', $locale);
+            $emailService->sendTrialStarted($customer, $locale);
+        }
+
         return response()->json([
             'success' => true,
         ]);

@@ -90,4 +90,22 @@ return [
     'payment_failed_body'      => 'Sie können Ihre Kreditkarte oder Zahlungsmethode ganz einfach über unser Abrechnungsportal aktualisieren. Klicken Sie dazu auf den Button unten.',
     'payment_failed_cta'       => 'Zahlungsmethode aktualisieren',
     'payment_failed_help'      => 'Falls Sie Fragen haben, antworten Sie einfach auf diese E-Mail. Wir helfen Ihnen gerne weiter.',
+
+    // Order confirmation
+    'order_subject'            => 'Ihre Bestellung bei sofortpdf.com',
+    'order_heading'            => 'Vielen Dank für Ihre Bestellung, :name!',
+    'order_intro'              => 'Wir haben Ihre Zahlung erfolgreich erhalten. Ihr Zugang zu allen sofortpdf-Tools ist jetzt aktiv.',
+    'order_details_title'      => 'Bestelldetails:',
+    'order_plan'               => 'sofortpdf Pro — Alle PDF-Tools',
+    'order_amount'             => 'Betrag: :amount',
+    'order_cancel_notice'      => 'Sie können Ihr Abonnement jederzeit über Ihren persönlichen Bereich kündigen.',
+    'order_cta'                => 'Zu meinen PDF-Tools',
+
+    // Download ready
+    'download_ready_subject'       => 'Ihr Dokument ist bereit — sofortpdf.com',
+    'download_ready_heading'       => 'Ihr Dokument ist fertig, :name!',
+    'download_ready_intro'         => 'Ihre Datei wurde erfolgreich verarbeitet und steht zum Download bereit.',
+    'download_ready_file_label'    => 'Datei:',
+    'download_ready_cta'           => 'Jetzt herunterladen',
+    'download_ready_expiry_notice' => 'Dieser Download-Link ist in Ihrem persönlichen Bereich jederzeit verfügbar.',
 ];
