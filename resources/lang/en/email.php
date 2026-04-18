@@ -98,6 +98,7 @@ return [
     'order_details_title'      => 'Order details:',
     'order_plan'               => 'sofortpdf Pro — All PDF tools',
     'order_amount'             => 'Amount: :amount',
+    'order_number'             => 'Order number: :number',
     'order_cancel_notice'      => 'You can cancel your subscription at any time via your personal space.',
     'order_cta'                => 'Go to my PDF tools',
 

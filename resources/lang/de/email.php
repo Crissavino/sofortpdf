@@ -98,6 +98,7 @@ return [
     'order_details_title'      => 'Bestelldetails:',
     'order_plan'               => 'sofortpdf Pro — Alle PDF-Tools',
     'order_amount'             => 'Betrag: :amount',
+    'order_number'             => 'Bestellnummer: :number',
     'order_cancel_notice'      => 'Sie können Ihr Abonnement jederzeit über Ihren persönlichen Bereich kündigen.',
     'order_cta'                => 'Zu meinen PDF-Tools',
 

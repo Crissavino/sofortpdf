@@ -113,11 +113,11 @@ class EmailService
         }
     }
 
-    public function sendOrderConfirmation(Customer $customer, string $amount, string $locale = 'de'): void
+    public function sendOrderConfirmation(Customer $customer, string $amount, string $orderNumber = '', string $locale = 'de'): void
     {
         try {
-            $this->withLocale($locale, function () use ($customer, $amount) {
-                Mail::to($customer->email)->send(new OrderConfirmationMail($customer, $amount));
+            $this->withLocale($locale, function () use ($customer, $amount, $orderNumber) {
+                Mail::to($customer->email)->send(new OrderConfirmationMail($customer, $amount, $orderNumber));
             });
         } catch (\Throwable $e) {
             Log::error('EmailService::sendOrderConfirmation failed', ['error' => $e->getMessage(), 'email' => $customer->email]);

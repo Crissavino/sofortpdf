@@ -13,6 +13,9 @@
         <p style="margin: 0 0 8px 0; font-size: 15px; color: #374151; font-weight: 600;">{{ __('email.order_details_title') }}</p>
         <p style="margin: 0 0 4px 0; font-size: 15px; color: #374151;">{{ __('email.order_plan') }}</p>
         <p style="margin: 0 0 4px 0; font-size: 15px; color: #374151;">{{ __('email.order_amount', ['amount' => $amount]) }}</p>
+        @if($orderNumber)
+            <p style="margin: 0 0 4px 0; font-size: 15px; color: #374151;">{{ __('email.order_number', ['number' => $orderNumber]) }}</p>
+        @endif
         <p style="margin: 0; font-size: 13px; color: #6b7280; font-style: italic;">
             {{ __('email.order_cancel_notice') }}
         </p>

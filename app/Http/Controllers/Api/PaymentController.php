@@ -246,7 +246,7 @@ class PaymentController extends Controller
             Log::warning('Subscription upsert failed', ['error' => $e->getMessage()]);
         }
 
-        // Send order confirmation + welcome emails
+        // Send emails after payment (same as conversie-pdf: registration + order)
         $customer = \App\Models\Customer::find($customerId);
         if ($customer) {
             $emailService = app(\App\Services\EmailService::class);
@@ -254,10 +254,10 @@ class PaymentController extends Controller
             $trialPrice = session('vad.pricing.trial', 0.69);
             $symbol = session('vad.pricing.symbol', '€');
             $amount = number_format($trialPrice, 2, ',', '') . ' ' . $symbol;
+            $orderNumber = $payment ? $payment->order_number : '';
 
-            $emailService->sendOrderConfirmation($customer, $amount, $locale);
             $emailService->sendWelcome($customer, '', $locale);
-            $emailService->sendTrialStarted($customer, $locale);
+            $emailService->sendOrderConfirmation($customer, $amount, $orderNumber, $locale);
         }
 
         return response()->json([

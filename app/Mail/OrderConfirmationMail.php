@@ -13,11 +13,13 @@ class OrderConfirmationMail extends Mailable
 
     public Customer $user;
     public string $amount;
+    public string $orderNumber;
 
-    public function __construct(Customer $user, string $amount)
+    public function __construct(Customer $user, string $amount, string $orderNumber = '')
     {
         $this->user = $user;
         $this->amount = $amount;
+        $this->orderNumber = $orderNumber;
     }
 
     public function build(): self

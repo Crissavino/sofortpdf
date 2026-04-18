@@ -228,13 +228,6 @@ class ConversionController extends Controller
             'completed_at' => now()->toIso8601String(),
         ]), $ttl);
 
-        // Send download-ready email to logged-in users
-        if ($user) {
-            $locale = $entry['locale'] ?? 'de';
-            $downloadUrl = url($tokenInfo['download_url']);
-            app(\App\Services\EmailService::class)->sendDownloadReady($user, $originalName, $downloadUrl, $locale);
-        }
-
         // Save document to the shared `documents` table (same as conversie-pdf)
         $this->saveDocument($entry, $originalName, $outputExt, $outputPath);
 
