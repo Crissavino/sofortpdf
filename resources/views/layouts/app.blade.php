@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
+    {{-- Cookiebot — MUST be before GTM so it blocks cookies until consent --}}
+    <script id="Cookiebot" src="https://consent.cookiebot.com/uc.js"
+        data-cbid="5845f4ac-62a8-462b-864e-3e41ffaa2b9b"
+        data-blockingmode="auto"
+        data-culture="{{ app()->getLocale() }}"
+        type="text/javascript"></script>
+
     {{-- Google Tag Manager --}}
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
