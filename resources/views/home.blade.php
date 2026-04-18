@@ -39,7 +39,7 @@
 
             {{-- CTA Buttons --}}
             <div class="hero-stagger mt-10 flex flex-col sm:flex-row items-center justify-center gap-4" style="--stagger: 3">
-                <a href="{{ route('checkout.start') }}"
+                <a href="{{ \App\Services\LocaleHelper::toolUrl('pdf-to-word') }}"
                    class="btn-press inline-flex items-center gap-2.5 bg-brand-600 text-white font-display font-bold px-8 py-4 rounded-2xl shadow-lg shadow-brand-600/25 transition-all duration-200 text-base"
                    style="transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);">
                     {{ __('home.hero_cta_primary') }}

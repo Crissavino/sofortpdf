@@ -6,7 +6,7 @@ return [
     'hero_title_line1' => 'PDF-Dateien bearbeiten—',
     'hero_title_highlight' => 'sofort & sicher',
     'hero_subtitle' => 'Professionelle PDF-Tools direkt im Browser—zusammenfügen, komprimieren, umwandeln und mehr.',
-    'hero_cta_primary' => 'Kostenlos loslegen',
+    'hero_cta_primary' => 'Jetzt starten',
     'hero_cta_secondary' => 'Alle Tools ansehen',
 
     // Social proof bar

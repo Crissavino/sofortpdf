@@ -6,7 +6,7 @@ return [
     'hero_title_line1' => 'Edit PDF files—',
     'hero_title_highlight' => 'instantly & securely',
     'hero_subtitle' => 'Professional PDF tools right in your browser—merge, compress, convert, and more.',
-    'hero_cta_primary' => 'Get started for free',
+    'hero_cta_primary' => 'Start now',
     'hero_cta_secondary' => 'View all tools',
 
     // Social proof bar
