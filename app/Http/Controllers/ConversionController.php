@@ -384,6 +384,7 @@ class ConversionController extends Controller
             'pdf-to-excel'  => 4,
             'ppt-to-pdf'    => 5,
             'pdf-to-ppt'    => 6,
+            'image-to-pdf'  => 7,
             'jpg-to-pdf'    => 7,
             'pdf-to-jpg'    => 8,
             'png-to-pdf'    => 9,
@@ -491,6 +492,7 @@ class ConversionController extends Controller
             'pdf-to-ppt'    => 'pdf-to-powerpoint',
             'pdf-to-jpg'    => 'pdf-to-jpg',
             'pdf-to-png'    => 'pdf-to-png',
+            'image-to-pdf'  => 'image-to-pdf',
             'jpg-to-pdf'    => 'image-to-pdf',
             'png-to-pdf'    => 'image-to-pdf',
             'word-to-pdf',
@@ -631,6 +633,7 @@ class ConversionController extends Controller
         return match ($tool) {
             'merge' => "{$base}_merged.pdf",
             'compress' => "{$base}_compressed.pdf",
+            'image-to-pdf' => "{$base}.pdf",
             'jpg-to-pdf' => "{$base}.pdf",
             'pdf-to-word' => "{$base}.docx",
             'word-to-pdf' => "{$base}.pdf",

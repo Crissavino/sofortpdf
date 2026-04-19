@@ -9,6 +9,7 @@ return [
         'de' => [
             'merge'       => 'pdf-zusammenfuegen',
             'compress'    => 'pdf-komprimieren',
+            'image-to-pdf'=> 'bild-zu-pdf',
             'jpg-to-pdf'  => 'jpg-zu-pdf',
             'pdf-to-word' => 'pdf-zu-word',
             'word-to-pdf' => 'word-zu-pdf',
@@ -36,6 +37,7 @@ return [
         'en' => [
             'merge'       => 'merge-pdf',
             'compress'    => 'compress-pdf',
+            'image-to-pdf'=> 'image-to-pdf',
             'jpg-to-pdf'  => 'jpg-to-pdf',
             'pdf-to-word' => 'pdf-to-word',
             'word-to-pdf' => 'word-to-pdf',
