@@ -15,6 +15,13 @@ return [
         'meta_description' => 'Compress PDF — reduce the file size of your PDF documents online. Fast and without quality loss.',
         'action_label' => 'Compress',
     ],
+    'image-to-pdf' => [
+        'h1' => 'Image to PDF',
+        'h2' => 'Convert any image to PDF instantly — JPG, PNG, GIF, BMP, WebP and more',
+        'description' => 'Convert any image format to PDF — JPG, PNG, GIF, BMP, WebP, TIFF, SVG',
+        'meta_description' => 'Image to PDF — convert any image (JPG, PNG, GIF, BMP, WebP, TIFF, SVG) to a PDF document instantly. Fast, secure and online.',
+        'action_label' => 'Convert to PDF',
+    ],
     'jpg-to-pdf' => [
         'h1' => 'JPG to PDF',
         'h2' => 'Convert images to PDF instantly — JPG, PNG and more',
