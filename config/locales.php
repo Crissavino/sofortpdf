@@ -69,6 +69,7 @@ return [
         'de' => [
             'merge'       => 'PDF zusammenfügen',
             'compress'    => 'PDF komprimieren',
+            'image-to-pdf'=> 'Bild zu PDF',
             'jpg-to-pdf'  => 'JPG zu PDF',
             'pdf-to-word' => 'PDF zu Word',
             'word-to-pdf' => 'Word zu PDF',
@@ -96,6 +97,7 @@ return [
         'en' => [
             'merge'       => 'Merge PDF',
             'compress'    => 'Compress PDF',
+            'image-to-pdf'=> 'Image to PDF',
             'jpg-to-pdf'  => 'JPG to PDF',
             'pdf-to-word' => 'PDF to Word',
             'word-to-pdf' => 'Word to PDF',
