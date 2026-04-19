@@ -161,6 +161,9 @@ Route::prefix('{locale}')
         'extract-pages'         => ['extract-pages', 'Extract Pages'],
         'html-to-pdf'           => ['html-to-pdf',   'HTML to PDF'],
         'optimize-pdf'          => ['optimize',      'Optimize PDF'],
+        // Image to PDF (any image format)
+        'bild-zu-pdf'           => ['image-to-pdf',  'Bild zu PDF'],
+        'image-to-pdf'          => ['image-to-pdf',  'Image to PDF'],
         // EN aliases
         'reduce-pdf-size'       => ['compress',      'Reduce PDF Size'],
     ];
