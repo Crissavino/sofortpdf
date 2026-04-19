@@ -274,7 +274,7 @@ class ConversionController extends Controller
 
         // merge + multi-image tools use /api/async/merge (the service
         // already handles heterogeneous inputs internally).
-        $useMerge = in_array($tool, ['merge', 'jpg-to-pdf', 'png-to-pdf'], true);
+        $useMerge = $tool === 'merge';
 
         if ($useMerge) {
             foreach ($filePaths as $i => $path) {
