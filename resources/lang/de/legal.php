@@ -26,8 +26,13 @@ return [
     'agb_section_5_consequences_title' => 'Folgen des Widerrufs',
     'agb_section_5_consequences_p1' => 'Wenn Sie diesen Vertrag widerrufen, haben wir Ihnen alle Zahlungen, die wir von Ihnen erhalten haben, unverzüglich und spätestens binnen vierzehn Tagen ab dem Tag zurückzuzahlen, an dem die Mitteilung über Ihren Widerruf bei uns eingegangen ist.',
 
+    'agb_section_5b_title' => '§ 5a Rückerstattungen nach Ablauf der Widerrufsfrist',
+    'agb_section_5b_p1' => 'Nach Ablauf der 14-tägigen Widerrufsfrist sind Rückerstattungen grundsätzlich ausgeschlossen. In begründeten Ausnahmefällen (z. B. technische Fehler, die eine Nutzung des Dienstes unmöglich machen) kann der Anbieter nach eigenem Ermessen eine vollständige oder teilweise Rückerstattung gewähren.',
+    'agb_section_5b_p2' => 'Anfragen zu Rückerstattungen können per E-Mail an :email gerichtet werden. Der Anbieter wird jede Anfrage individuell prüfen und innerhalb von 14 Werktagen eine Entscheidung mitteilen.',
+    'agb_section_5b_p3' => 'Die Kündigung des Abonnements ist davon unabhängig jederzeit möglich und kann über die Kündigungsseite oder per E-Mail erfolgen.',
+
     'agb_section_6_title' => '§ 6 Laufzeit und Kündigung',
-    'agb_section_6_p1' => 'Das Abonnement verlängert sich automatisch um den gewählten Abrechnungszeitraum, sofern es nicht vor Ablauf der jeweiligen Laufzeit gekündigt wird. Die Kündigung kann jederzeit über das Nutzer-Dashboard oder per E-Mail erfolgen.',
+    'agb_section_6_p1' => 'Das Abonnement verlängert sich automatisch um den gewählten Abrechnungszeitraum, sofern es nicht vor Ablauf der jeweiligen Laufzeit gekündigt wird. Die Kündigung kann jederzeit über das Nutzer-Dashboard, die Kündigungsseite oder per E-Mail erfolgen.',
 
     'agb_section_7_title' => '§ 7 Verfügbarkeit und Gewährleistung',
     'agb_section_7_p1' => 'Der Anbieter bemüht sich um eine möglichst unterbrechungsfreie Verfügbarkeit der Dienste. Eine Verfügbarkeit von 100 % kann technisch nicht garantiert werden. Wartungsarbeiten werden nach Möglichkeit vorab angekündigt.',

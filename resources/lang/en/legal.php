@@ -26,8 +26,13 @@ return [
     'agb_section_5_consequences_title' => 'Consequences of Withdrawal',
     'agb_section_5_consequences_p1' => 'If you withdraw from this contract, we shall reimburse all payments received from you without undue delay and no later than fourteen days from the day on which we receive notification of your withdrawal from this contract.',
 
+    'agb_section_5b_title' => 'Section 5a — Refunds After the Withdrawal Period',
+    'agb_section_5b_p1' => 'After the 14-day withdrawal period has expired, refunds are generally not available. In justified exceptional circumstances (e.g., technical errors that make it impossible to use the service), the Provider may, at its sole discretion, grant a full or partial refund.',
+    'agb_section_5b_p2' => 'Refund requests can be sent by email to :email. The Provider will review each request individually and communicate a decision within 14 business days.',
+    'agb_section_5b_p3' => 'Cancellation of the subscription is possible at any time regardless and can be done via the cancellation page or by email.',
+
     'agb_section_6_title' => 'Section 6 — Term and Cancellation',
-    'agb_section_6_p1' => 'The subscription automatically renews for the selected billing period unless it is canceled before the end of the current term. Cancellation can be made at any time via the user dashboard or by email.',
+    'agb_section_6_p1' => 'The subscription automatically renews for the selected billing period unless it is canceled before the end of the current term. Cancellation can be made at any time via the user dashboard, the cancellation page, or by email.',
 
     'agb_section_7_title' => 'Section 7 — Availability and Warranty',
     'agb_section_7_p1' => 'The Provider strives to ensure uninterrupted availability of the services. 100% availability cannot be technically guaranteed. Maintenance work will be announced in advance when possible.',

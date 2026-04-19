@@ -53,6 +53,11 @@
     <h3 class="text-lg font-medium mt-6 mb-3">{{ __('legal.agb_section_5_consequences_title') }}</h3>
     <p class="mb-4 leading-relaxed">{{ __('legal.agb_section_5_consequences_p1') }}</p>
 
+    <h2 class="text-xl font-semibold mt-8 mb-4">{{ __('legal.agb_section_5b_title') }}</h2>
+    <p class="mb-4 leading-relaxed">{{ __('legal.agb_section_5b_p1') }}</p>
+    <p class="mb-4 leading-relaxed">{{ __('legal.agb_section_5b_p2', $tokens) }}</p>
+    <p class="mb-4 leading-relaxed">{{ __('legal.agb_section_5b_p3') }}</p>
+
     <h2 class="text-xl font-semibold mt-8 mb-4">{{ __('legal.agb_section_6_title') }}</h2>
     <p class="mb-4 leading-relaxed">{{ __('legal.agb_section_6_p1') }}</p>
 
