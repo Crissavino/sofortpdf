@@ -81,6 +81,7 @@ class PaymentController extends Controller
                     ?? strtolower(session('country_code', 'de')),
                 'language'            => app()->getLocale(),
                 'last_time_connected' => now(),
+                'came_from_ads'       => session('cameFromAds') ? 1 : 0,
             ]
         );
 
@@ -134,6 +135,9 @@ class PaymentController extends Controller
         // Store Stripe customer ID from BO response
         $stripeCustomerId = $result['customer']['bo_stripe_customer']['id_stripe_customer'] ?? null;
         session(['stripe_customer_id' => $stripeCustomerId]);
+
+        // Save Google Ads details (same as conversie-pdf / contract-kit)
+        $this->saveGoogleAdsDetails(session('utm_params', []), $customer->id);
 
         return response()->json([
             'success'     => true,
@@ -266,6 +270,35 @@ class PaymentController extends Controller
     }
 
     /* ── Helpers ── */
+
+    /**
+     * Save Google Ads attribution data (same as conversie-pdf / contract-kit).
+     * Stores gclid + UTM params linked to the customer_id so we can trace
+     * which campaign/keyword brought each paying customer.
+     */
+    private function saveGoogleAdsDetails(array $utmParams, int $customerId): void
+    {
+        if (empty($utmParams)) {
+            return;
+        }
+
+        if (\App\Models\GoogleAdsDetail::where('customer_id', $customerId)->exists()) {
+            return;
+        }
+
+        try {
+            \App\Models\GoogleAdsDetail::create([
+                'customer_id'  => $customerId,
+                'gclid'        => $utmParams['gclid'] ?? session('gclid', ''),
+                'utm_source'   => $utmParams['utm_source'] ?? '',
+                'utm_medium'   => $utmParams['utm_medium'] ?? '',
+                'utm_campaign' => $utmParams['utm_campaign'] ?? '',
+                'utm_term'     => $utmParams['utm_term'] ?? '',
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('saveGoogleAdsDetails failed', ['error' => $e->getMessage()]);
+        }
+    }
 
     private function getVadSessionData(): array
     {

@@ -339,11 +339,22 @@ class ResolveVad
 
         if ($hasNew) {
             session(['utm_params' => $params]);
+            session(['cameFromAds' => true]);
             if ($request->query('gclid')) {
                 session(['gclid' => $request->query('gclid')]);
+                $params['gclid'] = $request->query('gclid');
+                session(['utm_params' => $params]);
             }
             if ($request->query('fbclid')) {
                 session(['fbclid' => $request->query('fbclid')]);
+            }
+        }
+
+        // Detect ads from referer (same as conversie-pdf AppController)
+        if (!session('cameFromAds')) {
+            $referer = $request->headers->get('referer', '');
+            if (preg_match('/google|bing|gclid/i', $referer)) {
+                session(['cameFromAds' => true]);
             }
         }
     }
