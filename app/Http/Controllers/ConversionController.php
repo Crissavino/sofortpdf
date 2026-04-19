@@ -491,6 +491,8 @@ class ConversionController extends Controller
             'pdf-to-ppt'    => 'pdf-to-powerpoint',
             'pdf-to-jpg'    => 'pdf-to-jpg',
             'pdf-to-png'    => 'pdf-to-png',
+            'jpg-to-pdf'    => 'image-to-pdf',
+            'png-to-pdf'    => 'image-to-pdf',
             'word-to-pdf',
             'excel-to-pdf',
             'ppt-to-pdf'    => 'office-to-pdf',
