@@ -22,7 +22,7 @@
     <table role="presentation" cellpadding="0" cellspacing="0">
         <tr>
             <td style="background-color: #ef4444; border-radius: 6px;">
-                <a href="{{ url('/billing') }}" style="display: inline-block; padding: 12px 28px; color: #ffffff; font-size: 15px; font-weight: 600; text-decoration: none;">
+                <a href="{{ url('/' . app()->getLocale() . '/dashboard/billing') }}" style="display: inline-block; padding: 12px 28px; color: #ffffff; font-size: 15px; font-weight: 600; text-decoration: none;">
                     {{ __('email.payment_failed_cta') }}
                 </a>
             </td>

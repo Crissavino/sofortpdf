@@ -32,7 +32,7 @@
                             </p>
                             <p style="margin: 0; font-size: 12px; color: #9ca3af; text-align: center;">
                                 {{ __('email.footer_reason') }}<br>
-                                <a href="{{ url('/') }}" style="color: #1a56db; text-decoration: underline;">{{ __('email.footer_visit') }}</a>
+                                <a href="{{ url('/' . app()->getLocale()) }}" style="color: #1a56db; text-decoration: underline;">{{ __('email.footer_visit') }}</a>
                             </p>
                         </td>
                     </tr>
