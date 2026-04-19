@@ -250,6 +250,16 @@ Route::prefix('{locale}')
     Route::get('/contact',  [ContactController::class, 'show'])->name('contact.show.en');
     Route::post('/contact', [ContactController::class, 'send'])->name('contact.send.en');
 
+    // Cancellation
+    Route::get('/kuendigen',  [\App\Http\Controllers\CancellationController::class, 'form'])->name('cancellation.form.de');
+    Route::post('/kuendigen', [\App\Http\Controllers\CancellationController::class, 'process'])->name('cancellation.process.de');
+    Route::get('/cancel',     [\App\Http\Controllers\CancellationController::class, 'form'])->name('cancellation.form.en');
+    Route::post('/cancel',    [\App\Http\Controllers\CancellationController::class, 'process'])->name('cancellation.process.en');
+
+    // Cookie Policy
+    Route::get('/cookie-richtlinie', [LegalController::class, 'cookiePolicy'])->name('cookies.de');
+    Route::get('/cookie-policy',     [LegalController::class, 'cookiePolicy'])->name('cookies.en');
+
     // DE legal
     Route::get('/impressum', [LegalController::class, 'imprint'])->name('impressum.de');
     Route::get('/datenschutz', [LegalController::class, 'privacy'])->name('datenschutz.de');

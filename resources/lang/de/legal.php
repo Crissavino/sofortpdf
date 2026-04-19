@@ -107,4 +107,25 @@ return [
 
     'datenschutz_section_8_title' => '8. Änderung dieser Datenschutzerklärung',
     'datenschutz_section_8_p1' => 'Wir behalten uns vor, diese Datenschutzerklärung anzupassen, damit sie stets den aktuellen rechtlichen Anforderungen entspricht oder um Änderungen unserer Leistungen in der Datenschutzerklärung umzusetzen.',
+
+    // ============== Cookie Policy ==============
+    'cookies_heading'            => 'Cookie-Richtlinie',
+    'cookies_what_title'         => 'Was sind Cookies?',
+    'cookies_what_p1'            => 'Cookies sind kleine Textdateien, die von Websites auf Ihrem Gerät gespeichert werden, um Ihr Nutzererlebnis zu verbessern. Diese Cookie-Richtlinie erklärt, welche Cookies wir verwenden und warum.',
+    'cookies_types_title'        => 'Arten von Cookies',
+    'cookies_necessary_title'    => 'Technisch notwendige Cookies',
+    'cookies_necessary_p1'       => 'Diese Cookies sind für die Grundfunktionen der Website erforderlich (z. B. Anmeldung, Sitzungsverwaltung, CSRF-Schutz). Sie können nicht deaktiviert werden.',
+    'cookies_analytics_title'    => 'Analyse-Cookies',
+    'cookies_analytics_p1'       => 'Diese Cookies helfen uns zu verstehen, wie Besucher unsere Website nutzen. Die Daten werden anonymisiert erhoben und dienen ausschließlich der Verbesserung unseres Angebots. Sie werden nur mit Ihrer Einwilligung gesetzt.',
+    'cookies_marketing_title'    => 'Marketing-Cookies',
+    'cookies_marketing_p1'       => 'Marketing-Cookies werden verwendet, um Ihnen relevante Werbung anzuzeigen. Diese Cookies werden nur mit Ihrer ausdrücklichen Einwilligung gesetzt.',
+    'cookies_tools_title'        => 'Eingesetzte Dienste',
+    'cookies_ga4_p1'             => 'Wir verwenden Google Analytics 4 (GA4) zur Analyse des Nutzerverhaltens. GA4 verarbeitet Daten anonymisiert und überträgt sie an Google-Server. Weitere Informationen finden Sie in der Datenschutzerklärung von Google.',
+    'cookies_gtm_p1'             => 'Google Tag Manager (GTM) wird zur Verwaltung unserer Tracking-Tags verwendet. GTM selbst setzt keine Cookies, ermöglicht jedoch das Laden anderer Dienste, die Cookies setzen können.',
+    'cookies_stripe_p1'          => 'Stripe setzt technisch notwendige Cookies für die sichere Zahlungsabwicklung. Diese Cookies sind für die Funktionalität des Zahlungsprozesses erforderlich.',
+    'cookies_cookiebot_p1'       => 'Cookiebot verwaltet Ihre Cookie-Einwilligung. Es speichert Ihre Cookie-Präferenzen, damit Sie nicht bei jedem Besuch erneut gefragt werden.',
+    'cookies_manage_title'       => 'Cookies verwalten',
+    'cookies_manage_p1'          => 'Sie können Ihre Cookie-Einstellungen jederzeit über den Cookie-Banner oder über die Browsereinstellungen ändern. Klicken Sie auf <a href="javascript:Cookiebot.renew()" class="text-blue-600 hover:underline">Cookie-Einstellungen ändern</a>, um Ihre Präferenzen anzupassen.',
+    'cookies_changes_title'      => 'Änderungen dieser Richtlinie',
+    'cookies_changes_p1'         => 'Wir behalten uns vor, diese Cookie-Richtlinie bei Bedarf zu aktualisieren. Die aktuelle Version finden Sie stets auf dieser Seite.',
 ];

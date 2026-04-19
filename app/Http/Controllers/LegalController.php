@@ -20,6 +20,14 @@ class LegalController extends Controller
         ]);
     }
 
+    public function cookiePolicy()
+    {
+        return view('legal.cookie-policy', [
+            'pageTitle' => __('legal.cookies_heading'),
+            'slug'      => 'cookie-policy',
+        ]);
+    }
+
     public function terms()
     {
         return view('legal.agb', [

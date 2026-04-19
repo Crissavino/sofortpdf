@@ -331,6 +331,8 @@
                         <li><a href="/{{ $fLoc }}/{{ config("locales.legal_slugs.{$fLoc}.privacy") }}" class="hover:text-white transition-colors">{{ __('layout.footer_privacy') }}</a></li>
                         <li><a href="/{{ $fLoc }}/{{ config("locales.legal_slugs.{$fLoc}.terms") }}" class="hover:text-white transition-colors">{{ __('layout.footer_terms') }}</a></li>
                         <li><a href="/{{ $fLoc }}/{{ config("locales.contact_slugs.{$fLoc}") }}" class="hover:text-white transition-colors">{{ __('contact_ui.footer_link') }}</a></li>
+                        <li><a href="/{{ $fLoc }}/{{ $fLoc === 'de' ? 'cookie-richtlinie' : 'cookie-policy' }}" class="hover:text-white transition-colors">{{ __('legal.cookies_heading') }}</a></li>
+                        <li><a href="/{{ $fLoc }}/{{ $fLoc === 'de' ? 'kuendigen' : 'cancel' }}" class="hover:text-white transition-colors">{{ $fLoc === 'de' ? 'Kündigen' : 'Cancel' }}</a></li>
                     </ul>
                 </div>
             </div>

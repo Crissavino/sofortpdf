@@ -168,6 +168,47 @@ class StripeGateway implements PaymentGatewayInterface
         }
     }
 
+    public function cancelSubscription(array $data): array
+    {
+        try {
+            $stripeAccountId = $data['stripe_account_id'] ?? null;
+            if (!$stripeAccountId) {
+                $account = $this->stripeService->getStripeAccount();
+                $stripeAccountId = $account ? $account->id : null;
+            }
+
+            $payload = [
+                'customer'         => json_encode($data['customer']),
+                'boData'           => [
+                    'payment_id' => $data['payment_id'] ?? null,
+                    'sender'     => request()->header('referer', ''),
+                    'web_agent'  => request()->userAgent(),
+                    'ip'         => request()->ip(),
+                ],
+                'stripeAccountId'  => $stripeAccountId,
+                'siteId'           => config('services.bo.website_id'),
+            ];
+
+            Log::info('StripeGateway::cancelSubscription payload', $payload);
+
+            $response = Http::timeout(15)->post("{$this->baseUri}/api/payments/stripe/terminate-subscription", $payload);
+
+            Log::info('StripeGateway::cancelSubscription response', [
+                'status' => $response->status(),
+                'body'   => $response->json(),
+            ]);
+
+            if ($response->successful()) {
+                return array_merge(['success' => true], $response->json() ?? []);
+            }
+
+            return ['success' => false, 'message' => 'Cancellation failed'];
+        } catch (\Throwable $e) {
+            Log::error('StripeGateway::cancelSubscription exception', ['error' => $e->getMessage()]);
+            return ['success' => false];
+        }
+    }
+
     public function handleWebhook(Request $request): array
     {
         try {

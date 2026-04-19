@@ -107,4 +107,25 @@ return [
 
     'datenschutz_section_8_title' => '8. Changes to This Privacy Policy',
     'datenschutz_section_8_p1' => 'We reserve the right to update this privacy policy to ensure it always complies with current legal requirements or to reflect changes to our services in the privacy policy.',
+
+    // ============== Cookie Policy ==============
+    'cookies_heading'            => 'Cookie Policy',
+    'cookies_what_title'         => 'What are Cookies?',
+    'cookies_what_p1'            => 'Cookies are small text files stored on your device by websites to improve your browsing experience. This cookie policy explains which cookies we use and why.',
+    'cookies_types_title'        => 'Types of Cookies',
+    'cookies_necessary_title'    => 'Strictly Necessary Cookies',
+    'cookies_necessary_p1'       => 'These cookies are essential for the basic functions of the website (e.g., login, session management, CSRF protection). They cannot be disabled.',
+    'cookies_analytics_title'    => 'Analytics Cookies',
+    'cookies_analytics_p1'       => 'These cookies help us understand how visitors use our website. The data is collected anonymously and is used solely to improve our service. They are only set with your consent.',
+    'cookies_marketing_title'    => 'Marketing Cookies',
+    'cookies_marketing_p1'       => 'Marketing cookies are used to display relevant advertising to you. These cookies are only set with your explicit consent.',
+    'cookies_tools_title'        => 'Services We Use',
+    'cookies_ga4_p1'             => 'We use Google Analytics 4 (GA4) to analyze user behavior. GA4 processes data anonymously and transfers it to Google servers. For more information, see Google\'s privacy policy.',
+    'cookies_gtm_p1'             => 'Google Tag Manager (GTM) is used to manage our tracking tags. GTM itself does not set cookies, but it enables the loading of other services that may set cookies.',
+    'cookies_stripe_p1'          => 'Stripe sets strictly necessary cookies for secure payment processing. These cookies are required for the payment process to function.',
+    'cookies_cookiebot_p1'       => 'Cookiebot manages your cookie consent. It stores your cookie preferences so you are not asked again on every visit.',
+    'cookies_manage_title'       => 'Managing Cookies',
+    'cookies_manage_p1'          => 'You can change your cookie settings at any time via the cookie banner or your browser settings. Click <a href="javascript:Cookiebot.renew()" class="text-blue-600 hover:underline">change cookie settings</a> to adjust your preferences.',
+    'cookies_changes_title'      => 'Changes to This Policy',
+    'cookies_changes_p1'         => 'We reserve the right to update this cookie policy as needed. The current version is always available on this page.',
 ];
