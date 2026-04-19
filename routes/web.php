@@ -196,15 +196,12 @@ Route::prefix('{locale}')
     Route::get('/password-reset/{token}', [PasswordResetController::class, 'showResetConfirmForm'])->name('password.reset.en');
     Route::post('/password-reset-save', [PasswordResetController::class, 'reset'])->name('password.update.en');
 
-    /*
-    |----------------------------------------------------------------------
-    | Checkout & Stripe
-    |----------------------------------------------------------------------
-    */
-    Route::get('/checkout/start', [CheckoutController::class, 'start'])->name('checkout.start');
-    Route::post('/checkout/create-subscription', [CheckoutController::class, 'createSubscription'])->name('checkout.create-subscription');
-    Route::post('/checkout/confirm-payment', [CheckoutController::class, 'confirmPayment'])->name('checkout.confirm-payment');
-    Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
+    // Old standalone checkout removed — payments go through the modal
+    // (/api/payment/create-customer → pay-trial → create-subscription).
+    // Kept route name 'checkout.start' as redirect to home for any stale links.
+    Route::get('/checkout/start', function () {
+        return redirect()->route('home', ['locale' => app()->getLocale()]);
+    })->name('checkout.start');
 
     /*
     |----------------------------------------------------------------------
