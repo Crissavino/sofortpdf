@@ -50,6 +50,12 @@ class ResolveVad
             $this->resolveVad($request, $forceProvider);
         }
 
+        // Always resolve country — even if VAD was cached or found by IP
+        // (Tiers 1/2 skip detectCountry, so country_code may be unset).
+        if (!session('country_code')) {
+            $this->detectCountry($request);
+        }
+
         $this->shareCompanyData();
         $this->captureUtmParams($request);
 
@@ -210,12 +216,10 @@ class ResolveVad
     private function detectCountry(Request $request): string
     {
         if ($code = session('country_code')) {
-            Log::channel('activity')->info("country_cached", ['code' => $code, 'ip' => $request->ip()]);
             return $code;
         }
 
         $ip = $request->ip();
-        Log::channel('activity')->info("country_resolving", ['ip' => $ip]);
 
         if (in_array($ip, ['127.0.0.1', '::1'], true)
             || strpos($ip, '192.168.') === 0
