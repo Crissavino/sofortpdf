@@ -1,13 +1,11 @@
 @php
     $size = $size ?? 'w-6 h-6';
     // Map size class to pixel value for Lucide
-    $px = match(true) {
-        str_contains($size, 'w-8') => 32,
-        str_contains($size, 'w-6') => 24,
-        str_contains($size, 'w-5') => 20,
-        str_contains($size, 'w-4') => 16,
-        default => 24,
-    };
+    if (strpos($size, 'w-8') !== false) { $px = 32; }
+    elseif (strpos($size, 'w-6') !== false) { $px = 24; }
+    elseif (strpos($size, 'w-5') !== false) { $px = 20; }
+    elseif (strpos($size, 'w-4') !== false) { $px = 16; }
+    else { $px = 24; }
     $colorMap = [
         'merge'        => 'text-brand-500',
         'compress'     => 'text-amber-500',

@@ -1,40 +1,43 @@
 <?php
 
 return [
-    'step_1' => 'Formular ausfüllen',
+    'step_1' => 'Konto erstellen',
     'step_2' => 'Sichere Zahlung',
-    'step_3' => 'Dokument herunterladen',
+    'step_3' => 'Sofort herunterladen',
 
     'heading' => 'Dokument verarbeiten',
     'subheading' => 'Schalten Sie alle PDF-Tools für :days Tage frei — nur :price',
 
     'summary_title' => 'Ihre Datei',
     'summary_description' => 'Nach der Zahlung wird Ihre Datei sofort verarbeitet und heruntergeladen.',
-    'total_label' => 'Gesamt',
+    'total_label' => 'Testpreis',
     'full_price_label' => 'danach :price/Monat',
-    'promo_label' => 'Zeitlich begrenztes Angebot',
+    'after_trial_label' => 'Danach :price/Monat · Jederzeit kündbar',
+    'promo_label' => 'Einführungspreis',
     'discount_label' => '-:percent%',
 
     'included_title' => 'Inklusive',
-    'included_item_1' => 'Sofortiger Download',
+    'included_item_1' => 'Sofortiger Download Ihrer Datei',
     'included_item_2' => 'Alle PDF-Tools freigeschaltet',
     'included_item_3' => ':days Tage unbegrenzte Nutzung',
 
     'secure_payment' => 'Sichere Zahlung',
-    'ssl_badge' => 'SSL 256-Bit',
-    'guarantee_badge' => 'Geld-zurück-Garantie',
+    'ssl_badge' => 'SSL-verschlüsselt',
+    'guarantee_badge' => '14 Tage Geld-zurück-Garantie',
+    'gdpr_badge' => 'DSGVO-konform',
+    'delete_badge' => 'Dateien nach 1h gelöscht',
 
     'form_full_name' => 'Vollständiger Name',
     'form_email' => 'E-Mail-Adresse',
     'form_card_details' => 'Kartendetails',
     'form_encrypted' => 'Verschlüsselt',
 
-    'pay_button' => 'Jetzt :price bezahlen',
-    'processing' => 'Verarbeitung…',
+    'pay_button' => 'Jetzt freischalten — :price',
+    'processing' => 'Wird verarbeitet…',
 
-    'tc_label' => 'Ich erkläre, dass ich die AGB gelesen und akzeptiert habe.',
-    'tc_details_label' => 'Mehr anzeigen',
-    'tc_text' => 'Ich stimme den Abonnementbedingungen zu und bestätige meine Bestellung für ein monatliches unbegrenztes Abonnement zum Preis von :fullPrice. Ich verstehe, dass ich für ein Werbeangebot von :days Tagen zum Preis von nur :trialPrice berechtigt bin. Nach der Probezeit wird mein Abonnement automatisch monatlich verlängert und die Abonnementgebühr wird über dieselbe Zahlungsmethode abgebucht, die für das Probeangebot verwendet wurde.',
+    'tc_label' => 'Ich akzeptiere die AGB.',
+    'tc_details_label' => 'Details anzeigen',
+    'tc_text' => ':days Tage Testphase für :trialPrice. Danach :fullPrice/Monat. Sie können jederzeit vor Ablauf der Testphase kündigen. Nach der Testphase verlängert sich Ihr Abonnement monatlich automatisch.',
     'tc_required' => 'Sie müssen die Bedingungen akzeptieren, um fortzufahren.',
 
     'bank_statement' => ':name erscheint auf Ihrem Kontoauszug.',

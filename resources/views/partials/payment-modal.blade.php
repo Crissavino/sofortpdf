@@ -138,6 +138,8 @@
                     <div class="spm-badges">
                         <span class="spm-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>{{ __('payment.ssl_badge') }}</span>
                         <span class="spm-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>{{ __('payment.guarantee_badge') }}</span>
+                        <span class="spm-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>{{ __('payment.gdpr_badge') }}</span>
+                        <span class="spm-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>{{ __('payment.delete_badge') }}</span>
                     </div>
                 </div>
             </div>
@@ -149,7 +151,16 @@
                     $trialNum = $isEn ? number_format($trialPrice, 2, '.', ',') : number_format($trialPrice, 2, ',', '.');
                     $marketingNum = $isEn ? number_format($trialMarketingPrice, 2, '.', ',') : number_format($trialMarketingPrice, 2, ',', '.');
                 @endphp
-                <div class="spm-price-header" style="text-align:center; padding:22px 20px 16px; position:relative; background:#f0fdf4; border-radius:14px; border:1px solid #dcfce7;">
+                {{-- Mobile-only: compact file summary (visible only on small screens) --}}
+                <div class="spm-mobile-file-summary" data-spm-mobile-file>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    <div class="spm-mobile-file-info">
+                        <span class="spm-mobile-file-name" data-spm-mobile-filename></span>
+                        <span class="spm-mobile-file-size" data-spm-mobile-filesize></span>
+                    </div>
+                </div>
+
+                <div class="spm-price-header" style="text-align:center; padding:22px 20px 12px; position:relative; background:#f0fdf4; border-radius:14px; border:1px solid #dcfce7;">
                     @if ($discountPct > 0)
                         <span style="position:absolute; top:-1px; right:-1px; background:#dc2626; color:#fff; font-size:12px; font-weight:800; padding:4px 10px; border-radius:0 14px 0 10px;">-{{ $discountPct }}%</span>
                     @endif
@@ -160,7 +171,7 @@
                         @endif
                         <span style="font-size:32px; font-weight:800; color:#047857; font-family:'Cabinet Grotesk',system-ui,sans-serif; letter-spacing:-0.5px;">{{ $trialNum }} {{ $currency }}</span>
                     </div>
-                    <p style="margin:6px 0 0; font-size:13px; color:#059669; font-weight:500; font-style:italic;">{{ __('payment.promo_label') }}</p>
+                    <p style="margin:4px 0 0; font-size:13px; color:#059669; font-weight:500;">{{ __('payment.promo_label') }}</p>
                 </div>
 
                 <form id="spm-form" class="spm-form" novalidate>
@@ -172,8 +183,10 @@
                             {{ __('payment.secure_payment') }}
                         </span>
                         <span class="spm-card-brands">
-                            <span style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:22px;background:#fff;border:1px solid #e5e7eb;border-radius:4px;"><span style="font-size:8px;font-weight:800;color:#1e3a8a;">VISA</span></span>
-                            <span style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:22px;background:#fff;border:1px solid #e5e7eb;border-radius:4px;"><span style="display:flex;margin-left:-3px;"><span style="width:10px;height:10px;border-radius:50%;background:#ef4444;"></span><span style="width:10px;height:10px;border-radius:50%;background:#facc15;margin-left:-4px;"></span></span></span>
+                            {{-- Visa --}}
+                            <span class="spm-card-badge"><svg width="28" height="10" viewBox="0 0 256 83" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M132.3 2.4l-15.6 78.4h-16.7L115.6 2.4h16.7zm66.2 50.6l8.8-24.2 5 24.2h-13.8zm18.6 27.8h15.5L218.8 2.4h-14.3c-3.2 0-5.9 1.9-7.1 4.7L170.6 80.8h17.5l3.5-9.6h21.4l2.1 9.6zM183 54.3c.1-20.5-28.3-21.6-28.1-30.8.1-2.8 2.7-5.7 8.5-6.5 2.9-.4 10.8-.7 19.8 3.4l3.5-16.4C182.5 2.5 177.2.8 170.6.8c-16.5 0-28.1 8.8-28.2 21.3-.1 9.3 8.3 14.5 14.6 17.5 6.5 3.1 8.7 5.1 8.7 7.9-.1 4.3-5.2 6.1-10 6.2-8.4.1-13.3-2.3-17.2-4.1l-3 14.3c3.9 1.8 11.1 3.4 18.6 3.5 17.5 0 29-8.6 29.1-22.1zM104.8 2.4L79.4 80.8H61.7L49.3 15.3c-.8-3-1.4-4.1-3.8-5.4C41.6 7.8 35.1 5.8 29.4 4.5l.4-2.1h28.3c3.6 0 6.8 2.4 7.7 6.5l7 37.2L90.1 2.4h14.7z" fill="#1434CB"/></svg></span>
+                            {{-- Mastercard --}}
+                            <span class="spm-card-badge"><svg width="28" height="18" viewBox="0 0 256 199" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="155.6" cy="99.4" r="99.4" fill="#F9A000"/><circle cx="100.4" cy="99.4" r="99.4" fill="#EB001B"/><path d="M128 19.3a99.2 99.2 0 0 1 27.6 80.1A99.2 99.2 0 0 1 128 179.5a99.2 99.2 0 0 1-27.6-80.1A99.2 99.2 0 0 1 128 19.3z" fill="#FF5F00"/></svg></span>
                         </span>
                     </div>
 
@@ -605,12 +618,47 @@
     }
 
     .spm-badges {
-        display: flex; gap: 14px; justify-content: center;
+        display: flex; gap: 10px; justify-content: center;
+        flex-wrap: wrap;
         padding-top: 4px;
     }
     .spm-badge {
         display: inline-flex; align-items: center; gap: 4px;
         font-size: 10px; color: #94a3b8;
+    }
+
+    /* Card brand badges */
+    .spm-card-badge {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 38px; height: 24px;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 4px;
+        padding: 2px;
+    }
+
+    /* Mobile file summary (hidden on desktop) */
+    .spm-mobile-file-summary {
+        display: none;
+        align-items: center; gap: 10px;
+        padding: 10px 14px;
+        background: #f8fafc;
+        border: 1px solid #f1f5f9;
+        border-radius: 10px;
+        margin-bottom: 12px;
+    }
+    .spm-mobile-file-info {
+        display: flex; flex-direction: column; min-width: 0;
+    }
+    .spm-mobile-file-name {
+        font-size: 13px; font-weight: 600; color: #0f172a;
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .spm-mobile-file-size {
+        font-size: 11px; color: #94a3b8;
+    }
+    @media (max-width: 719px) {
+        .spm-mobile-file-summary { display: flex; }
     }
 
     /* ── RIGHT COLUMN ── */
@@ -836,6 +884,8 @@
     var filenameEl     = root.querySelector('[data-spm-filename]');
     var filesizeEl     = root.querySelector('[data-spm-filesize]');
     var filecountEl    = root.querySelector('[data-spm-filecount]');
+    var mobileFileName = root.querySelector('[data-spm-mobile-filename]');
+    var mobileFileSize = root.querySelector('[data-spm-mobile-filesize]');
     var form           = root.querySelector('#spm-form');
     var errorEl        = root.querySelector('#spm-error');
     var submitBtn      = root.querySelector('#spm-submit');
@@ -1305,6 +1355,8 @@
             filecountEl.hidden = true;
             if (previewRibbon) previewRibbon.textContent = (extensionFrom(files[0].name) || 'file').toUpperCase();
             if (toggleFilename) toggleFilename.textContent = files[0].name;
+            if (mobileFileName) mobileFileName.textContent = files[0].name;
+            if (mobileFileSize) mobileFileSize.textContent = formatSize(files[0].size);
             renderPreview(files).catch(function() { /* ignore */ });
         } else {
             var totalSize = files.reduce(function(sum, f) { return sum + (f.size || 0); }, 0);
@@ -1314,6 +1366,8 @@
             filecountEl.hidden = false;
             if (previewRibbon) previewRibbon.textContent = files.length + '×';
             if (toggleFilename) toggleFilename.textContent = files[0].name + ' +' + (files.length - 1);
+            if (mobileFileName) mobileFileName.textContent = files[0].name + ' +' + (files.length - 1);
+            if (mobileFileSize) mobileFileSize.textContent = formatSize(totalSize);
             renderPreview(files).catch(function() { /* ignore */ });
         }
 
