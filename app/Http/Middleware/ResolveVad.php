@@ -210,10 +210,12 @@ class ResolveVad
     private function detectCountry(Request $request): string
     {
         if ($code = session('country_code')) {
+            Log::channel('activity')->info("country_cached", ['code' => $code, 'ip' => $request->ip()]);
             return $code;
         }
 
         $ip = $request->ip();
+        Log::channel('activity')->info("country_resolving", ['ip' => $ip]);
 
         if (in_array($ip, ['127.0.0.1', '::1'], true)
             || strpos($ip, '192.168.') === 0
