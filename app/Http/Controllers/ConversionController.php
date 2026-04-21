@@ -236,6 +236,12 @@ class ConversionController extends Controller
             app(\App\Services\EmailService::class)->sendDownloadReady($user, $originalName, $downloadUrl, $tool, $locale);
         }
 
+        \Illuminate\Support\Facades\Log::channel('activity')->info('conversion_complete', [
+            'tool'     => $entry['tool'] ?? 'unknown',
+            'filename' => $originalName,
+            'user_id'  => $entry['user_id'] ?? null,
+        ]);
+
         // Save document to the shared `documents` table (same as conversie-pdf)
         $this->saveDocument($entry, $originalName, $outputExt, $outputPath);
 

@@ -139,6 +139,13 @@ class PaymentController extends Controller
         // Save Google Ads details (same as conversie-pdf / contract-kit)
         $this->saveGoogleAdsDetails(session('utm_params', []), $customer->id);
 
+        Log::channel('activity')->info('payment_step1_customer_created', [
+            'customer_id' => $customer->id,
+            'email'       => $email,
+            'ip'          => $request->ip(),
+            'from_ads'    => session('cameFromAds') ? true : false,
+        ]);
+
         return response()->json([
             'success'     => true,
             'customer_id' => $customer->id,
@@ -249,6 +256,12 @@ class PaymentController extends Controller
         } catch (\Throwable $e) {
             Log::warning('Subscription upsert failed', ['error' => $e->getMessage()]);
         }
+
+        Log::channel('activity')->info('payment_success', [
+            'customer_id' => $customerId,
+            'amount'      => session('vad.pricing.trial', 0.69),
+            'currency'    => session('vad.pricing.currency', 'EUR'),
+        ]);
 
         // Send emails after payment (same as conversie-pdf: registration + order)
         $customer = \App\Models\Customer::find($customerId);

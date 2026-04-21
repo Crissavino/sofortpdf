@@ -35,6 +35,13 @@ class UploadController extends Controller
         session()->put('upload_files', $fileIds);
         session()->put('upload_tool', $request->input('tool'));
 
+        \Illuminate\Support\Facades\Log::channel('activity')->info('file_upload', [
+            'tool'  => $request->input('tool'),
+            'files' => count($fileIds),
+            'ip'    => $request->ip(),
+            'names' => collect($fileIds)->pluck('original_name')->toArray(),
+        ]);
+
         return response()->json([
             'file_ids' => collect($fileIds)->pluck('id')->toArray(),
             'message' => 'Dateien erfolgreich hochgeladen.',
