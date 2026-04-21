@@ -56,6 +56,17 @@ Route::middleware(['paywall'])->prefix('api')->group(function () {
 
 // Polling endpoint for the confirmation page (no paywall, otherwise the
 // user couldn't check their own job status from a guest session).
+Route::post('/api/log/event', function (Request $request) {
+    $event = $request->input('event', 'unknown');
+    \Illuminate\Support\Facades\Log::channel('activity')->info("client_event", [
+        'event'   => $event,
+        'ip'      => $request->ip(),
+        'user'    => $request->user() ? $request->user()->id : null,
+        'path'    => $request->headers->get('referer', ''),
+    ]);
+    return response()->json(['ok' => true]);
+});
+
 Route::get('/api/convert/status/{id}', [ConversionController::class, 'status'])
      ->name('api.convert.status');
 

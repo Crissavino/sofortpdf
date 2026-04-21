@@ -1413,6 +1413,20 @@
         if (e.key === 'Escape' && root.classList.contains('spm-open')) close();
     });
 
+    // Track T&C details expand — log to backend activity.log
+    var tcDetails = root.querySelector('.spm-tc-details');
+    if (tcDetails) {
+        tcDetails.addEventListener('toggle', function() {
+            if (tcDetails.open) {
+                fetch('/api/log/event', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+                    body: JSON.stringify({ event: 'tc_details_viewed' })
+                }).catch(function() {});
+            }
+        });
+    }
+
     // Mobile preview toggle — opens the preview as an overlay on top of the
     // payment form. Any element with data-spm-preview-toggle triggers it
     // (the main button above the body and the close button inside the
