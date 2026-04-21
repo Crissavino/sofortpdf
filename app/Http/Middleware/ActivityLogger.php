@@ -26,6 +26,9 @@ class ActivityLogger
 
     public function handle(Request $request, Closure $next)
     {
+        $response = $next($request);
+
+        // Log after the response so ResolveVad has already set country_code
         if ($request->isMethod('GET') && !$request->is('api/*') && !$request->ajax()) {
             $path = $request->path();
             $type = $this->detectPageType($path);
@@ -45,7 +48,6 @@ class ActivityLogger
                 }
 
                 if ($type === 'tool_page') {
-                    // Extract tool name from path
                     $slug = preg_replace('#^[a-z]{2}/#', '', $path);
                     $data['tool'] = $slug;
                 }
@@ -60,7 +62,7 @@ class ActivityLogger
             }
         }
 
-        return $next($request);
+        return $response;
     }
 
     private function detectPageType(string $path): ?string
