@@ -49,6 +49,7 @@ class ToolController extends Controller
 
         return view($view, [
             'tool' => $tool,
+            'toolKey' => $tool,
             'toolConfig' => array_merge($toolConfig, $localeOverrides),
             'h1' => $h1,
             'h2' => $h2,

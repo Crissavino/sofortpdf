@@ -27,6 +27,73 @@ Route::get('/', function () {
 
 /*
 |--------------------------------------------------------------------------
+| Sitemap
+|--------------------------------------------------------------------------
+*/
+Route::get('/sitemap.xml', function () {
+    $baseUrl = 'https://sofortpdf.com';
+    $tools = config('tools');
+    $aliases = $tools['aliases'] ?? [];
+    unset($tools['aliases']);
+
+    $urls = [];
+
+    // Homepages
+    $urls[] = ['loc' => "{$baseUrl}/de", 'priority' => '1.0', 'changefreq' => 'daily'];
+    $urls[] = ['loc' => "{$baseUrl}/en", 'priority' => '0.8', 'changefreq' => 'daily'];
+
+    // Tool pages (only enabled)
+    $deSlugs = config('locales.tool_slugs.de', []);
+    $enSlugs = config('locales.tool_slugs.en', []);
+    foreach ($tools as $key => $tool) {
+        if (empty($tool['enabled'])) continue;
+        if (isset($deSlugs[$key])) {
+            $urls[] = ['loc' => "{$baseUrl}/de/{$deSlugs[$key]}", 'priority' => '0.9', 'changefreq' => 'weekly'];
+        }
+        if (isset($enSlugs[$key])) {
+            $urls[] = ['loc' => "{$baseUrl}/en/{$enSlugs[$key]}", 'priority' => '0.7', 'changefreq' => 'weekly'];
+        }
+    }
+
+    // Alias pages (DE)
+    foreach ($aliases as $aliasSlug => $aliasCfg) {
+        $parentTool = $aliasCfg['tool'] ?? '';
+        if ($parentTool && isset($tools[$parentTool]) && !empty($tools[$parentTool]['enabled'])) {
+            $urls[] = ['loc' => "{$baseUrl}/de/{$aliasSlug}", 'priority' => '0.6', 'changefreq' => 'weekly'];
+        }
+    }
+
+    // Static pages
+    $staticPages = [
+        ['de' => 'kontakt',    'en' => 'contact',    'priority' => '0.5'],
+        ['de' => 'impressum',  'en' => 'imprint',    'priority' => '0.3'],
+        ['de' => 'datenschutz','en' => 'privacy',    'priority' => '0.3'],
+        ['de' => 'agb',        'en' => 'terms',      'priority' => '0.3'],
+        ['de' => 'anmelden',   'en' => 'login',      'priority' => '0.4'],
+        ['de' => 'kuendigen',  'en' => 'cancel',     'priority' => '0.3'],
+        ['de' => 'cookie-richtlinie', 'en' => 'cookie-policy', 'priority' => '0.2'],
+    ];
+    foreach ($staticPages as $page) {
+        $urls[] = ['loc' => "{$baseUrl}/de/{$page['de']}", 'priority' => $page['priority'], 'changefreq' => 'monthly'];
+        $urls[] = ['loc' => "{$baseUrl}/en/{$page['en']}", 'priority' => (string)((float)$page['priority'] - 0.1), 'changefreq' => 'monthly'];
+    }
+
+    $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+    $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">' . "\n";
+    foreach ($urls as $u) {
+        $xml .= "  <url>\n";
+        $xml .= "    <loc>{$u['loc']}</loc>\n";
+        $xml .= "    <changefreq>{$u['changefreq']}</changefreq>\n";
+        $xml .= "    <priority>{$u['priority']}</priority>\n";
+        $xml .= "  </url>\n";
+    }
+    $xml .= '</urlset>';
+
+    return response($xml, 200, ['Content-Type' => 'application/xml']);
+});
+
+/*
+|--------------------------------------------------------------------------
 | Stripe Webhook (no locale, no CSRF)
 |--------------------------------------------------------------------------
 */
