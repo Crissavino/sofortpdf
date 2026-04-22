@@ -1413,16 +1413,13 @@
         if (e.key === 'Escape' && root.classList.contains('spm-open')) close();
     });
 
-    // Track T&C details expand — log to backend activity.log
+    // Track T&C details expand — GA4 event
     var tcDetails = root.querySelector('.spm-tc-details');
     if (tcDetails) {
         tcDetails.addEventListener('toggle', function() {
             if (tcDetails.open) {
-                fetch('/api/log/event', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
-                    body: JSON.stringify({ event: 'tc_details_viewed' })
-                }).catch(function() {});
+                window.dataLayer = window.dataLayer || [];
+                window.dataLayer.push({ event: 'tc_details_viewed' });
             }
         });
     }
