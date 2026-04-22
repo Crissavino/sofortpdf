@@ -789,6 +789,26 @@
                 <input type="file" id="file-input" class="hidden" accept="{{ $accept }}" {{ $multiple ? 'multiple' : '' }}>
             </div>
 
+            {{-- Trust badges under upload zone --}}
+            <div class="tool-stagger flex flex-wrap items-center justify-center gap-x-6 gap-y-2 mt-5 text-xs text-slate-400" style="--stagger: 3">
+                <span class="inline-flex items-center gap-1.5">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    {{ __('tool.trust_fast') }}
+                </span>
+                <span class="inline-flex items-center gap-1.5">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    {{ __('tool.trust_secure') }}
+                </span>
+                <span class="inline-flex items-center gap-1.5">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    {{ __('tool.trust_quality') }}
+                </span>
+                <span class="inline-flex items-center gap-1.5">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    {{ __('tool.trust_delete') }}
+                </span>
+            </div>
+
             {{-- ═══════ SECTION 2: FILE LIST ═══════ --}}
             <div id="file-list-wrapper" class="hidden">
                 <div id="file-list" class="mt-6 space-y-3"></div>
@@ -1018,6 +1038,26 @@
             {{-- Trust signals --}}
             <div class="tool-stagger mt-10" style="--stagger: 3">
                 @include('partials.trust-signals')
+            </div>
+        </div>
+    </section>
+
+    {{-- ═══════ SOCIAL PROOF STATS ═══════ --}}
+    <section class="bg-white border-b border-slate-100">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-3 gap-6 text-center">
+                <div class="observe-animate" data-delay="0">
+                    <p class="font-display font-extrabold text-3xl sm:text-4xl text-slate-900 tracking-tight">50K+</p>
+                    <p class="text-sm text-slate-400 mt-1">{{ __('tool.stat_docs') }}</p>
+                </div>
+                <div class="observe-animate" data-delay="80">
+                    <p class="font-display font-extrabold text-3xl sm:text-4xl text-slate-900 tracking-tight">12K+</p>
+                    <p class="text-sm text-slate-400 mt-1">{{ __('tool.stat_users') }}</p>
+                </div>
+                <div class="observe-animate" data-delay="160">
+                    <p class="font-display font-extrabold text-3xl sm:text-4xl text-slate-900 tracking-tight">99%</p>
+                    <p class="text-sm text-slate-400 mt-1">{{ __('tool.stat_quality') }}</p>
+                </div>
             </div>
         </div>
     </section>

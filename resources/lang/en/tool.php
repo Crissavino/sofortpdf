@@ -117,6 +117,17 @@ return [
     'maintenance_heading' => 'Maintenance',
     'maintenance_body' => 'This tool is temporarily unavailable. Please try again later.',
 
+    // Trust badges (under upload zone)
+    'trust_fast'       => 'Instant results',
+    'trust_secure'     => 'GDPR compliant',
+    'trust_quality'    => '100% quality',
+    'trust_delete'     => 'Files deleted after 1h',
+
+    // Social proof stats
+    'stat_docs'        => 'Documents converted',
+    'stat_users'       => 'Happy users',
+    'stat_quality'     => 'Quality guaranteed',
+
     // JS-side messages (used in inline <script>)
     'js_only_one_file' => 'Only one file allowed.',
     'js_max_files' => 'Maximum {n} files allowed at once.',

@@ -117,6 +117,17 @@ return [
     'maintenance_heading' => 'Wartungsarbeiten',
     'maintenance_body' => 'Dieses Werkzeug steht vorübergehend nicht zur Verfügung. Bitte versuchen Sie es später erneut.',
 
+    // Trust badges (under upload zone)
+    'trust_fast'       => 'Sofortergebnis',
+    'trust_secure'     => 'DSGVO-konform',
+    'trust_quality'    => '100% Qualität',
+    'trust_delete'     => 'Dateien nach 1h gelöscht',
+
+    // Social proof stats
+    'stat_docs'        => 'Dokumente konvertiert',
+    'stat_users'       => 'Zufriedene Nutzer',
+    'stat_quality'     => 'Qualität garantiert',
+
     // JS-side messages (used in inline <script>)
     'js_only_one_file' => 'Nur eine Datei erlaubt.',
     'js_max_files' => 'Maximal {n} Dateien gleichzeitig erlaubt.',
