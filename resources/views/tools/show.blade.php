@@ -762,10 +762,10 @@
 
             {{-- 2-column layout: benefits left + upload right (desktop)
                  Stacked on mobile: upload first, benefits below --}}
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+            <div id="hero-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
 
                 {{-- LEFT: Benefits (hidden on mobile, shown below upload on small screens) --}}
-                <div class="order-2 lg:order-1 tool-stagger" style="--stagger: 3">
+                <div id="benefits-col" class="order-2 lg:order-1 tool-stagger" style="--stagger: 3">
                     <div class="space-y-6 lg:pt-4">
                         <div class="flex items-start gap-4">
                             <div class="flex-shrink-0 w-10 h-10 rounded-xl {{ $c['icon-bg'] }} flex items-center justify-center">
@@ -843,7 +843,7 @@
                     </div>
 
                     {{-- Trust badges under upload zone --}}
-                    <div class="tool-stagger flex flex-wrap items-center justify-center gap-x-5 gap-y-2 mt-4 text-xs text-slate-400" style="--stagger: 3">
+                    <div id="upload-trust-badges" class="tool-stagger flex flex-wrap items-center justify-center gap-x-5 gap-y-2 mt-4 text-xs text-slate-400" style="--stagger: 3">
                         <span class="inline-flex items-center gap-1.5">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
                             {{ __('tool.trust_fast') }}
@@ -1319,6 +1319,9 @@
     const zone = document.getElementById('upload-zone');
     const fileInput = document.getElementById('file-input');
     const fileListWrapper = document.getElementById('file-list-wrapper');
+    const heroGrid = document.getElementById('hero-grid');
+    const benefitsCol = document.getElementById('benefits-col');
+    const uploadTrustBadges = document.getElementById('upload-trust-badges');
     const fileList = document.getElementById('file-list');
     const addMoreArea = document.getElementById('add-more-area');
     const actionArea = document.getElementById('action-area');
@@ -1450,10 +1453,19 @@
             zone.classList.remove('hidden', 'state-exit');
             zone.style.opacity = '';
             zone.style.transform = '';
+            // Restore 2-column layout with benefits
+            if (benefitsCol) benefitsCol.classList.remove('hidden');
+            if (uploadTrustBadges) uploadTrustBadges.classList.remove('hidden');
+            if (heroGrid) { heroGrid.classList.remove('lg:grid-cols-1'); heroGrid.classList.add('lg:grid-cols-2'); }
             if (mergeSortable) { mergeSortable.destroy(); mergeSortable = null; }
             previewCache.clear();
             return;
         }
+
+        // Hide benefits and switch to 1-column for file list
+        if (benefitsCol) benefitsCol.classList.add('hidden');
+        if (uploadTrustBadges) uploadTrustBadges.classList.add('hidden');
+        if (heroGrid) { heroGrid.classList.remove('lg:grid-cols-2'); heroGrid.classList.add('lg:grid-cols-1'); }
 
         // Fade out upload zone
         zone.classList.add('state-exit');
@@ -1948,6 +1960,10 @@
         zone.classList.remove('hidden', 'state-exit');
         zone.style.opacity = '';
         zone.style.transform = '';
+        // Restore 2-column layout with benefits
+        if (benefitsCol) benefitsCol.classList.remove('hidden');
+        if (uploadTrustBadges) uploadTrustBadges.classList.remove('hidden');
+        if (heroGrid) { heroGrid.classList.remove('lg:grid-cols-1'); heroGrid.classList.add('lg:grid-cols-2'); }
         processBtn.disabled = false;
         btnText.textContent = '{{ $actionLabel }}';
         btnSpinner.classList.add('hidden');
