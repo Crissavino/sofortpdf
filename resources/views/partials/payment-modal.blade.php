@@ -613,10 +613,15 @@
     .spm-card-badge {
         display: inline-flex; align-items: center; justify-content: center;
         width: 38px; height: 24px;
+        min-height: 24px; max-height: 24px;
         background: #fff;
         border: 1px solid #e5e7eb;
         border-radius: 4px;
         padding: 2px;
+        flex-shrink: 0;
+    }
+    .spm-card-badge svg {
+        flex-shrink: 0;
     }
 
     /* Mobile file summary (hidden on desktop) */
