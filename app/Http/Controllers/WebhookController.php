@@ -47,6 +47,11 @@ class WebhookController extends Controller
         }
 
         try {
+            Log::channel('activity')->info('webhook_received', [
+                'jack' => $isJack,
+                'ip'   => $request->ip(),
+            ]);
+
             $response = Http::timeout(15)->post("{$boBaseUri}/api/payments/stripe/webhooks", [
                 'stripeSignature' => $request->header('Stripe-Signature'),
                 'requestData'     => $request->getContent(),
