@@ -265,7 +265,7 @@
         display: flex; flex-direction: column;
         transform: translateY(20px) scale(0.98);
         transition: transform 260ms cubic-bezier(0.23, 1, 0.32, 1);
-        margin: 0 16px;
+        margin: auto 16px;
     }
     .spm-root.spm-open .spm-panel {
         transform: translateY(0) scale(1);
