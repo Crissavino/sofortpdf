@@ -1246,8 +1246,7 @@
             console.log('Step 3:', step3.status, step3Data);
             if (!step3Data.success) { fail('subscription', step3Data.message); return; }
 
-            // GTM: purchase event (GA4 ecommerce)
-            window.dataLayer.push({ event: 'payment_success' });
+            // GTM: purchase event (GA4 ecommerce + Google Ads conversion)
             window.dataLayer.push({
                 event: 'purchase',
                 ecommerce: {
