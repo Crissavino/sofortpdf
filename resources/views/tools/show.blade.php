@@ -827,10 +827,17 @@
                         <p class="font-display font-bold text-lg text-slate-700 mb-2">
                             {{ __('tool.drop_or_click') }}
                         </p>
-                        <p class="text-sm text-slate-400">
+                        <p class="text-sm text-slate-400 mb-5">
                             {{ __('tool.formats_label') }} {{ str_replace('.', '', str_replace(',', ', ', $accept)) }} &middot; Max. {{ env('MAX_UPLOAD_SIZE_MB', 50) }} MB
                             @if($multiple) &middot; {{ __('tool.up_to_files', ['n' => $maxFiles]) }} @endif
                         </p>
+
+                        {{-- CTA button --}}
+                        <span class="inline-flex items-center gap-2 px-8 py-3.5 {{ $c['btn'] }} text-white font-display font-bold text-sm rounded-xl shadow-lg pointer-events-none"
+                              style="box-shadow: 0 6px 16px -4px rgba(0,0,0,0.25);">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            {{ $actionLabel }}
+                        </span>
 
                         <input type="file" id="file-input" class="hidden" accept="{{ $accept }}" {{ $multiple ? 'multiple' : '' }}>
                     </div>
@@ -1083,10 +1090,7 @@
                 </div>
             </div>
 
-            {{-- Trust signals --}}
-            <div class="tool-stagger mt-10" style="--stagger: 3">
-                @include('partials.trust-signals')
-            </div>
+            {{-- Trust signals removed — benefits in left column cover these --}}
         </div>
     </section>
 
