@@ -69,25 +69,7 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
         </button>
 
-        {{-- Step progress bar (Form → Payment → Download) --}}
-        <div class="spm-steps">
-            <div class="spm-step is-current">
-                <span class="spm-step-dot">
-                    <svg class="spm-step-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                </span>
-                <span class="spm-step-label">{{ __('payment.step_1') }}</span>
-            </div>
-            <span class="spm-step-bar"></span>
-            <div class="spm-step">
-                <span class="spm-step-dot">2</span>
-                <span class="spm-step-label">{{ __('payment.step_2') }}</span>
-            </div>
-            <span class="spm-step-bar"></span>
-            <div class="spm-step">
-                <span class="spm-step-dot">3</span>
-                <span class="spm-step-label">{{ __('payment.step_3') }}</span>
-            </div>
-        </div>
+        {{-- Step progress bar removed — cleaner modal without it --}}
 
         {{-- Mobile-only toggle: preview is hidden by default on small screens
              so the payment form is immediately visible. Expands on tap. --}}
