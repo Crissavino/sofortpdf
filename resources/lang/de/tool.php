@@ -117,6 +117,16 @@ return [
     'maintenance_heading' => 'Wartungsarbeiten',
     'maintenance_body' => 'Dieses Werkzeug steht vorübergehend nicht zur Verfügung. Bitte versuchen Sie es später erneut.',
 
+    // Benefits (left column on desktop)
+    'benefit_fast_title'   => 'Blitzschnelle Verarbeitung',
+    'benefit_fast_desc'    => 'Ihre Dokumente werden in wenigen Sekunden verarbeitet. Kein Warten, keine Verzögerung.',
+    'benefit_secure_title' => 'Höchste Sicherheit',
+    'benefit_secure_desc'  => 'Ihre Dateien werden verschlüsselt übertragen und nach 1 Stunde automatisch gelöscht.',
+    'benefit_quality_title'=> 'Perfekte Qualität',
+    'benefit_quality_desc' => 'Formatierung und Layout bleiben vollständig erhalten — professionelle Ergebnisse garantiert.',
+    'benefit_free_title'   => 'Sofort loslegen',
+    'benefit_free_desc'    => 'Keine Installation, keine Registrierung. Direkt im Browser auf jedem Gerät nutzbar.',
+
     // Trust badges (under upload zone)
     'trust_fast'       => 'Sofortergebnis',
     'trust_secure'     => 'DSGVO-konform',

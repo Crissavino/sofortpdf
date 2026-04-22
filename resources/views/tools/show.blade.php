@@ -749,8 +749,8 @@
     <section class="relative overflow-hidden">
         <div class="absolute inset-0 bg-gradient-to-b {{ $c['gradient-from'] }} to-white pointer-events-none"></div>
 
-        <div class="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-20">
-            {{-- Headlines --}}
+        <div class="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-20">
+            {{-- Headlines (full width, centered) --}}
             <div class="text-center mb-10">
                 <h1 class="tool-stagger font-display font-extrabold text-4xl sm:text-5xl text-slate-900 tracking-tight leading-tight" style="--stagger: 0">
                     {{ $h1 }}
@@ -760,53 +760,101 @@
                 </h2>
             </div>
 
-            {{-- Upload Zone --}}
-            <div id="upload-zone"
-                 class="upload-zone upload-zone-pulse tool-stagger relative {{ $c['bg'] }} rounded-3xl border-2 border-dashed {{ $c['border'] }} min-h-[260px] flex flex-col items-center justify-center p-8 sm:p-12 text-center cursor-pointer"
-                 style="--stagger: 2"
-                 style="--zone-ring-color: var(--tw-ring-color)"
-                 data-accept="{{ $accept }}"
-                 data-multiple="{{ $multiple ? 'true' : 'false' }}"
-                 data-max-files="{{ $maxFiles }}"
-                 data-tool="{{ $tool }}"
-                 data-max-size="{{ env('MAX_UPLOAD_SIZE_MB', 50) }}"
-                 data-border-active="{{ $c['active'] }}"
-                 data-bg-active="{{ $c['bg'] }}">
+            {{-- 2-column layout: benefits left + upload right (desktop)
+                 Stacked on mobile: upload first, benefits below --}}
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
 
-                {{-- Icon circle --}}
-                <div class="icon-circle w-20 h-20 rounded-full {{ $c['icon-bg'] }} flex items-center justify-center mx-auto mb-5">
-                    @include('partials.tool-icon', ['icon' => $toolConfig['icon'] ?? 'default', 'size' => 'w-8 h-8'])
+                {{-- LEFT: Benefits (hidden on mobile, shown below upload on small screens) --}}
+                <div class="order-2 lg:order-1 tool-stagger" style="--stagger: 3">
+                    <div class="space-y-6 lg:pt-4">
+                        <div class="flex items-start gap-4">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-xl {{ $c['icon-bg'] }} flex items-center justify-center">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="{{ $c['icon'] }}"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                            </div>
+                            <div>
+                                <p class="font-display font-bold text-slate-800 text-sm">{{ __('tool.benefit_fast_title') }}</p>
+                                <p class="text-sm text-slate-400 mt-0.5 leading-relaxed">{{ __('tool.benefit_fast_desc') }}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-xl {{ $c['icon-bg'] }} flex items-center justify-center">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="{{ $c['icon'] }}"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                            </div>
+                            <div>
+                                <p class="font-display font-bold text-slate-800 text-sm">{{ __('tool.benefit_secure_title') }}</p>
+                                <p class="text-sm text-slate-400 mt-0.5 leading-relaxed">{{ __('tool.benefit_secure_desc') }}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-xl {{ $c['icon-bg'] }} flex items-center justify-center">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="{{ $c['icon'] }}"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                            </div>
+                            <div>
+                                <p class="font-display font-bold text-slate-800 text-sm">{{ __('tool.benefit_quality_title') }}</p>
+                                <p class="text-sm text-slate-400 mt-0.5 leading-relaxed">{{ __('tool.benefit_quality_desc') }}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-xl {{ $c['icon-bg'] }} flex items-center justify-center">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="{{ $c['icon'] }}"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                            </div>
+                            <div>
+                                <p class="font-display font-bold text-slate-800 text-sm">{{ __('tool.benefit_free_title') }}</p>
+                                <p class="text-sm text-slate-400 mt-0.5 leading-relaxed">{{ __('tool.benefit_free_desc') }}</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <p class="font-display font-bold text-lg text-slate-700 mb-2">
-                    {{ __('tool.drop_or_click') }}
-                </p>
-                <p class="text-sm text-slate-400">
-                    {{ __('tool.formats_label') }} {{ str_replace('.', '', str_replace(',', ', ', $accept)) }} &middot; Max. {{ env('MAX_UPLOAD_SIZE_MB', 50) }} MB
-                    @if($multiple) &middot; {{ __('tool.up_to_files', ['n' => $maxFiles]) }} @endif
-                </p>
+                {{-- RIGHT: Upload Zone --}}
+                <div class="order-1 lg:order-2">
+                    <div id="upload-zone"
+                         class="upload-zone upload-zone-pulse tool-stagger relative {{ $c['bg'] }} rounded-3xl border-2 border-dashed {{ $c['border'] }} min-h-[260px] flex flex-col items-center justify-center p-8 sm:p-12 text-center cursor-pointer"
+                         style="--stagger: 2"
+                         data-accept="{{ $accept }}"
+                         data-multiple="{{ $multiple ? 'true' : 'false' }}"
+                         data-max-files="{{ $maxFiles }}"
+                         data-tool="{{ $tool }}"
+                         data-max-size="{{ env('MAX_UPLOAD_SIZE_MB', 50) }}"
+                         data-border-active="{{ $c['active'] }}"
+                         data-bg-active="{{ $c['bg'] }}">
 
-                <input type="file" id="file-input" class="hidden" accept="{{ $accept }}" {{ $multiple ? 'multiple' : '' }}>
-            </div>
+                        {{-- Icon circle --}}
+                        <div class="icon-circle w-20 h-20 rounded-full {{ $c['icon-bg'] }} flex items-center justify-center mx-auto mb-5">
+                            @include('partials.tool-icon', ['icon' => $toolConfig['icon'] ?? 'default', 'size' => 'w-8 h-8'])
+                        </div>
 
-            {{-- Trust badges under upload zone --}}
-            <div class="tool-stagger flex flex-wrap items-center justify-center gap-x-6 gap-y-2 mt-5 text-xs text-slate-400" style="--stagger: 3">
-                <span class="inline-flex items-center gap-1.5">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                    {{ __('tool.trust_fast') }}
-                </span>
-                <span class="inline-flex items-center gap-1.5">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                    {{ __('tool.trust_secure') }}
-                </span>
-                <span class="inline-flex items-center gap-1.5">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                    {{ __('tool.trust_quality') }}
-                </span>
-                <span class="inline-flex items-center gap-1.5">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    {{ __('tool.trust_delete') }}
-                </span>
+                        <p class="font-display font-bold text-lg text-slate-700 mb-2">
+                            {{ __('tool.drop_or_click') }}
+                        </p>
+                        <p class="text-sm text-slate-400">
+                            {{ __('tool.formats_label') }} {{ str_replace('.', '', str_replace(',', ', ', $accept)) }} &middot; Max. {{ env('MAX_UPLOAD_SIZE_MB', 50) }} MB
+                            @if($multiple) &middot; {{ __('tool.up_to_files', ['n' => $maxFiles]) }} @endif
+                        </p>
+
+                        <input type="file" id="file-input" class="hidden" accept="{{ $accept }}" {{ $multiple ? 'multiple' : '' }}>
+                    </div>
+
+                    {{-- Trust badges under upload zone --}}
+                    <div class="tool-stagger flex flex-wrap items-center justify-center gap-x-5 gap-y-2 mt-4 text-xs text-slate-400" style="--stagger: 3">
+                        <span class="inline-flex items-center gap-1.5">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                            {{ __('tool.trust_fast') }}
+                        </span>
+                        <span class="inline-flex items-center gap-1.5">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                            {{ __('tool.trust_secure') }}
+                        </span>
+                        <span class="inline-flex items-center gap-1.5">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                            {{ __('tool.trust_quality') }}
+                        </span>
+                        <span class="inline-flex items-center gap-1.5">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            {{ __('tool.trust_delete') }}
+                        </span>
+                    </div>
+                </div>
             </div>
 
             {{-- ═══════ SECTION 2: FILE LIST ═══════ --}}

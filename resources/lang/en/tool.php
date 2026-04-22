@@ -117,6 +117,16 @@ return [
     'maintenance_heading' => 'Maintenance',
     'maintenance_body' => 'This tool is temporarily unavailable. Please try again later.',
 
+    // Benefits (left column on desktop)
+    'benefit_fast_title'   => 'Lightning-fast processing',
+    'benefit_fast_desc'    => 'Your documents are processed in seconds. No waiting, no delays.',
+    'benefit_secure_title' => 'Maximum security',
+    'benefit_secure_desc'  => 'Files are encrypted in transit and automatically deleted after 1 hour.',
+    'benefit_quality_title'=> 'Perfect quality',
+    'benefit_quality_desc' => 'Formatting and layout are fully preserved — professional results guaranteed.',
+    'benefit_free_title'   => 'Get started instantly',
+    'benefit_free_desc'    => 'No installation, no signup required. Works directly in your browser on any device.',
+
     // Trust badges (under upload zone)
     'trust_fast'       => 'Instant results',
     'trust_secure'     => 'GDPR compliant',
