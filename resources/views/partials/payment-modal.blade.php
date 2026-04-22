@@ -127,7 +127,7 @@
             </div>
 
             {{-- ═════ RIGHT: PAYMENT FORM ═════ --}}
-            <div class="spm-right">
+            <div class="spm-right" style="display:flex; flex-direction:column; justify-content:center;">
                 @php
                     // Formatted prices WITHOUT symbol (symbol goes once at the end of the big price)
                     $trialNum = $isEn ? number_format($trialPrice, 2, '.', ',') : number_format($trialPrice, 2, ',', '.');
