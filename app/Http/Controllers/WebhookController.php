@@ -25,7 +25,7 @@ class WebhookController extends Controller
      */
     public function handle(Request $request)
     {
-        return $this->forward($request, false, true);
+        return $this->forward($request, false, false);
     }
 
     /**
@@ -36,7 +36,7 @@ class WebhookController extends Controller
         return $this->forward($request, true, false);
     }
 
-    private function forward(Request $request, bool $isJack, bool $isAvocode)
+    private function forward(Request $request, bool $isJack, bool $isKiwi)
     {
         $boBaseUri = config('services.bo.base_uri');
         $siteId    = config('services.bo.website_id');
@@ -57,7 +57,7 @@ class WebhookController extends Controller
                 'requestData'     => $request->getContent(),
                 'siteId'          => $siteId,
                 'isJack'          => $isJack ? 'true' : 'false',
-                'isAvocode'       => $isAvocode ? 'true' : 'false',
+                'isKiwi'          => $isKiwi ? 'true' : 'false',
             ]);
 
             if (!$response->successful()) {
