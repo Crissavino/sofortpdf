@@ -165,10 +165,8 @@
                             {{ __('payment.secure_payment') }}
                         </span>
                         <span class="spm-card-brands">
-                            {{-- Visa --}}
-                            <span class="spm-card-badge"><svg width="28" height="10" viewBox="0 0 256 83" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M132.3 2.4l-15.6 78.4h-16.7L115.6 2.4h16.7zm66.2 50.6l8.8-24.2 5 24.2h-13.8zm18.6 27.8h15.5L218.8 2.4h-14.3c-3.2 0-5.9 1.9-7.1 4.7L170.6 80.8h17.5l3.5-9.6h21.4l2.1 9.6zM183 54.3c.1-20.5-28.3-21.6-28.1-30.8.1-2.8 2.7-5.7 8.5-6.5 2.9-.4 10.8-.7 19.8 3.4l3.5-16.4C182.5 2.5 177.2.8 170.6.8c-16.5 0-28.1 8.8-28.2 21.3-.1 9.3 8.3 14.5 14.6 17.5 6.5 3.1 8.7 5.1 8.7 7.9-.1 4.3-5.2 6.1-10 6.2-8.4.1-13.3-2.3-17.2-4.1l-3 14.3c3.9 1.8 11.1 3.4 18.6 3.5 17.5 0 29-8.6 29.1-22.1zM104.8 2.4L79.4 80.8H61.7L49.3 15.3c-.8-3-1.4-4.1-3.8-5.4C41.6 7.8 35.1 5.8 29.4 4.5l.4-2.1h28.3c3.6 0 6.8 2.4 7.7 6.5l7 37.2L90.1 2.4h14.7z" fill="#1434CB"/></svg></span>
-                            {{-- Mastercard --}}
-                            <span class="spm-card-badge"><svg width="28" height="18" viewBox="0 0 256 199" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="155.6" cy="99.4" r="99.4" fill="#F9A000"/><circle cx="100.4" cy="99.4" r="99.4" fill="#EB001B"/><path d="M128 19.3a99.2 99.2 0 0 1 27.6 80.1A99.2 99.2 0 0 1 128 179.5a99.2 99.2 0 0 1-27.6-80.1A99.2 99.2 0 0 1 128 19.3z" fill="#FF5F00"/></svg></span>
+                            <img src="https://js.stripe.com/v3/fingerprinted/img/visa-729c05c240c4bdb47b03ac81d9945bfe.svg" alt="Visa" class="spm-card-img">
+                            <img src="https://js.stripe.com/v3/fingerprinted/img/mastercard-4d8844094130711885b5e41b28c9848f.svg" alt="Mastercard" class="spm-card-img">
                         </span>
                     </div>
 
@@ -609,20 +607,10 @@
         font-size: 10px; color: #94a3b8;
     }
 
-    /* Card brand badges */
-    .spm-card-badge {
-        display: inline-flex; align-items: center; justify-content: center;
-        width: 38px; height: 24px;
-        background: #fff;
-        border: 1px solid #e5e7eb;
-        border-radius: 4px;
-        padding: 2px;
-        flex-shrink: 0;
-        overflow: hidden;
-    }
-    .spm-card-badge svg {
+    /* Card brand images (from Stripe CDN) */
+    .spm-card-img {
+        height: 24px;
         width: auto;
-        height: 14px;
         flex-shrink: 0;
     }
 
