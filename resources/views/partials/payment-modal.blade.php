@@ -331,7 +331,7 @@
         display: grid;
         grid-template-columns: 1fr;
         gap: 24px;
-        padding: 20px 28px 28px;
+        padding: 28px 28px 28px;
         overflow-y: auto;
     }
     @media (min-width: 720px) {
