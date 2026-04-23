@@ -199,9 +199,11 @@ class ConversionController extends Controller
 
         // Detect actual file type via magic bytes — the CS may report
         // output_extension=jpg but deliver a ZIP (multi-page pdf-to-jpg).
+        // Skip for Office formats (docx/xlsx/pptx) which are also ZIP archives.
+        $zipBasedFormats = ['zip', 'docx', 'xlsx', 'pptx'];
         if (file_exists($outputPath)) {
             $magic = file_get_contents($outputPath, false, null, 0, 4);
-            if ($magic === "PK\x03\x04" && strtolower($outputExt) !== 'zip') {
+            if ($magic === "PK\x03\x04" && !in_array(strtolower($outputExt), $zipBasedFormats, true)) {
                 $outputExt = 'zip';
                 $newPath = preg_replace('/\.[^.]+$/', '.zip', $outputPath);
                 rename($outputPath, $newPath);
