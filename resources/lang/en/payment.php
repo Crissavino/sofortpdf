@@ -27,12 +27,13 @@ return [
     'gdpr_badge' => 'GDPR compliant',
     'delete_badge' => 'Files deleted after 1h',
 
-    'form_full_name' => 'Full name',
-    'form_email' => 'Email address',
+    'form_full_name' => 'Cardholder name',
+    'form_email' => 'Email for your document',
     'form_card_details' => 'Card details',
     'form_encrypted' => 'Encrypted',
 
-    'pay_button' => 'Unlock now — :price',
+    'pay_button' => 'GET YOUR DOCUMENT NOW — :price',
+    'preview_link' => 'Preview',
     'processing' => 'Processing…',
 
     'tc_label' => 'I accept the Terms & Conditions.',

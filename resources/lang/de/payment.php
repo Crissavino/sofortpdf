@@ -27,12 +27,13 @@ return [
     'gdpr_badge' => 'DSGVO-konform',
     'delete_badge' => 'Dateien nach 1h gelöscht',
 
-    'form_full_name' => 'Vollständiger Name',
-    'form_email' => 'E-Mail-Adresse',
+    'form_full_name' => 'Karteninhaber',
+    'form_email' => 'E-Mail für Ihr Dokument',
     'form_card_details' => 'Kartendetails',
     'form_encrypted' => 'Verschlüsselt',
 
-    'pay_button' => 'Jetzt freischalten — :price',
+    'pay_button' => 'DOKUMENT JETZT ERHALTEN — :price',
+    'preview_link' => 'Vorschau',
     'processing' => 'Wird verarbeitet…',
 
     'tc_label' => 'Ich akzeptiere die AGB.',
