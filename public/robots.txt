@@ -3,5 +3,6 @@ Disallow: /api/
 Disallow: /download/
 Disallow: /dashboard/
 Disallow: /stripe/
+Disallow: /*/confirmation
 
 Sitemap: https://sofortpdf.com/sitemap.xml
