@@ -1439,6 +1439,13 @@
             file_count: selectedFiles.length,
         });
 
+        // Log to backend
+        fetch('/api/log/event', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+            body: JSON.stringify({ event: 'file_uploaded', tool: toolKey })
+        }).catch(function() {});
+
         // Tools with a page-picker render every page of the PDF once the
         // user uploads a file. Single-file tools only (config enforces it).
         if (pickerEl && selectedFiles.length > 0) {

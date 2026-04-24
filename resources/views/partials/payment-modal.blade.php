@@ -942,6 +942,14 @@
         window.dataLayer = window.dataLayer || [];
         window.dataLayer.push({ event: 'try_to_pay' });
 
+        // Log to backend
+        var _csrfPay = document.querySelector('meta[name="csrf-token"]');
+        fetch('/api/log/event', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': _csrfPay ? _csrfPay.content : '' },
+            body: JSON.stringify({ event: 'payment_attempted' })
+        }).catch(function() {});
+
         setLoading(true);
 
         function fail(error, msg) {
@@ -1107,6 +1115,14 @@
         // GTM: payment form opened
         window.dataLayer = window.dataLayer || [];
         window.dataLayer.push({ event: 'payment_form_opened' });
+
+        // Log to backend
+        var _csrf = document.querySelector('meta[name="csrf-token"]');
+        fetch('/api/log/event', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': _csrf ? _csrf.content : '' },
+            body: JSON.stringify({ event: 'payment_modal_opened' })
+        }).catch(function() {});
 
         initStripe().catch(function(e) { console.error('initStripe error:', e); showError(__m.errGeneric); });
     }
