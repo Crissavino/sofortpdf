@@ -123,7 +123,7 @@ Route::middleware(['paywall'])->prefix('api')->group(function () {
 
 // Polling endpoint for the confirmation page (no paywall, otherwise the
 // user couldn't check their own job status from a guest session).
-Route::post('/api/log/event', function (Request $request) {
+Route::post('/api/log/event', function (\Illuminate\Http\Request $request) {
     $event = $request->input('event', 'unknown');
     \Illuminate\Support\Facades\Log::channel('activity')->info("client_event", [
         'event'   => $event,
