@@ -97,7 +97,7 @@ class Customer extends Authenticatable
             if (in_array($status, ['canceled', 'cancelled', 'unpaid', 'incomplete_expired'])) {
                 return false;
             }
-            if (in_array($status, ['active', 'trialing'])) {
+            if (in_array($status, ['active', 'trialing', 'not_started'])) {
                 return true;
             }
         }
