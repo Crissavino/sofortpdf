@@ -85,30 +85,11 @@ class Customer extends Authenticatable
      */
     public function hasSofortpdfSubscription(): bool
     {
-        $websiteId = config('services.bo.website_id');
-        if (!$websiteId) {
-            return false;
-        }
-
-        // Check Stripe status via BO (source of truth)
-        $boStripe = $this->boStripeCustomer;
-        if ($boStripe) {
-            $status = $boStripe->stripe_subscription_status;
-            if (in_array($status, ['canceled', 'cancelled', 'unpaid', 'incomplete_expired'])) {
-                return false;
-            }
-            if (in_array($status, ['active', 'trialing', 'not_started'])) {
-                return true;
-            }
-        }
-
-        // Fallback to local subscriptions table
-        return $this->subscriptions()
-            ->where('website_id', $websiteId)
-            ->where(function ($q) {
-                $q->where('is_subscription_active', 1)
-                  ->orWhere('is_trial_active', 1);
-            })
+        // Same logic as conversie-pdf: payment_status_id = 2 means subscribed/active.
+        // This covers trial (status set to 2 at pay-trial) and active subscriptions.
+        // Status 3 = terminated/cancelled → no access.
+        return $this->payments()
+            ->where('payment_status_id', 2)
             ->exists();
     }
 
@@ -117,19 +98,16 @@ class Customer extends Authenticatable
      */
     public function getSubscriptionStatus(): string
     {
-        $boStripe = $this->boStripeCustomer;
-        if ($boStripe && $boStripe->stripe_subscription_status) {
-            return $boStripe->stripe_subscription_status;
+        $payment = $this->payments()->orderBy('id', 'desc')->first();
+        if (!$payment) return 'none';
+
+        // payment_status_id: 2=subscribed, 3=terminated, 4=pending, others=inactive
+        switch ($payment->payment_status_id) {
+            case 2: return 'active';
+            case 3: return 'canceled';
+            case 4: return 'pending';
+            default: return 'inactive';
         }
-
-        $websiteId = config('services.bo.website_id');
-        $sub = $this->subscriptions()->where('website_id', $websiteId)->latest('id')->first();
-
-        if (!$sub) return 'none';
-        if ($sub->cancelled_at) return 'canceled';
-        if ($sub->is_trial_active) return 'trialing';
-        if ($sub->is_subscription_active) return 'active';
-        return 'inactive';
     }
 
     /**
