@@ -1452,6 +1452,40 @@
         if (pickerEl && selectedFiles.length > 0) {
             initPagePicker(selectedFiles[0]).catch(function() { /* ignore */ });
         }
+
+        // Auto-start: para tools de un solo archivo sin page-picker ni
+        // params visibles, disparar la conversión automáticamente.
+        // El usuario subir un archivo == intención de convertir; el botón
+        // intermedio sólo agrega fricción. Para tools con params (protect,
+        // unlock, watermark, ocr) o page-picker (split, remove-pages,
+        // extract-pages, rotate) el usuario sigue tocando el botón manual.
+        var visibleParams = Array.from(document.querySelectorAll('[data-tool-param]'))
+            .filter(function(el) {
+                if (el.id === 'page-picker-value') return false;
+                if (el.type === 'hidden') return false;
+                return true;
+            });
+
+        var canAutoStart = !allowMultiple
+            && !pickerEl
+            && visibleParams.length === 0
+            && selectedFiles.length === 1;
+
+        if (canAutoStart) {
+            // Loading visible en el botón durante el delay. processBtn.click()
+            // luego sobreescribe btnText con __t.processing al disparar la
+            // conversión real.
+            btnText.textContent = __t.startingConversion;
+            btnArrow.classList.add('hidden');
+            btnSpinner.classList.remove('hidden');
+
+            // 600ms: 200ms cubre el fade de la upload zone (renderFileList),
+            // los 400ms restantes le dan al usuario tiempo a ver su archivo
+            // en la lista antes de transicionar a processing/paywall.
+            setTimeout(function() {
+                processBtn.click();
+            }, 600);
+        }
     }
 
     /* ── Render file list with stagger ── */
