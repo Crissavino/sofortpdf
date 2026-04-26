@@ -1314,7 +1314,7 @@
 (function() {
     // GTM: tool page view
     window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({ event: 'tool_view', tool: '{{ $tool["key"] ?? "" }}' });
+    window.dataLayer.push({ event: 'tool_view', tool: '{{ $tool }}' });
 
     const __t = @json($jsMessages);
     const zone = document.getElementById('upload-zone');
@@ -1403,6 +1403,20 @@
 
     fileInput.addEventListener('change', function() { handleFiles(fileInput.files); });
 
+    /* ── Click on file-card → trigger processBtn ── */
+    // Mismo razonamiento que el auto-start: el usuario que clickea la card
+    // está expresando intención de convertir. Para tools que NO auto-arrancan
+    // (merge, picker, params) la card era un dead zone que confundía. Para
+    // tools que SÍ auto-arrancan es redundante pero inofensivo.
+    // En merge mode se usa .merge-card con drag handles — ahí no aplicamos.
+    fileList.addEventListener('click', function(e) {
+        if (mergeMode) return;
+        if (e.target.closest('.btn-remove')) return;
+        var card = e.target.closest('.file-card');
+        if (!card) return;
+        processBtn.click();
+    });
+
     /* ── Handle files ── */
     function handleFiles(files) {
         var arr = Array.from(files);
@@ -1436,7 +1450,7 @@
         window.dataLayer = window.dataLayer || [];
         window.dataLayer.push({
             event: 'file_upload',
-            tool: '{{ $tool["key"] ?? "" }}',
+            tool: '{{ $tool }}',
             file_count: selectedFiles.length,
         });
 
@@ -1475,8 +1489,12 @@
             // Loading visible en el botón durante el delay. processBtn.click()
             // luego sobreescribe btnText con __t.processing al disparar la
             // conversión real.
+            // btn-arrow se re-fetchea porque lucide.createIcons() (llamado
+            // desde renderFileList más arriba) reemplaza el SVG y deja el
+            // const `btnArrow` apuntando a un elemento detached.
             btnText.textContent = __t.startingConversion;
-            btnArrow.classList.add('hidden');
+            var btnArrowLive = document.getElementById('btn-arrow');
+            if (btnArrowLive) btnArrowLive.classList.add('hidden');
             btnSpinner.classList.remove('hidden');
 
             // 600ms: 200ms cubre el fade de la upload zone (renderFileList),
@@ -1826,7 +1844,7 @@
     /* ── Linear list renderer (all tools except merge) ── */
     function renderLinearList() {
         fileList.innerHTML = selectedFiles.map(function(f, idx) {
-            return '<div class="file-card flex items-center justify-between bg-white rounded-xl px-5 py-4 border border-slate-100 shadow-sm" data-index="' + idx + '">' +
+            return '<div class="file-card flex items-center justify-between bg-white rounded-xl px-5 py-4 border border-slate-100 shadow-sm cursor-pointer" data-index="' + idx + '">' +
                 '<div class="flex items-center gap-3.5 min-w-0">' +
                     '<div class="w-10 h-10 rounded-xl {{ $c["icon-bg"] }} flex items-center justify-center flex-shrink-0">' +
                         '<i data-lucide="file-text" class="w-5 h-5 {{ $c["icon"] }}"></i>' +
@@ -2019,7 +2037,7 @@
 
         // GTM: conversion started
         window.dataLayer = window.dataLayer || [];
-        window.dataLayer.push({ event: 'conversion_started', tool: '{{ $tool["key"] ?? "" }}' });
+        window.dataLayer.push({ event: 'conversion_started', tool: '{{ $tool }}' });
 
         // Paywall gate — open the payment modal instead of redirecting,
         // so the already-selected files + drag order stay intact. We
