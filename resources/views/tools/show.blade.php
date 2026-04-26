@@ -1283,15 +1283,16 @@
 
 @php
     $jsMessages = [
-        'onlyOneFile'      => __('tool.js_only_one_file'),
-        'maxFiles'         => __('tool.js_max_files'),
-        'fileTooLarge'     => __('tool.js_file_too_large'),
-        'addAnotherFile'   => __('tool.js_add_another'),
-        'processing'       => __('tool.processing'),
-        'uploadFailed'     => __('tool.js_upload_failed'),
-        'conversionFailed' => __('tool.js_conversion_failed'),
-        'genericError'     => __('tool.error_generic'),
-        'paramRequired'    => __('tool.param_required_error'),
+        'onlyOneFile'        => __('tool.js_only_one_file'),
+        'maxFiles'           => __('tool.js_max_files'),
+        'fileTooLarge'       => __('tool.js_file_too_large'),
+        'addAnotherFile'     => __('tool.js_add_another'),
+        'processing'         => __('tool.processing'),
+        'startingConversion' => __('tool.js_starting_conversion'),
+        'uploadFailed'       => __('tool.js_upload_failed'),
+        'conversionFailed'   => __('tool.js_conversion_failed'),
+        'genericError'       => __('tool.error_generic'),
+        'paramRequired'      => __('tool.param_required_error'),
     ];
     // Built here to sidestep Blade's parser truncating @json with inline
     // multi-line arrays + nested __() calls (we've seen this before).
