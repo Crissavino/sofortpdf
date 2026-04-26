@@ -8,6 +8,7 @@ return [
 
     // Processing
     'processing' => 'Wird verarbeitet…',
+    'js_starting_conversion' => 'Konvertierung wird gestartet…',
     'please_wait' => 'Bitte warten Sie, wir bereiten Ihr Dokument vor.',
     'loading_step_1' => 'Ihr Dokument wird geladen.',
     'loading_step_2' => 'Ihr Dokument wird konvertiert.',
