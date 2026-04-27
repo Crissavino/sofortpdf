@@ -16,6 +16,12 @@ return [
     'loading_converting' => ':tool — wird verarbeitet.',
     'loading_signing' => 'Ihre Unterschrift wird verarbeitet.',
 
+    // Fake conversion loading modal (paywall flow)
+    'fake_loading_title'  => 'Konvertierung läuft, bitte einen Moment Geduld',
+    'fake_loading_step_1' => 'Dokument wird hochgeladen',
+    'fake_loading_step_2' => 'Dokument wird konvertiert',
+    'fake_loading_step_3' => 'Dokument wird gesichert',
+
     // Done / download
     'done' => 'Fertig!',
     'ready_for_download' => 'Ihre Datei ist bereit zum Herunterladen.',
