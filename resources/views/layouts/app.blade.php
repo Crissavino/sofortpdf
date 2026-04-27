@@ -364,6 +364,9 @@
     {{-- Payment modal (rendered globally, opened on demand by tool JS) --}}
     @include('partials.payment-modal')
 
+    {{-- Fake conversion loading modal (paywall flow, opened by __sofortpdfShowLoadingThenPay) --}}
+    @include('partials.loading-modal')
+
     {{-- Global paywall flags for client-side gating --}}
     <script>
         window.sofortpdfPaywall = {
@@ -396,12 +399,33 @@
         window.dataLayer.push({ event: '{{ session("gtm_event") }}' });
         @endif
 
-        // Global helper: open payment modal directly.
-        // No fake loading animation — opens the modal immediately so the
-        // user sees the payment form without deceptive progress bars.
+        // Global helper: show fake conversion loading (~3.5s) then open
+        // the payment modal. Mirrors the conversie-pdf pattern — gives
+        // paywall users the perception that their document is being
+        // processed before the payment ask, which lifted conversion in
+        // A/B testing on conversie-pdf. Paid users skip this entirely
+        // (their flow goes through the real processing-state UI in
+        // tools/show.blade.php).
         window.__sofortpdfShowLoadingThenPay = function(files, onSuccess, stepLabel) {
-            if (window.SofortpdfPaymentModal) {
-                window.SofortpdfPaymentModal.open({ files: files, onSuccess: onSuccess });
+            function openPayment() {
+                if (window.SofortpdfPaymentModal) {
+                    window.SofortpdfPaymentModal.open({ files: files, onSuccess: onSuccess });
+                }
+            }
+
+            if (window.SofortpdfLoadingModal) {
+                window.SofortpdfLoadingModal.run({
+                    duration: 3500,
+                    onDone: function() {
+                        window.SofortpdfLoadingModal.hide();
+                        openPayment();
+                    },
+                });
+            } else {
+                // Defensive fallback: if the loading partial failed to
+                // load, skip straight to the modal so the paywall still
+                // works.
+                openPayment();
             }
         };
     </script>
