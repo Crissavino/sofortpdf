@@ -842,14 +842,10 @@
                 paypalNotice.style.animation = '';
             }
 
-            // Drop the user into the card form so they can recover.
-            var cardNumberContainer = root.querySelector('#spm-card-number');
-            if (cardNumberContainer) {
-                cardNumberContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-            if (cardNumberElement && typeof cardNumberElement.focus === 'function') {
-                setTimeout(function() { cardNumberElement.focus(); }, 250);
-            }
+            // No auto-scroll: with the inline notice (instead of the
+            // blocking alert) the user can read and choose to fill the
+            // card form themselves. Auto-scrolling to the card field
+            // pushed the notice out of view, which defeated the point.
         });
     }
 
