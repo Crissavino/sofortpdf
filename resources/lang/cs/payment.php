@@ -32,7 +32,7 @@ return [
     'form_card_details' => 'Údaje karty',
     'form_encrypted' => 'Šifrované',
 
-    'pay_button' => 'ZÍSKAT DOKUMENT NYNÍ — :price',
+    'pay_button' => 'Získat dokument nyní!',
     'preview_link' => 'Náhled',
     'processing' => 'Zpracování…',
 

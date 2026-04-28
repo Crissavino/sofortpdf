@@ -32,7 +32,7 @@ return [
     'form_card_details' => 'Kártyaadatok',
     'form_encrypted' => 'Titkosított',
 
-    'pay_button' => 'KAPJA MEG A DOKUMENTUMOT MOST — :price',
+    'pay_button' => 'Kapja meg most a dokumentumot!',
     'preview_link' => 'Előnézet',
     'processing' => 'Feldolgozás…',
 

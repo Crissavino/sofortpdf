@@ -32,7 +32,7 @@ return [
     'form_card_details' => 'Card details',
     'form_encrypted' => 'Encrypted',
 
-    'pay_button' => 'GET YOUR DOCUMENT NOW — :price',
+    'pay_button' => 'Get Document Now!',
     'preview_link' => 'Preview',
     'processing' => 'Processing…',
 

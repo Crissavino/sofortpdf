@@ -18,25 +18,38 @@ use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| Root redirect → locale based on Accept-Language (fallback to default)
+| Root redirect → locale based on IP geolocation
+|
+| Maps the visitor's country to a supported locale; anything outside that
+| mapping falls back to the default ('en'). 302 (not 301) so we can flip
+| the mapping later without users being stuck via permanent-redirect
+| browser caching. GetIpInformation caches per-IP for 30 days, so the
+| geolocation API is only hit on first visit per IP.
 |--------------------------------------------------------------------------
 */
 Route::get('/', function () {
+    $default = config('locales.default', 'en');
     $supported = config('locales.supported', ['en']);
-    $default   = config('locales.default', 'en');
-    $accept    = (string) request()->header('Accept-Language', '');
 
-    // Walk Accept-Language tags in priority order (e.g. "hu-HU,hu;q=0.9,en;q=0.8")
-    // and pick the first whose primary subtag matches a supported locale.
+    // Country code (ISO 3166-1 alpha-2, uppercase) → site locale.
+    // Anything not listed falls through to $default.
+    $countryToLocale = [
+        'DE' => 'de', 'AT' => 'de', 'CH' => 'de', 'LI' => 'de',
+        'HU' => 'hu',
+        'CZ' => 'cs',
+    ];
+
     $detected = $default;
-    foreach (explode(',', $accept) as $part) {
-        $tag = strtolower(trim(explode(';', $part)[0] ?? ''));
-        if ($tag === '') continue;
-        $primary = explode('-', $tag)[0];
-        if (in_array($primary, $supported, true)) {
-            $detected = $primary;
-            break;
+    try {
+        $cc = \App\Classes\GetIpInformation::get(request()->ip(), 'countryCode');
+        if ($cc) {
+            $cc = strtoupper((string) $cc);
+            if (isset($countryToLocale[$cc]) && in_array($countryToLocale[$cc], $supported, true)) {
+                $detected = $countryToLocale[$cc];
+            }
         }
+    } catch (\Throwable $e) {
+        // Geolocation failed — silently fall through to default.
     }
 
     return redirect("/{$detected}", 302);

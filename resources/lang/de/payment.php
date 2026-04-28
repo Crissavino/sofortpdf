@@ -32,7 +32,7 @@ return [
     'form_card_details' => 'Kartendetails',
     'form_encrypted' => 'Verschlüsselt',
 
-    'pay_button' => 'DOKUMENT JETZT ERHALTEN — :price',
+    'pay_button' => 'Dokument jetzt sichern!',
     'preview_link' => 'Vorschau',
     'processing' => 'Wird verarbeitet…',
 
