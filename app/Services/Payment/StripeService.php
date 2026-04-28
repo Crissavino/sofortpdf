@@ -25,9 +25,27 @@ class StripeService
 {
     /**
      * The Stripe account for this website (test or live depending on env).
+     *
+     * Honors the VAD routing decision: if the resolved BoVadProduct points
+     * to a specific account_id, that account wins. Falls back to the first
+     * stripe account matching website + env when no VAD route is active
+     * (first visit before middleware runs, etc.).
+     *
+     * Without this VAD-aware lookup, sites with multiple stripe accounts
+     * per website (different VAD entities — e.g. Avocode SRL + JackCode
+     * FZE for sofortpdf) would always charge via the lowest-id account
+     * regardless of which VAD the router selected.
      */
     public function getStripeAccount(): ?BoStripeAccount
     {
+        $vadProduct = $this->getVadProduct();
+        if ($vadProduct && $vadProduct->account_id) {
+            $account = BoStripeAccount::find($vadProduct->account_id);
+            if ($account) {
+                return $account;
+            }
+        }
+
         $websiteId = config('services.bo.website_id');
         $isTest    = app()->environment('local', 'testing');
 
