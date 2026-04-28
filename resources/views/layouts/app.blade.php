@@ -413,11 +413,21 @@
                 }
             }
 
+            // Skip the fake loading animation if it already ran for the
+            // current upload session — replaying it after the user
+            // dismisses the payment modal feels deceptive and wastes
+            // their time. Resets when handleFiles() fires a new upload.
+            if (window.__sofortpdfLoadingShown) {
+                openPayment();
+                return;
+            }
+
             if (window.SofortpdfLoadingModal) {
                 window.SofortpdfLoadingModal.run({
                     files: files,
                     duration: 3500,
                     onDone: function() {
+                        window.__sofortpdfLoadingShown = true;
                         window.SofortpdfLoadingModal.hide();
                         openPayment();
                     },

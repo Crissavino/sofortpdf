@@ -1420,6 +1420,11 @@
     function handleFiles(files) {
         var arr = Array.from(files);
 
+        // New upload session — let the fake loading run again on the
+        // next paywall trigger. (Set BEFORE validation early-returns so
+        // a rejected upload doesn't poison the next valid one's flag.)
+        window.__sofortpdfLoadingShown = false;
+
         if (!allowMultiple && arr.length > 1) {
             showError(__t.onlyOneFile);
             return;
