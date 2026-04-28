@@ -722,26 +722,25 @@
     }
 </style>
 
-@if ($tool === 'merge' || ! empty($toolConfig['page_picker'] ?? null))
-    {{-- PDF.js needed for: merge grid thumbnails + page-picker grids (remove/
-         extract pages). SortableJS is merge-specific. --}}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    @if ($tool === 'merge')
-        <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
-    @endif
-    <script>
-        // cdnjs's pdf.js exposes two globals: window['pdfjs-dist/build/pdf']
-        // (CommonJS name) and window.pdfjsLib. Either may be present or
-        // partially initialized — guard everything.
-        try {
-            var __pdfLib = window['pdfjs-dist/build/pdf'] || window.pdfjsLib;
-            if (__pdfLib && __pdfLib.GlobalWorkerOptions) {
-                __pdfLib.GlobalWorkerOptions.workerSrc =
-                    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-            }
-        } catch (e) { /* ignore */ }
-    </script>
+{{-- PDF.js: needed for merge grid thumbnails, page-picker grids, and
+     loading modal preview thumbnails. Loaded on every tool page so the
+     paywall loading modal has access regardless of tool. --}}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+@if ($tool === 'merge')
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 @endif
+<script>
+    // cdnjs's pdf.js exposes two globals: window['pdfjs-dist/build/pdf']
+    // (CommonJS name) and window.pdfjsLib. Either may be present or
+    // partially initialized — guard everything.
+    try {
+        var __pdfLib = window['pdfjs-dist/build/pdf'] || window.pdfjsLib;
+        if (__pdfLib && __pdfLib.GlobalWorkerOptions) {
+            __pdfLib.GlobalWorkerOptions.workerSrc =
+                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
+    } catch (e) { /* ignore */ }
+</script>
 @endpush
 
 @section('content')
