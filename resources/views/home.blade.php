@@ -260,9 +260,13 @@
             </div>
 
             @php
+                // EN uses period-as-decimal; every other supported
+                // locale (DE, HU, CS) uses comma. Keep this in sync
+                // with payment-modal.blade.php.
+                $decimalSep = app()->getLocale() === 'en' ? '.' : ',';
                 $faqPricing = [
-                    'trial_price' => number_format($pricing['trial'], 2, app()->getLocale() === 'de' ? ',' : '.', ''),
-                    'sub_price'   => number_format($pricing['subscription'], 2, app()->getLocale() === 'de' ? ',' : '.', ''),
+                    'trial_price' => number_format($pricing['trial'], 2, $decimalSep, ''),
+                    'sub_price'   => number_format($pricing['subscription'], 2, $decimalSep, ''),
                     'currency'    => $pricing['symbol'],
                 ];
                 $homeFaqs = [];
@@ -311,13 +315,19 @@
             <div class="mt-10 inline-flex flex-col items-center bg-white/10 backdrop-blur-md rounded-3xl px-10 py-8 ring-1 ring-white/20">
                 <span class="text-brand-100 text-sm font-medium uppercase tracking-wider mb-2">{{ __('home.cta_try_now') }}</span>
                 <div class="flex items-baseline gap-2">
+                    @php
+                        // BCP-47 tag for the count-up animation's
+                        // Intl.NumberFormat. Mirrors $decimalSep above.
+                        $bcp47Map = ['de' => 'de-DE', 'en' => 'en-US', 'hu' => 'hu-HU', 'cs' => 'cs-CZ'];
+                        $jsLocale = $bcp47Map[app()->getLocale()] ?? 'en-US';
+                    @endphp
                     @if(($pricing['trial_marketing'] ?? 0) > ($pricing['trial'] ?? 0))
-                        <span class="font-display font-bold text-2xl text-brand-300 line-through opacity-60">{{ number_format($pricing['trial_marketing'], 2, app()->getLocale() === 'de' ? ',' : '.', '') }} {{ $pricing['symbol'] }}</span>
+                        <span class="font-display font-bold text-2xl text-brand-300 line-through opacity-60">{{ number_format($pricing['trial_marketing'], 2, $decimalSep, '') }} {{ $pricing['symbol'] }}</span>
                     @endif
                     <span class="font-display font-extrabold text-5xl sm:text-6xl text-white"
                           data-countup="{{ $pricing['trial'] }}"
                           data-decimals="2"
-                          data-locale="{{ app()->getLocale() === 'de' ? 'de-DE' : 'en-US' }}">{{ number_format($pricing['trial'], 2, app()->getLocale() === 'de' ? ',' : '.', '') }}</span>
+                          data-locale="{{ $jsLocale }}">{{ number_format($pricing['trial'], 2, $decimalSep, '') }}</span>
                     <span class="font-display font-bold text-2xl text-brand-200">{{ $pricing['symbol'] }}</span>
                 </div>
                 <span class="text-brand-200 text-sm mt-1">{{ __('home.cta_trial_days', ['days' => config('services.stripe.trial_days', 2)]) }}</span>

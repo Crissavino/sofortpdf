@@ -19,7 +19,7 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('contact.send.' . app()->getLocale()) }}" class="space-y-5">
+            <form method="POST" action="/{{ app()->getLocale() }}/{{ config('locales.contact_slugs.' . app()->getLocale(), 'contact') }}" class="space-y-5">
                 @csrf
 
                 {{-- Honeypot: visually hidden, bots fill it --}}

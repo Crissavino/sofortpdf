@@ -29,8 +29,17 @@ class ToolController extends Controller
             ]);
         }
 
-        // Merge locale-specific overrides (English from tools_en config, German stays as default)
-        $localeOverrides = ($locale !== 'de') ? config("tools_{$locale}.{$tool}", []) : [];
+        // Merge locale-specific overrides. DE is the canonical source
+        // (config/tools.php). Every other locale chains through its
+        // own override file → EN → DE so a missing translation never
+        // falls through to German for an English-speaking visitor.
+        $localeOverrides = [];
+        if ($locale !== 'de') {
+            $primary = config("tools_{$locale}.{$tool}", []);
+            $fallback = config("tools_en.{$tool}", []);
+            // Primary keys win, EN fills any gaps, DE (in $toolConfig) covers the rest.
+            $localeOverrides = array_filter($primary) + array_filter($fallback);
+        }
 
         $h1 = $localeOverrides['h1'] ?? $toolConfig['h1'] ?? $pageTitle;
         $h2 = $localeOverrides['h2'] ?? $toolConfig['h2'] ?? $toolConfig['description'] ?? '';

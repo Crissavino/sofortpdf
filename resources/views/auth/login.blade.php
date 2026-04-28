@@ -8,7 +8,7 @@
         <div class="bg-white rounded-lg shadow-md p-8">
             <h2 class="text-2xl font-bold text-center text-gray-900 mb-8">{{ __('auth_ui.login_heading') }}</h2>
 
-            <form method="POST" action="/{{ app()->getLocale() }}/{{ app()->getLocale() === 'de' ? 'anmelden' : 'login' }}">
+            <form method="POST" action="/{{ app()->getLocale() }}/{{ config('locales.auth_slugs.' . app()->getLocale() . '.login', 'login') }}">
                 @csrf
 
                 {{-- E-Mail --}}

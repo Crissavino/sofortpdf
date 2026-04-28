@@ -229,19 +229,31 @@
                 {{-- Auth + Language --}}
                 <div class="flex items-center gap-2">
                     {{-- Language selector --}}
+                    @php
+                        $localeMeta = [
+                            'de' => ['flag' => '🇩🇪', 'label' => 'Deutsch'],
+                            'en' => ['flag' => '🇬🇧', 'label' => 'English'],
+                            'hu' => ['flag' => '🇭🇺', 'label' => 'Magyar'],
+                            'cs' => ['flag' => '🇨🇿', 'label' => 'Čeština'],
+                        ];
+                        $supportedLocales = config('locales.supported', ['en']);
+                        $currentMeta = $localeMeta[$loc] ?? $localeMeta['en'];
+                    @endphp
                     <div class="relative group">
                         <button class="flex items-center gap-1.5 px-2.5 py-1.5 text-sm font-medium text-slate-500 hover:text-slate-700 rounded-lg hover:bg-slate-50 transition-colors">
-                            <span class="text-base leading-none">{{ $loc === 'de' ? '🇩🇪' : '🇬🇧' }}</span>
+                            <span class="text-base leading-none">{{ $currentMeta['flag'] }}</span>
                             <span class="hidden sm:inline">{{ strtoupper($loc) }}</span>
                             <i data-lucide="chevron-down" class="w-3 h-3 opacity-50"></i>
                         </button>
                         <div class="absolute top-full right-0 mt-1 w-40 bg-white rounded-xl shadow-xl shadow-slate-200/50 border border-slate-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 py-1 z-50">
-                            <a href="{{ \App\Services\LocaleHelper::switchLocaleUrl('de') }}" class="flex items-center gap-2.5 px-3 py-2 text-sm {{ $loc === 'de' ? 'text-brand-600 bg-brand-50 font-medium' : 'text-slate-600 hover:bg-slate-50' }} transition-colors">
-                                <span class="text-base leading-none">🇩🇪</span> Deutsch
-                            </a>
-                            <a href="{{ \App\Services\LocaleHelper::switchLocaleUrl('en') }}" class="flex items-center gap-2.5 px-3 py-2 text-sm {{ $loc === 'en' ? 'text-brand-600 bg-brand-50 font-medium' : 'text-slate-600 hover:bg-slate-50' }} transition-colors">
-                                <span class="text-base leading-none">🇬🇧</span> English
-                            </a>
+                            @foreach ($supportedLocales as $supLoc)
+                                @php $meta = $localeMeta[$supLoc] ?? null; @endphp
+                                @if ($meta)
+                                    <a href="{{ \App\Services\LocaleHelper::switchLocaleUrl($supLoc) }}" class="flex items-center gap-2.5 px-3 py-2 text-sm {{ $loc === $supLoc ? 'text-brand-600 bg-brand-50 font-medium' : 'text-slate-600 hover:bg-slate-50' }} transition-colors">
+                                        <span class="text-base leading-none">{{ $meta['flag'] }}</span> {{ $meta['label'] }}
+                                    </a>
+                                @endif
+                            @endforeach
                         </div>
                     </div>
 
@@ -340,8 +352,8 @@
                         <li><a href="/{{ $fLoc }}/{{ config("locales.legal_slugs.{$fLoc}.privacy") }}" class="hover:text-white transition-colors">{{ __('layout.footer_privacy') }}</a></li>
                         <li><a href="/{{ $fLoc }}/{{ config("locales.legal_slugs.{$fLoc}.terms") }}" class="hover:text-white transition-colors">{{ __('layout.footer_terms') }}</a></li>
                         <li><a href="/{{ $fLoc }}/{{ config("locales.contact_slugs.{$fLoc}") }}" class="hover:text-white transition-colors">{{ __('contact_ui.footer_link') }}</a></li>
-                        <li><a href="/{{ $fLoc }}/{{ $fLoc === 'de' ? 'cookie-richtlinie' : 'cookie-policy' }}" class="hover:text-white transition-colors">{{ __('legal.cookies_heading') }}</a></li>
-                        <li><a href="/{{ $fLoc }}/{{ $fLoc === 'de' ? 'kuendigen' : 'cancel' }}" class="hover:text-white transition-colors">{{ $fLoc === 'de' ? 'Kündigen' : 'Cancel' }}</a></li>
+                        <li><a href="/{{ $fLoc }}/{{ config("locales.legal_slugs.{$fLoc}.cookies", 'cookie-policy') }}" class="hover:text-white transition-colors">{{ __('legal.cookies_heading') }}</a></li>
+                        <li><a href="/{{ $fLoc }}/{{ config("locales.cancellation_slugs.{$fLoc}", 'cancel') }}" class="hover:text-white transition-colors">{{ __('layout.footer_cancel') }}</a></li>
                     </ul>
                 </div>
             </div>

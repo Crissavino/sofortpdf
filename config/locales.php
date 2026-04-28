@@ -1,10 +1,13 @@
 <?php
 
 return [
-    'supported' => ['de', 'en'],
-    'default' => 'de',
+    'supported' => ['de', 'en', 'hu', 'cs'],
+    'default' => 'en',
 
-    // Tool slug mapping per locale: toolKey => slug
+    // Tool slug mapping per locale: toolKey => slug.
+    // HU and CS reuse the English slugs by request — display path on
+    // ads is what matters; localising the URL slug is not worth the
+    // extra translation overhead for these markets.
     'tool_slugs' => [
         'de' => [
             'merge'       => 'pdf-zusammenfuegen',
@@ -35,6 +38,62 @@ return [
             'optimize'    => 'pdf-optimieren',
         ],
         'en' => [
+            'merge'       => 'merge-pdf',
+            'compress'    => 'compress-pdf',
+            'image-to-pdf'=> 'image-to-pdf',
+            'jpg-to-pdf'  => 'jpg-to-pdf',
+            'pdf-to-word' => 'pdf-to-word',
+            'word-to-pdf' => 'word-to-pdf',
+            'pdf-to-jpg'  => 'pdf-to-jpg',
+            'split'       => 'split-pdf',
+            'edit'        => 'edit-pdf',
+            'sign'        => 'sign-pdf',
+            'pdf-to-excel'=> 'pdf-to-excel',
+            'excel-to-pdf'=> 'excel-to-pdf',
+            'rotate'      => 'rotate-pdf',
+            'protect'     => 'protect-pdf',
+            'unlock'      => 'unlock-pdf',
+            'watermark'   => 'add-watermark',
+            'page-numbers'=> 'add-page-numbers',
+            'pdf-to-ppt'  => 'pdf-to-powerpoint',
+            'ppt-to-pdf'  => 'powerpoint-to-pdf',
+            'pdf-to-png'  => 'pdf-to-png',
+            'png-to-pdf'  => 'png-to-pdf',
+            'ocr'         => 'ocr-pdf',
+            'remove-pages'=> 'remove-pages',
+            'extract-pages'=> 'extract-pages',
+            'html-to-pdf' => 'html-to-pdf',
+            'optimize'    => 'optimize-pdf',
+        ],
+        'hu' => [
+            'merge'       => 'merge-pdf',
+            'compress'    => 'compress-pdf',
+            'image-to-pdf'=> 'image-to-pdf',
+            'jpg-to-pdf'  => 'jpg-to-pdf',
+            'pdf-to-word' => 'pdf-to-word',
+            'word-to-pdf' => 'word-to-pdf',
+            'pdf-to-jpg'  => 'pdf-to-jpg',
+            'split'       => 'split-pdf',
+            'edit'        => 'edit-pdf',
+            'sign'        => 'sign-pdf',
+            'pdf-to-excel'=> 'pdf-to-excel',
+            'excel-to-pdf'=> 'excel-to-pdf',
+            'rotate'      => 'rotate-pdf',
+            'protect'     => 'protect-pdf',
+            'unlock'      => 'unlock-pdf',
+            'watermark'   => 'add-watermark',
+            'page-numbers'=> 'add-page-numbers',
+            'pdf-to-ppt'  => 'pdf-to-powerpoint',
+            'ppt-to-pdf'  => 'powerpoint-to-pdf',
+            'pdf-to-png'  => 'pdf-to-png',
+            'png-to-pdf'  => 'png-to-pdf',
+            'ocr'         => 'ocr-pdf',
+            'remove-pages'=> 'remove-pages',
+            'extract-pages'=> 'extract-pages',
+            'html-to-pdf' => 'html-to-pdf',
+            'optimize'    => 'optimize-pdf',
+        ],
+        'cs' => [
             'merge'       => 'merge-pdf',
             'compress'    => 'compress-pdf',
             'image-to-pdf'=> 'image-to-pdf',
@@ -122,6 +181,62 @@ return [
             'html-to-pdf' => 'HTML to PDF',
             'optimize'    => 'Optimize PDF',
         ],
+        'hu' => [
+            'merge'       => 'PDF egyesítése',
+            'compress'    => 'PDF tömörítése',
+            'image-to-pdf'=> 'Kép PDF-be',
+            'jpg-to-pdf'  => 'JPG PDF-be',
+            'pdf-to-word' => 'PDF Word-be',
+            'word-to-pdf' => 'Word PDF-be',
+            'pdf-to-jpg'  => 'PDF JPG-be',
+            'split'       => 'PDF szétválasztása',
+            'edit'        => 'PDF szerkesztése',
+            'sign'        => 'PDF aláírása',
+            'pdf-to-excel'=> 'PDF Excelbe',
+            'excel-to-pdf'=> 'Excel PDF-be',
+            'rotate'      => 'PDF forgatása',
+            'protect'     => 'PDF jelszóval védése',
+            'unlock'      => 'PDF feloldása',
+            'watermark'   => 'Vízjel hozzáadása',
+            'page-numbers'=> 'Oldalszámok hozzáadása',
+            'pdf-to-ppt'  => 'PDF PowerPointba',
+            'ppt-to-pdf'  => 'PowerPoint PDF-be',
+            'pdf-to-png'  => 'PDF PNG-be',
+            'png-to-pdf'  => 'PNG PDF-be',
+            'ocr'         => 'Szövegfelismerés (OCR)',
+            'remove-pages'=> 'Oldalak eltávolítása',
+            'extract-pages'=> 'Oldalak kinyerése',
+            'html-to-pdf' => 'HTML PDF-be',
+            'optimize'    => 'PDF optimalizálása',
+        ],
+        'cs' => [
+            'merge'       => 'Sloučit PDF',
+            'compress'    => 'Komprimovat PDF',
+            'image-to-pdf'=> 'Obrázek do PDF',
+            'jpg-to-pdf'  => 'JPG do PDF',
+            'pdf-to-word' => 'PDF do Wordu',
+            'word-to-pdf' => 'Word do PDF',
+            'pdf-to-jpg'  => 'PDF do JPG',
+            'split'       => 'Rozdělit PDF',
+            'edit'        => 'Upravit PDF',
+            'sign'        => 'Podepsat PDF',
+            'pdf-to-excel'=> 'PDF do Excelu',
+            'excel-to-pdf'=> 'Excel do PDF',
+            'rotate'      => 'Otočit PDF',
+            'protect'     => 'Chránit PDF heslem',
+            'unlock'      => 'Odemknout PDF',
+            'watermark'   => 'Přidat vodoznak',
+            'page-numbers'=> 'Přidat čísla stránek',
+            'pdf-to-ppt'  => 'PDF do PowerPointu',
+            'ppt-to-pdf'  => 'PowerPoint do PDF',
+            'pdf-to-png'  => 'PDF do PNG',
+            'png-to-pdf'  => 'PNG do PDF',
+            'ocr'         => 'Rozpoznat text (OCR)',
+            'remove-pages'=> 'Odstranit stránky',
+            'extract-pages'=> 'Extrahovat stránky',
+            'html-to-pdf' => 'HTML do PDF',
+            'optimize'    => 'Optimalizovat PDF',
+        ],
     ],
 
     // Alias slugs per locale (slug => toolKey)
@@ -135,23 +250,42 @@ return [
         'en' => [
             'reduce-pdf-size' => 'compress',
         ],
+        'hu' => [],
+        'cs' => [],
     ],
 
-    // Auth route slugs
+    // Auth route slugs.
+    // For HU/CZ we keep the English slugs (login/logout/password-reset) —
+    // these aren't ad landing pages, and matching the EN URL surface
+    // means we can re-use the EN routes registered in routes/web.php.
     'auth_slugs' => [
         'de' => ['login' => 'anmelden', 'logout' => 'abmelden', 'password_reset' => 'passwort-reset'],
-        'en' => ['login' => 'login', 'logout' => 'logout', 'password_reset' => 'password-reset'],
+        'en' => ['login' => 'login',    'logout' => 'logout',   'password_reset' => 'password-reset'],
+        'hu' => ['login' => 'login',    'logout' => 'logout',   'password_reset' => 'password-reset'],
+        'cs' => ['login' => 'login',    'logout' => 'logout',   'password_reset' => 'password-reset'],
     ],
 
     // Legal route slugs
     'legal_slugs' => [
-        'de' => ['imprint' => 'impressum', 'privacy' => 'datenschutz', 'terms' => 'agb'],
-        'en' => ['imprint' => 'imprint', 'privacy' => 'privacy', 'terms' => 'terms'],
+        'de' => ['imprint' => 'impressum', 'privacy' => 'datenschutz', 'terms' => 'agb',   'cookies' => 'cookie-richtlinie'],
+        'en' => ['imprint' => 'imprint',   'privacy' => 'privacy',     'terms' => 'terms', 'cookies' => 'cookie-policy'],
+        'hu' => ['imprint' => 'imprint',   'privacy' => 'privacy',     'terms' => 'terms', 'cookies' => 'cookie-policy'],
+        'cs' => ['imprint' => 'imprint',   'privacy' => 'privacy',     'terms' => 'terms', 'cookies' => 'cookie-policy'],
     ],
 
     // Contact route slug
     'contact_slugs' => [
         'de' => 'kontakt',
         'en' => 'contact',
+        'hu' => 'contact',
+        'cs' => 'contact',
+    ],
+
+    // Cancellation route slug
+    'cancellation_slugs' => [
+        'de' => 'kuendigen',
+        'en' => 'cancel',
+        'hu' => 'cancel',
+        'cs' => 'cancel',
     ],
 ];

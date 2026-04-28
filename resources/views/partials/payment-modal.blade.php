@@ -37,7 +37,6 @@
         'errEmail'           => __('payment.err_email'),
         'errGeneric'         => __('payment.err_generic'),
         'tcRequired'         => __('payment.tc_required'),
-        'paypalComingSoon'   => __('payment.paypal_coming_soon'),
     ], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
     // Stripe public key from the VAD-resolved account (bo_stripe_accounts),
     // falling back to the .env value if StripeService hasn't resolved yet.
@@ -118,33 +117,6 @@
                         <img src="https://js.stripe.com/v3/fingerprinted/img/mastercard-4d8844094130711885b5e41b28c9848f.svg" alt="Mastercard" class="spm-card-img">
                     </span>
                 </div>
-
-                {{-- PayPal smoke-test button — visually identical to the
-                     official Stripe-rendered PayPal button. Click logs
-                     'paypal_attempted' to activity log + GA4 dataLayer
-                     for daily ratio analysis, shows a coming-soon alert,
-                     scrolls to the card form. NO real PayPal flow yet. --}}
-                <button type="button" id="spm-paypal-btn" class="spm-paypal-btn" aria-label="PayPal">
-                    <svg viewBox="0 0 124 33" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                        <path fill="#253B80" d="M46.211 6.749h-6.839a.95.95 0 0 0-.939.802l-2.766 17.537a.57.57 0 0 0 .564.658h3.265a.95.95 0 0 0 .939-.803l.746-4.73a.95.95 0 0 1 .938-.803h2.165c4.505 0 7.105-2.18 7.784-6.5.306-1.89.013-3.375-.872-4.415-.972-1.142-2.696-1.746-4.985-1.746zM47 13.154c-.374 2.454-2.249 2.454-4.062 2.454h-1.032l.724-4.583a.57.57 0 0 1 .563-.481h.473c1.235 0 2.4 0 3.002.704.359.42.469 1.044.332 1.906zM66.654 13.075h-3.275a.57.57 0 0 0-.563.481l-.145.916-.229-.332c-.709-1.029-2.29-1.373-3.868-1.373-3.619 0-6.71 2.741-7.312 6.586-.313 1.918.132 3.752 1.22 5.031.998 1.176 2.426 1.666 4.125 1.666 2.916 0 4.533-1.875 4.533-1.875l-.146.91a.57.57 0 0 0 .562.66h2.95a.95.95 0 0 0 .939-.803l1.77-11.209a.568.568 0 0 0-.561-.658zm-4.565 6.374c-.316 1.871-1.801 3.127-3.695 3.127-.951 0-1.711-.305-2.199-.883-.484-.574-.668-1.391-.514-2.301.295-1.855 1.805-3.152 3.67-3.152.93 0 1.686.309 2.184.892.499.589.697 1.411.554 2.317zM84.096 13.075h-3.291a.954.954 0 0 0-.787.417l-4.539 6.686-1.924-6.425a.953.953 0 0 0-.912-.678h-3.234a.57.57 0 0 0-.541.754l3.625 10.638-3.408 4.811a.57.57 0 0 0 .465.9h3.287a.949.949 0 0 0 .781-.408l10.946-15.8a.57.57 0 0 0-.468-.895z"/>
-                        <path fill="#179BD7" d="M94.992 6.749h-6.84a.95.95 0 0 0-.938.802l-2.766 17.537a.569.569 0 0 0 .562.658h3.51a.665.665 0 0 0 .656-.562l.785-4.971a.95.95 0 0 1 .938-.803h2.164c4.506 0 7.105-2.18 7.785-6.5.307-1.89.012-3.375-.873-4.415-.971-1.142-2.694-1.746-4.983-1.746zm.789 6.405c-.373 2.454-2.248 2.454-4.062 2.454h-1.031l.725-4.583a.568.568 0 0 1 .562-.481h.473c1.234 0 2.4 0 3.002.704.359.42.468 1.044.331 1.906zM115.434 13.075h-3.273a.567.567 0 0 0-.562.481l-.145.916-.23-.332c-.709-1.029-2.289-1.373-3.867-1.373-3.619 0-6.709 2.741-7.311 6.586-.312 1.918.131 3.752 1.219 5.031 1 1.176 2.426 1.666 4.125 1.666 2.916 0 4.533-1.875 4.533-1.875l-.146.91a.57.57 0 0 0 .564.66h2.949a.95.95 0 0 0 .938-.803l1.771-11.209a.571.571 0 0 0-.565-.658zm-4.565 6.374c-.314 1.871-1.801 3.127-3.695 3.127-.949 0-1.711-.305-2.199-.883-.484-.574-.666-1.391-.514-2.301.297-1.855 1.805-3.152 3.67-3.152.93 0 1.686.309 2.184.892.501.589.699 1.411.554 2.317zM119.295 7.23l-2.807 17.858a.569.569 0 0 0 .562.658h2.822c.469 0 .867-.34.939-.803l2.768-17.536a.57.57 0 0 0-.562-.659h-3.16a.571.571 0 0 0-.562.482z"/>
-                    </svg>
-                </button>
-
-                {{-- Inline notice — appears under the PayPal button after
-                     a click. Replaces the native alert() with something
-                     that fits the modal's visual language. --}}
-                <div id="spm-paypal-notice" class="spm-paypal-notice" hidden role="status" aria-live="polite">
-                    <span class="spm-paypal-notice-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                    </span>
-                    <span class="spm-paypal-notice-text">{{ __('payment.paypal_coming_soon') }}</span>
-                    <button type="button" class="spm-paypal-notice-close" aria-label="{{ __('payment.close_button') }}">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
-                    </button>
-                </div>
-
-                <div class="spm-divider"><span>{{ __('payment.or_pay_with_card') }}</span></div>
 
                 {{-- Email --}}
                 <div class="spm-field">
@@ -435,111 +407,6 @@
         font-size: 12px; color: #b91c1c;
     }
 
-    /* ── PayPal smoke-test button (visually identical to Stripe-rendered
-          PayPal button — same #FFC439 base, same 8px radius, same height
-          as Apple Pay / Link buttons that Payment Element renders) ── */
-    .spm-paypal-btn {
-        width: 100%;
-        height: 44px;
-        background: #FFC439;
-        border: 0;
-        border-radius: 8px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 4px;
-        transition: background-color 150ms ease-out, transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
-    }
-    .spm-paypal-btn:hover { background: #f5b929; }
-    .spm-paypal-btn:active { background: #e5a929; transform: scale(0.99); }
-    .spm-paypal-btn:focus-visible {
-        outline: 2px solid #0070BA;
-        outline-offset: 2px;
-    }
-    .spm-paypal-btn svg {
-        height: 22px;
-        width: auto;
-        display: block;
-    }
-
-    /* PayPal coming-soon inline notice (replaces native alert()). Soft
-       amber palette to match the PayPal button's yellow brand without
-       fighting it. */
-    .spm-paypal-notice {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 10px 12px;
-        background: #FFF8E1;
-        border: 1px solid #FFE082;
-        border-radius: 8px;
-        margin-top: 8px;
-        font-size: 13px;
-        line-height: 1.4;
-        color: #5D4037;
-        animation: spm-paypal-notice-in 280ms cubic-bezier(0.23, 1, 0.32, 1);
-    }
-    .spm-paypal-notice[hidden] { display: none; }
-
-    @keyframes spm-paypal-notice-in {
-        from { opacity: 0; transform: translateY(-4px); }
-        to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .spm-paypal-notice-icon {
-        flex-shrink: 0;
-        width: 18px;
-        height: 18px;
-        color: #F57C00;
-    }
-    .spm-paypal-notice-icon svg { width: 100%; height: 100%; display: block; }
-
-    .spm-paypal-notice-text {
-        flex: 1;
-        min-width: 0;
-    }
-
-    .spm-paypal-notice-close {
-        flex-shrink: 0;
-        width: 22px;
-        height: 22px;
-        background: transparent;
-        border: 0;
-        border-radius: 4px;
-        color: #8D6E63;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0;
-        transition: background-color 150ms ease-out, color 150ms ease-out;
-    }
-    .spm-paypal-notice-close:hover {
-        background: rgba(141, 110, 99, 0.12);
-        color: #3E2723;
-    }
-    .spm-paypal-notice-close svg { width: 14px; height: 14px; }
-
-    /* "or pay with card" divider — matches Stripe Elements treatment when
-       multiple wallets are stacked above the card form. */
-    .spm-divider {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        color: #94a3b8;
-        font-size: 12px;
-        margin: 8px 0 4px;
-        text-transform: lowercase;
-    }
-    .spm-divider::before,
-    .spm-divider::after {
-        content: '';
-        flex: 1;
-        height: 1px;
-        background: #e2e8f0;
-    }
-
     /* ── Submit button ── */
     .spm-submit {
         width: 100%;
@@ -785,76 +652,6 @@
     var nameInput      = root.querySelector('#spm-name');
     var emailInput     = root.querySelector('#spm-email');
     var tcCheckbox     = root.querySelector('#spm-tc');
-    var paypalBtn         = root.querySelector('#spm-paypal-btn');
-    var paypalNotice      = root.querySelector('#spm-paypal-notice');
-    var paypalNoticeClose = root.querySelector('.spm-paypal-notice-close');
-
-    // PayPal smoke-test state — tracked across the modal session so we
-    // can build a funnel without overcounting.
-    //   paypalAttemptedThisSession: did the user click PayPal at least once?
-    //   paypalFollowupLogged:       did we already log either the recovery
-    //                                (card submit after PayPal) or the
-    //                                abandonment (modal close after PayPal)?
-    //                                Whichever fires first wins.
-    var paypalAttemptedThisSession = false;
-    var paypalFollowupLogged       = false;
-
-    function logEvent(event) {
-        var token = document.querySelector('meta[name="csrf-token"]');
-        fetch('/api/log/event', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': token ? token.content : '',
-            },
-            body: JSON.stringify({ event: event }),
-        }).catch(function() { /* logging is best-effort */ });
-
-        window.dataLayer = window.dataLayer || [];
-        window.dataLayer.push({ event: event });
-    }
-
-    // PayPal smoke-test handler. No real PayPal flow yet — just logging
-    // intent so we can measure demand before investing in the full
-    // Payment Element + redirect-flow rewrite. See
-    // resources/lang/{de,en}/payment.php for the alert copy.
-    if (paypalBtn) {
-        paypalBtn.addEventListener('click', function() {
-            // Dedup: log the click only the FIRST time per modal session.
-            // Subsequent clicks still get the inline notice + scroll, but
-            // don't pollute the count (some users click 3-5 times in
-            // frustration).
-            if (!paypalAttemptedThisSession) {
-                paypalAttemptedThisSession = true;
-                logEvent('paypal_attempted');
-            }
-
-            // Show the inline notice (replaces the native alert — same
-            // information, same blocking-feel via animation, but matches
-            // the modal's visual language and is dismissible).
-            if (paypalNotice) {
-                paypalNotice.removeAttribute('hidden');
-                // Re-trigger the slide-in animation on every click for
-                // visual feedback, even when the notice is already visible.
-                paypalNotice.style.animation = 'none';
-                // Force reflow to restart the animation.
-                void paypalNotice.offsetWidth;
-                paypalNotice.style.animation = '';
-            }
-
-            // No auto-scroll: with the inline notice (instead of the
-            // blocking alert) the user can read and choose to fill the
-            // card form themselves. Auto-scrolling to the card field
-            // pushed the notice out of view, which defeated the point.
-        });
-    }
-
-    if (paypalNoticeClose) {
-        paypalNoticeClose.addEventListener('click', function(e) {
-            e.preventDefault();
-            if (paypalNotice) paypalNotice.setAttribute('hidden', '');
-        });
-    }
 
     // --- State -------------------------------------------------------------
     var stripe = null;
@@ -1153,14 +950,6 @@
             body: JSON.stringify({ event: 'payment_attempted' })
         }).catch(function() {});
 
-        // PayPal smoke-test funnel: did the user RECOVER and try card after
-        // clicking PayPal? Log once per session so a single submit attempt
-        // counts even if validation rejects the form first.
-        if (paypalAttemptedThisSession && !paypalFollowupLogged) {
-            paypalFollowupLogged = true;
-            logEvent('paypal_followed_with_card_submit');
-        }
-
         setLoading(true);
 
         function fail(error, msg) {
@@ -1282,11 +1071,6 @@
         // Hide the bottom bar while the modal is open
         if (bottomBar) { bottomBar.hidden = true; bottomBar.classList.remove('is-visible'); }
 
-        // Reset the PayPal smoke-test funnel state for the new session.
-        paypalAttemptedThisSession = false;
-        paypalFollowupLogged = false;
-        if (paypalNotice) paypalNotice.setAttribute('hidden', '');
-
         // Normalize: accept either `file` singular or `files` array.
         var files = [];
         if (Array.isArray(options.files)) {
@@ -1348,15 +1132,6 @@
         if (previewWrap && previewWrap.classList.contains('is-zoomed')) {
             previewWrap.classList.remove('is-zoomed');
             if (zoomBackdrop) zoomBackdrop.classList.remove('is-active');
-        }
-
-        // PayPal smoke-test funnel: user closed the modal AFTER clicking
-        // PayPal but WITHOUT submitting the card form. Strong signal that
-        // PayPal was make-or-break for them. silent=true means the modal
-        // closed because of a successful payment (don't count as abandon).
-        if (!silent && paypalAttemptedThisSession && !paypalFollowupLogged) {
-            paypalFollowupLogged = true;
-            logEvent('paypal_abandoned_after_alert');
         }
 
         root.classList.remove('spm-open');

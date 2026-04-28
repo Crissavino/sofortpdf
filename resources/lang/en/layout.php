@@ -16,4 +16,9 @@ return [
     'footer_copyright' => '© :year sofortpdf.com — All rights reserved.',
     'footer_ssl' => 'SSL-encrypted',
     'footer_eu_servers' => 'Servers in Europe',
+    'footer_cookies' => 'Cookies',
+    'footer_cancel' => 'Cancel',
+
+    // SEO BreadcrumbList → Home label
+    'breadcrumb_home' => 'Home',
 ];

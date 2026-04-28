@@ -44,10 +44,21 @@ class PaymentController extends Controller
      */
     private function setLocale(Request $request): void
     {
-        $locale = session('locale', 'de');
-        if (!$locale || !in_array($locale, ['de', 'en'])) {
+        $supported = config('locales.supported', ['en']);
+        $default   = config('locales.default', 'en');
+        $locale    = session('locale', $default);
+
+        if (!$locale || !in_array($locale, $supported, true)) {
+            // Fall back to whichever supported locale appears first in
+            // the referer path (e.g. https://…/hu/merge-pdf → 'hu').
             $referer = $request->headers->get('referer', '');
-            $locale = str_contains($referer, '/en/') ? 'en' : 'de';
+            $locale  = $default;
+            foreach ($supported as $candidate) {
+                if (str_contains($referer, "/{$candidate}/")) {
+                    $locale = $candidate;
+                    break;
+                }
+            }
         }
         app()->setLocale($locale);
     }

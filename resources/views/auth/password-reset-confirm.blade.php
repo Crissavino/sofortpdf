@@ -11,7 +11,7 @@
                 {{ __('auth_ui.reset_confirm_instructions') }}
             </p>
 
-            <form method="POST" action="{{ route('password.update.' . app()->getLocale()) }}">
+            <form method="POST" action="/{{ app()->getLocale() }}/{{ app()->getLocale() === 'de' ? 'passwort-reset-speichern' : 'password-reset-save' }}">
                 @csrf
                 <input type="hidden" name="token" value="{{ $token }}">
 

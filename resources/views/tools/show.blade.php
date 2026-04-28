@@ -90,17 +90,20 @@
     }
 
     /* ── File card stagger ── */
-    .file-card {
+    .file-card,
+    .zone-file-card {
         opacity: 0;
         transform: translateY(8px) scale(0.98);
         transition: opacity 250ms var(--ease-out-expo),
                     transform 250ms var(--ease-out-expo),
                     box-shadow 200ms var(--ease-out-expo);
     }
-    .file-card.visible {
+    .file-card.visible,
+    .zone-file-card.visible {
         opacity: 1;
         transform: translateY(0) scale(1);
     }
+    .zone-file-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
 
     /* ── Processing: rotating conic gradient border ── */
     @property --angle {
@@ -818,25 +821,33 @@
                          data-border-active="{{ $c['active'] }}"
                          data-bg-active="{{ $c['bg'] }}">
 
-                        {{-- Icon circle --}}
-                        <div class="icon-circle w-20 h-20 rounded-full {{ $c['icon-bg'] }} flex items-center justify-center mx-auto mb-5">
-                            @include('partials.tool-icon', ['icon' => $toolConfig['icon'] ?? 'default', 'size' => 'w-8 h-8'])
+                        {{-- Empty state: shown before any file is selected --}}
+                        <div id="zone-empty" class="w-full flex flex-col items-center justify-center">
+                            {{-- Icon circle --}}
+                            <div class="icon-circle w-20 h-20 rounded-full {{ $c['icon-bg'] }} flex items-center justify-center mx-auto mb-5">
+                                @include('partials.tool-icon', ['icon' => $toolConfig['icon'] ?? 'default', 'size' => 'w-8 h-8'])
+                            </div>
+
+                            <p class="font-display font-bold text-lg text-slate-700 mb-2">
+                                {{ __('tool.drop_or_click') }}
+                            </p>
+                            <p class="text-sm text-slate-400 mb-5">
+                                {{ __('tool.formats_label') }} {{ str_replace('.', '', str_replace(',', ', ', $accept)) }} &middot; Max. {{ env('MAX_UPLOAD_SIZE_MB', 50) }} MB
+                                @if($multiple) &middot; {{ __('tool.up_to_files', ['n' => $maxFiles]) }} @endif
+                            </p>
+
+                            {{-- CTA button --}}
+                            <span class="inline-flex items-center gap-2 px-8 py-3.5 {{ $c['btn'] }} text-white font-display font-bold text-sm rounded-xl shadow-lg pointer-events-none"
+                                  style="box-shadow: 0 6px 16px -4px rgba(0,0,0,0.25);">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                {{ $actionLabel }}
+                            </span>
                         </div>
 
-                        <p class="font-display font-bold text-lg text-slate-700 mb-2">
-                            {{ __('tool.drop_or_click') }}
-                        </p>
-                        <p class="text-sm text-slate-400 mb-5">
-                            {{ __('tool.formats_label') }} {{ str_replace('.', '', str_replace(',', ', ', $accept)) }} &middot; Max. {{ env('MAX_UPLOAD_SIZE_MB', 50) }} MB
-                            @if($multiple) &middot; {{ __('tool.up_to_files', ['n' => $maxFiles]) }} @endif
-                        </p>
-
-                        {{-- CTA button --}}
-                        <span class="inline-flex items-center gap-2 px-8 py-3.5 {{ $c['btn'] }} text-white font-display font-bold text-sm rounded-xl shadow-lg pointer-events-none"
-                              style="box-shadow: 0 6px 16px -4px rgba(0,0,0,0.25);">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                            {{ $actionLabel }}
-                        </span>
+                        {{-- Filled state: file pill(s) shown inside the dropzone after upload.
+                             Mirrors conversie-pdf's pattern — keeps hero/benefits/trust intact;
+                             clicking the dropzone with a file loaded re-opens the payment modal. --}}
+                        <div id="zone-filled" class="hidden w-full space-y-2"></div>
 
                         <input type="file" id="file-input" class="hidden" accept="{{ $accept }}" {{ $multiple ? 'multiple' : '' }}>
                     </div>
@@ -1260,9 +1271,16 @@
                         $relTitle = \App\Services\LocaleHelper::toolTitle($relKey);
                         $relUrl = \App\Services\LocaleHelper::toolUrl($relKey);
                         $relLocale = app()->getLocale();
+                        // DE is the canonical source (config/tools.php).
+                        // Other locales pull from config/tools_{loc}.php
+                        // and fall back through EN → DE if a locale or
+                        // key is missing.
                         $relDesc = $relLocale === 'de'
                             ? $relConfig['description']
-                            : config("tools_{$relLocale}.{$relKey}.description", $relConfig['description']);
+                            : config(
+                                "tools_{$relLocale}.{$relKey}.description",
+                                config("tools_en.{$relKey}.description", $relConfig['description'])
+                            );
                     @endphp
                     <a href="{{ $relUrl }}"
                        class="observe-animate group bg-white rounded-2xl border border-slate-100 p-5 {{ $relColor['border'] }} transition-all duration-200"
@@ -1286,6 +1304,8 @@
         'maxFiles'           => __('tool.js_max_files'),
         'fileTooLarge'       => __('tool.js_file_too_large'),
         'addAnotherFile'     => __('tool.js_add_another'),
+        'filesAdded'         => __('tool.js_files_added'),
+        'dragToReorder'      => __('tool.js_drag_to_reorder'),
         'processing'         => __('tool.processing'),
         'startingConversion' => __('tool.js_starting_conversion'),
         'uploadFailed'       => __('tool.js_upload_failed'),
@@ -1322,6 +1342,8 @@
     const heroGrid = document.getElementById('hero-grid');
     const benefitsCol = document.getElementById('benefits-col');
     const uploadTrustBadges = document.getElementById('upload-trust-badges');
+    const zoneEmpty = document.getElementById('zone-empty');
+    const zoneFilled = document.getElementById('zone-filled');
     const fileList = document.getElementById('file-list');
     const addMoreArea = document.getElementById('add-more-area');
     const actionArea = document.getElementById('action-area');
@@ -1368,8 +1390,26 @@
         return (bytes / 1024 / 1024).toFixed(1) + ' MB';
     }
 
-    /* ── Click to upload ── */
-    zone.addEventListener('click', function() { fileInput.click(); });
+    /* ── Click on dropzone ── */
+    // Empty state: open the file picker.
+    // Filled state: clicking the dropzone re-opens the payment modal (paywall
+    // users) or re-triggers the conversion (subscribers). Mirrors conversie-pdf:
+    // the file pill stays in place, and re-clicking it brings back the modal
+    // after the user dismisses it.
+    // .btn-remove and [data-add-more] children stop propagation themselves so
+    // they don't accidentally trigger conversion.
+    zone.addEventListener('click', function(e) {
+        if (e.target.closest('.btn-remove')) return;
+        if (e.target.closest('[data-add-more]')) {
+            fileInput.click();
+            return;
+        }
+        if (selectedFiles.length === 0) {
+            fileInput.click();
+        } else {
+            processBtn.click();
+        }
+    });
 
     /* ── Drag & drop ── */
     let dragCounter = 0;
@@ -1402,19 +1442,9 @@
 
     fileInput.addEventListener('change', function() { handleFiles(fileInput.files); });
 
-    /* ── Click on file-card → trigger processBtn ── */
-    // Mismo razonamiento que el auto-start: el usuario que clickea la card
-    // está expresando intención de convertir. Para tools que NO auto-arrancan
-    // (merge, picker, params) la card era un dead zone que confundía. Para
-    // tools que SÍ auto-arrancan es redundante pero inofensivo.
-    // En merge mode se usa .merge-card con drag handles — ahí no aplicamos.
-    fileList.addEventListener('click', function(e) {
-        if (mergeMode) return;
-        if (e.target.closest('.btn-remove')) return;
-        var card = e.target.closest('.file-card');
-        if (!card) return;
-        processBtn.click();
-    });
+    /* ── Click delegation on file-card lives on the zone now (the file pill
+       is rendered inside #zone-filled). The merge grid in file-list keeps its
+       own drag-handles, so we don't intercept clicks there. ── */
 
     /* ── Handle files ── */
     function handleFiles(files) {
@@ -1510,52 +1540,64 @@
         }
     }
 
-    /* ── Render file list with stagger ── */
+    /* ── Render file list ── */
+    // Conversie-pdf pattern: the dropzone stays visible after upload — its inner
+    // content swaps from the empty CTA to a file pill. Hero, benefits, and trust
+    // badges never get hidden, so the page reads the same before and after the
+    // upload (only the dropzone interior changes + modals overlay on top).
+    // file-list-wrapper now hosts only the merge grid, page-picker, and params.
     function renderFileList() {
+        var toolParamsEl = document.getElementById('tool-params');
+        var needsWrapper = mergeMode || pickerEl || (toolParamsEl && toolParamsEl.children.length > 0);
+
         if (selectedFiles.length === 0) {
+            zoneEmpty.classList.remove('hidden');
+            zoneFilled.classList.add('hidden');
+            zoneFilled.innerHTML = '';
+            zone.classList.remove('is-hidden');
             fileListWrapper.classList.add('hidden');
-            zone.classList.remove('hidden', 'state-exit');
-            zone.style.opacity = '';
-            zone.style.transform = '';
-            // Restore 2-column layout with benefits
-            if (benefitsCol) benefitsCol.classList.remove('hidden');
-            if (uploadTrustBadges) uploadTrustBadges.classList.remove('hidden');
-            if (heroGrid) { heroGrid.classList.remove('lg:grid-cols-1'); heroGrid.classList.add('lg:grid-cols-2'); }
+            addMoreArea.classList.add('hidden');
             if (mergeSortable) { mergeSortable.destroy(); mergeSortable = null; }
             previewCache.clear();
             return;
         }
 
-        // Hide benefits and switch to 1-column for file list
-        if (benefitsCol) benefitsCol.classList.add('hidden');
-        if (uploadTrustBadges) uploadTrustBadges.classList.add('hidden');
-        if (heroGrid) { heroGrid.classList.remove('lg:grid-cols-2'); heroGrid.classList.add('lg:grid-cols-1'); }
+        // Filled state: keep dropzone visible, swap its interior to the file pill.
+        zoneEmpty.classList.add('hidden');
+        zoneFilled.classList.remove('hidden');
+        zone.classList.add('is-hidden'); // pause the idle pulse halo
+        zoneFilled.innerHTML = renderInlineFiles();
 
-        // Fade out upload zone
-        zone.classList.add('state-exit');
-        setTimeout(function() {
-            zone.classList.add('hidden');
-            zone.classList.remove('state-exit');
-        }, 200);
+        // Stagger zone pills in
+        var pills = zoneFilled.querySelectorAll('.zone-file-card');
+        pills.forEach(function(pill, i) {
+            setTimeout(function() { pill.classList.add('visible'); }, 50 * i + 50);
+        });
 
-        // Show file list
-        fileListWrapper.classList.remove('hidden');
-
-        if (mergeMode) {
-            renderMergeGrid();
+        // file-list-wrapper hosts the merge grid / page-picker / params only.
+        if (needsWrapper) {
+            fileListWrapper.classList.remove('hidden');
+            if (mergeMode) {
+                renderMergeGrid();
+            } else {
+                fileList.innerHTML = '';
+            }
         } else {
-            renderLinearList();
+            fileListWrapper.classList.add('hidden');
+            fileList.innerHTML = '';
         }
 
-        // Add more files button (shared)
-        if (allowMultiple && selectedFiles.length < maxFiles) {
+        // "Add more" button (multi-file, non-merge — currently no such tool, but
+        // kept for symmetry with maxFiles config).
+        if (allowMultiple && !mergeMode && selectedFiles.length < maxFiles) {
+            fileListWrapper.classList.remove('hidden');
             addMoreArea.classList.remove('hidden');
             addMoreArea.innerHTML =
-                '<button onclick="document.getElementById(\'file-input\').click()" class="btn-add-more w-full flex items-center justify-center gap-2 bg-white rounded-xl px-5 py-4 border border-dashed border-slate-200 hover:border-slate-300 text-sm text-slate-400 hover:text-slate-600" style="transition: border-color 200ms ease-out, color 200ms ease-out, transform 160ms cubic-bezier(0.23,1,0.32,1);">' +
+                '<button type="button" data-add-more onclick="event.stopPropagation();document.getElementById(\'file-input\').click()" class="btn-add-more w-full flex items-center justify-center gap-2 bg-white rounded-xl px-5 py-4 border border-dashed border-slate-200 hover:border-slate-300 text-sm text-slate-400 hover:text-slate-600" style="transition: border-color 200ms ease-out, color 200ms ease-out, transform 160ms cubic-bezier(0.23,1,0.32,1);">' +
                     '<i data-lucide="plus" class="w-4 h-4"></i>' +
                     __t.addAnotherFile +
                 '</button>';
-        } else {
+        } else if (!mergeMode) {
             addMoreArea.classList.add('hidden');
             addMoreArea.innerHTML = '';
         }
@@ -1563,10 +1605,71 @@
         refreshIcons();
     }
 
+    /* ── Render the file pill(s) inline inside the dropzone ── */
+    function renderInlineFiles() {
+        if (mergeMode) {
+            // Merge: dropzone shows a count summary; the reorderable grid stays
+            // below in file-list-wrapper.
+            var label = __t.filesAdded
+                ? __t.filesAdded.replace('{n}', selectedFiles.length)
+                : (selectedFiles.length + ' files');
+            return '<div class="zone-file-card flex items-center gap-3.5 bg-white rounded-xl px-5 py-4 border border-slate-100 shadow-sm w-full">' +
+                    '<div class="w-10 h-10 rounded-xl {{ $c["icon-bg"] }} flex items-center justify-center flex-shrink-0">' +
+                        '<i data-lucide="files" class="w-5 h-5 {{ $c["icon"] }}"></i>' +
+                    '</div>' +
+                    '<div class="min-w-0 text-left flex-1">' +
+                        '<p class="text-sm font-medium text-slate-700 truncate">' + label + '</p>' +
+                        '<p class="text-xs text-slate-400">' + (__t.dragToReorder || 'Drag to reorder below') + '</p>' +
+                    '</div>' +
+                '</div>';
+        }
+
+        return selectedFiles.map(function(f, idx) {
+            var safeName = String(f.name).replace(/[<>&"']/g, function(c) {
+                return { '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' }[c];
+            });
+            return '<div class="zone-file-card flex items-center justify-between gap-3 bg-white rounded-xl px-5 py-4 border border-slate-100 shadow-sm w-full" data-index="' + idx + '">' +
+                    '<div class="flex items-center gap-3.5 min-w-0">' +
+                        '<div class="w-10 h-10 rounded-xl {{ $c["icon-bg"] }} flex items-center justify-center flex-shrink-0">' +
+                            '<i data-lucide="file-text" class="w-5 h-5 {{ $c["icon"] }}"></i>' +
+                        '</div>' +
+                        '<div class="min-w-0 text-left">' +
+                            '<p class="text-sm font-medium text-slate-700 truncate">' + safeName + '</p>' +
+                            '<p class="text-xs text-slate-400">' + formatSize(f.size) + '</p>' +
+                        '</div>' +
+                    '</div>' +
+                    (window.sofortpdfPaywall && window.sofortpdfPaywall.needsPayment()
+                        ? ''
+                        : '<button type="button" onclick="event.stopPropagation();removeFile(' + idx + ')" class="btn-remove w-8 h-8 rounded-lg flex items-center justify-center text-slate-300 hover:text-red-500 hover:bg-red-50 flex-shrink-0 ml-3" style="transition: color 200ms ease-out, background-color 200ms ease-out, transform 160ms cubic-bezier(0.23,1,0.32,1);">' +
+                            '<i data-lucide="x" class="w-4 h-4"></i>' +
+                        '</button>') +
+                '</div>';
+        }).join('');
+    }
+
     // Picker state for rotate + split modes (separate from the
     // remove/extract `pickerSelected` set).
     const pickerRotations = new Map();   // page (int) → angle (0/90/180/270)
     const pickerSplits = new Set();      // cut points BEFORE page N (so {3} → cut between 2 and 3 → groups 1-2 and 3-…)
+
+    // Once the user has triggered the paywall once for the current
+    // upload session, freeze further selection edits — clicking a page
+    // tile, cut point, or merge-remove button just re-opens the
+    // payment modal instead of mutating state. Reset by handleFiles().
+    // Exposed on window so inline onclick handlers (merge X) can call them.
+    window.paywallLockActive = function() {
+        return window.__sofortpdfLoadingShown === true
+            && window.sofortpdfPaywall
+            && window.sofortpdfPaywall.needsPayment();
+    };
+    window.paywallReprompt = function() {
+        // Re-run the processBtn flow; __sofortpdfShowLoadingThenPay
+        // skips the loading animation when the flag is already set
+        // and goes straight to the payment modal.
+        if (processBtn) processBtn.click();
+    };
+    var paywallLockActive = window.paywallLockActive;
+    var paywallReprompt = window.paywallReprompt;
 
     /* ── Page picker: render every PDF page as a clickable tile ── */
     async function initPagePicker(file) {
@@ -1653,10 +1756,16 @@
         if (pickerMode === 'rotate') {
             card.setAttribute('data-angle', String(pickerRotations.get(i) || 0));
             updateRotateBadge(card, pickerRotations.get(i) || 0);
-            card.addEventListener('click', function() { rotatePickerPage(this); });
+            card.addEventListener('click', function() {
+                if (paywallLockActive()) { paywallReprompt(); return; }
+                rotatePickerPage(this);
+            });
         } else if (pickerMode === 'remove' || pickerMode === 'extract') {
             if (pickerSelected.has(i)) card.classList.add('is-selected');
-            card.addEventListener('click', function() { togglePickerPage(this); });
+            card.addEventListener('click', function() {
+                if (paywallLockActive()) { paywallReprompt(); return; }
+                togglePickerPage(this);
+            });
         }
 
         return card;
@@ -1720,7 +1829,10 @@
                 '</svg>' +
             '</span>' +
             '<span>cut</span>';
-        cut.addEventListener('click', function() { toggleSplitCut(beforePage); });
+        cut.addEventListener('click', function() {
+            if (paywallLockActive()) { paywallReprompt(); return; }
+            toggleSplitCut(beforePage);
+        });
         return cut;
     }
 
@@ -1819,6 +1931,7 @@
         pickerEl.addEventListener('click', function(e) {
             var btn = e.target.closest('[data-picker-action]');
             if (!btn) return;
+            if (paywallLockActive()) { paywallReprompt(); return; }
             var action = btn.getAttribute('data-picker-action');
             if (action === 'all') {
                 pickerSelected.clear();
@@ -1845,36 +1958,6 @@
         });
     }
 
-    /* ── Linear list renderer (all tools except merge) ── */
-    function renderLinearList() {
-        fileList.innerHTML = selectedFiles.map(function(f, idx) {
-            return '<div class="file-card flex items-center justify-between bg-white rounded-xl px-5 py-4 border border-slate-100 shadow-sm cursor-pointer" data-index="' + idx + '">' +
-                '<div class="flex items-center gap-3.5 min-w-0">' +
-                    '<div class="w-10 h-10 rounded-xl {{ $c["icon-bg"] }} flex items-center justify-center flex-shrink-0">' +
-                        '<i data-lucide="file-text" class="w-5 h-5 {{ $c["icon"] }}"></i>' +
-                    '</div>' +
-                    '<div class="min-w-0">' +
-                        '<p class="text-sm font-medium text-slate-700 truncate">' + f.name + '</p>' +
-                        '<p class="text-xs text-slate-400">' + formatSize(f.size) + '</p>' +
-                    '</div>' +
-                '</div>' +
-                (window.sofortpdfPaywall && window.sofortpdfPaywall.needsPayment()
-                    ? ''
-                    : '<button onclick="removeFile(' + idx + ')" class="btn-remove w-8 h-8 rounded-lg flex items-center justify-center text-slate-300 hover:text-red-500 hover:bg-red-50 flex-shrink-0 ml-3" style="transition: color 200ms ease-out, background-color 200ms ease-out, transform 160ms cubic-bezier(0.23,1,0.32,1);">' +
-                        '<i data-lucide="x" class="w-4 h-4"></i>' +
-                    '</button>') +
-            '</div>';
-        }).join('');
-
-        // Stagger file cards in
-        var cards = fileList.querySelectorAll('.file-card');
-        cards.forEach(function(card, i) {
-            setTimeout(function() {
-                card.classList.add('visible');
-            }, 50 * i + 50);
-        });
-    }
-
     /* ── Merge grid renderer ── */
     function renderMergeGrid() {
         // Rebuild from scratch every time. Previews are cached per file key
@@ -1893,7 +1976,7 @@
 
             card.innerHTML =
                 '<div class="merge-order-badge">' + (idx + 1) + '</div>' +
-                '<button type="button" class="merge-remove" aria-label="Remove" onmousedown="event.stopPropagation()" onclick="event.stopPropagation(); removeFile(' + idx + ')">' +
+                '<button type="button" class="merge-remove" aria-label="Remove" onmousedown="event.stopPropagation()" onclick="event.stopPropagation(); if (window.paywallLockActive()) { window.paywallReprompt(); return; } removeFile(' + idx + ')">' +
                     '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>' +
                 '</button>' +
                 '<div class="merge-thumb" data-thumb>' +
@@ -1924,6 +2007,11 @@
                 easing: 'cubic-bezier(0.23, 1, 0.32, 1)',
                 ghostClass: 'sortable-ghost',
                 chosenClass: 'sortable-chosen',
+                // Block drag-reorder once the paywall has been triggered:
+                // any drag attempt re-opens the payment modal instead.
+                filter: function() { return paywallLockActive(); },
+                preventOnFilter: false,
+                onFilter: function() { paywallReprompt(); },
                 onEnd: updateMergeOrderBadges,
             });
         }
@@ -1999,7 +2087,8 @@
 
     /* ── Remove file ── */
     window.removeFile = function(index) {
-        var card = fileList.querySelector('[data-index="' + index + '"]');
+        var card = zoneFilled.querySelector('[data-index="' + index + '"]')
+            || fileList.querySelector('[data-index="' + index + '"]');
         if (card) {
             card.style.opacity = '0';
             card.style.transform = 'scale(0.96)';
@@ -2017,17 +2106,12 @@
     window.resetUpload = function() {
         selectedFiles = [];
         fileInput.value = '';
-        fileListWrapper.classList.add('hidden');
         processingState.classList.add('hidden');
         downloadState.classList.add('hidden');
         errorState.classList.add('hidden');
-        zone.classList.remove('hidden', 'state-exit');
-        zone.style.opacity = '';
-        zone.style.transform = '';
-        // Restore 2-column layout with benefits
-        if (benefitsCol) benefitsCol.classList.remove('hidden');
-        if (uploadTrustBadges) uploadTrustBadges.classList.remove('hidden');
-        if (heroGrid) { heroGrid.classList.remove('lg:grid-cols-1'); heroGrid.classList.add('lg:grid-cols-2'); }
+        // renderFileList() with empty selectedFiles restores the empty dropzone
+        // state, hides the wrapper, and resumes the idle pulse halo.
+        renderFileList();
         processBtn.disabled = false;
         btnText.textContent = '{{ $actionLabel }}';
         btnSpinner.classList.add('hidden');

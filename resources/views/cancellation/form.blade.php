@@ -17,7 +17,7 @@
 
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="p-6">
-            <form method="POST" action="{{ route('cancellation.process.' . app()->getLocale()) }}">
+            <form method="POST" action="/{{ app()->getLocale() }}/{{ config('locales.cancellation_slugs.' . app()->getLocale(), 'cancel') }}">
                 @csrf
 
                 <div class="mb-5">
@@ -74,7 +74,7 @@
 
     <p class="text-center text-xs text-slate-400 mt-6">
         {{ __('cancellation.help_text') }}
-        <a href="{{ route('contact.show.' . app()->getLocale()) }}" class="text-brand-600 hover:text-brand-700 underline underline-offset-2">{{ __('cancellation.contact_support') }}</a>
+        <a href="/{{ app()->getLocale() }}/{{ config('locales.contact_slugs.' . app()->getLocale(), 'contact') }}" class="text-brand-600 hover:text-brand-700 underline underline-offset-2">{{ __('cancellation.contact_support') }}</a>
     </p>
 </div>
 @endsection

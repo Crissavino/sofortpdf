@@ -16,4 +16,9 @@ return [
     'footer_copyright' => '© :year sofortpdf.com — Alle Rechte vorbehalten.',
     'footer_ssl' => 'SSL-verschlüsselt',
     'footer_eu_servers' => 'Server in Europa',
+    'footer_cookies' => 'Cookies',
+    'footer_cancel' => 'Kündigen',
+
+    // SEO BreadcrumbList → Home label
+    'breadcrumb_home' => 'Startseite',
 ];

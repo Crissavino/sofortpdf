@@ -18,11 +18,28 @@ use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| Root redirect → default locale
+| Root redirect → locale based on Accept-Language (fallback to default)
 |--------------------------------------------------------------------------
 */
 Route::get('/', function () {
-    return redirect('/de', 301);
+    $supported = config('locales.supported', ['en']);
+    $default   = config('locales.default', 'en');
+    $accept    = (string) request()->header('Accept-Language', '');
+
+    // Walk Accept-Language tags in priority order (e.g. "hu-HU,hu;q=0.9,en;q=0.8")
+    // and pick the first whose primary subtag matches a supported locale.
+    $detected = $default;
+    foreach (explode(',', $accept) as $part) {
+        $tag = strtolower(trim(explode(';', $part)[0] ?? ''));
+        if ($tag === '') continue;
+        $primary = explode('-', $tag)[0];
+        if (in_array($primary, $supported, true)) {
+            $detected = $primary;
+            break;
+        }
+    }
+
+    return redirect("/{$detected}", 302);
 });
 
 /*
@@ -37,45 +54,81 @@ Route::get('/sitemap.xml', function () {
     unset($tools['aliases']);
 
     $urls = [];
+    $supportedLocales = config('locales.supported', ['en']);
 
-    // Homepages
-    $urls[] = ['loc' => "{$baseUrl}/de", 'priority' => '1.0', 'changefreq' => 'daily'];
-    $urls[] = ['loc' => "{$baseUrl}/en", 'priority' => '0.8', 'changefreq' => 'daily'];
-
-    // Tool pages (only enabled)
-    $deSlugs = config('locales.tool_slugs.de', []);
-    $enSlugs = config('locales.tool_slugs.en', []);
-    foreach ($tools as $key => $tool) {
-        if (empty($tool['enabled'])) continue;
-        if (isset($deSlugs[$key])) {
-            $urls[] = ['loc' => "{$baseUrl}/de/{$deSlugs[$key]}", 'priority' => '0.9', 'changefreq' => 'weekly'];
-        }
-        if (isset($enSlugs[$key])) {
-            $urls[] = ['loc' => "{$baseUrl}/en/{$enSlugs[$key]}", 'priority' => '0.7', 'changefreq' => 'weekly'];
-        }
-    }
-
-    // Alias pages (DE)
-    foreach ($aliases as $aliasSlug => $aliasCfg) {
-        $parentTool = $aliasCfg['tool'] ?? '';
-        if ($parentTool && isset($tools[$parentTool]) && !empty($tools[$parentTool]['enabled'])) {
-            $urls[] = ['loc' => "{$baseUrl}/de/{$aliasSlug}", 'priority' => '0.6', 'changefreq' => 'weekly'];
-        }
-    }
-
-    // Static pages
-    $staticPages = [
-        ['de' => 'kontakt',    'en' => 'contact',    'priority' => '0.5'],
-        ['de' => 'impressum',  'en' => 'imprint',    'priority' => '0.3'],
-        ['de' => 'datenschutz','en' => 'privacy',    'priority' => '0.3'],
-        ['de' => 'agb',        'en' => 'terms',      'priority' => '0.3'],
-        ['de' => 'anmelden',   'en' => 'login',      'priority' => '0.4'],
-        ['de' => 'kuendigen',  'en' => 'cancel',     'priority' => '0.3'],
-        ['de' => 'cookie-richtlinie', 'en' => 'cookie-policy', 'priority' => '0.2'],
+    // Per-locale homepage priorities (DE is the primary German market,
+    // EN is the global anchor, HU/CS are exploratory test markets so
+    // they get the lowest weight).
+    $homepagePriority = [
+        'de' => '1.0',
+        'en' => '0.9',
+        'hu' => '0.6',
+        'cs' => '0.6',
     ];
-    foreach ($staticPages as $page) {
-        $urls[] = ['loc' => "{$baseUrl}/de/{$page['de']}", 'priority' => $page['priority'], 'changefreq' => 'monthly'];
-        $urls[] = ['loc' => "{$baseUrl}/en/{$page['en']}", 'priority' => (string)((float)$page['priority'] - 0.1), 'changefreq' => 'monthly'];
+    foreach ($supportedLocales as $locale) {
+        $urls[] = [
+            'loc'        => "{$baseUrl}/{$locale}",
+            'priority'   => $homepagePriority[$locale] ?? '0.5',
+            'changefreq' => 'daily',
+        ];
+    }
+
+    // Tool pages (only enabled) — all supported locales
+    foreach ($supportedLocales as $locale) {
+        $slugs = config("locales.tool_slugs.{$locale}", []);
+        // DE gets the highest tool-page priority since it's the primary
+        // organic/SEO target; everything else is secondary.
+        $priority = $locale === 'de' ? '0.9' : '0.7';
+        foreach ($tools as $key => $tool) {
+            if (empty($tool['enabled'])) continue;
+            if (!isset($slugs[$key])) continue;
+            $urls[] = [
+                'loc'        => "{$baseUrl}/{$locale}/{$slugs[$key]}",
+                'priority'   => $priority,
+                'changefreq' => 'weekly',
+            ];
+        }
+    }
+
+    // Alias pages — all supported locales (DE has the bulk of these)
+    foreach ($supportedLocales as $locale) {
+        $localeAliases = config("locales.aliases.{$locale}", []);
+        foreach ($localeAliases as $aliasSlug => $toolKey) {
+            if (isset($tools[$toolKey]) && !empty($tools[$toolKey]['enabled'])) {
+                $urls[] = [
+                    'loc'        => "{$baseUrl}/{$locale}/{$aliasSlug}",
+                    'priority'   => '0.6',
+                    'changefreq' => 'weekly',
+                ];
+            }
+        }
+    }
+
+    // Static pages — emit per locale using the locale-specific slugs
+    // resolved from config so DE keeps "impressum" while EN/HU/CS use
+    // "imprint", etc.
+    $staticPageDefs = [
+        ['priority' => '0.5', 'resolve' => fn($l) => config("locales.contact_slugs.{$l}")],
+        ['priority' => '0.3', 'resolve' => fn($l) => config("locales.legal_slugs.{$l}.imprint")],
+        ['priority' => '0.3', 'resolve' => fn($l) => config("locales.legal_slugs.{$l}.privacy")],
+        ['priority' => '0.3', 'resolve' => fn($l) => config("locales.legal_slugs.{$l}.terms")],
+        ['priority' => '0.4', 'resolve' => fn($l) => config("locales.auth_slugs.{$l}.login")],
+        ['priority' => '0.3', 'resolve' => fn($l) => config("locales.cancellation_slugs.{$l}")],
+        ['priority' => '0.2', 'resolve' => fn($l) => config("locales.legal_slugs.{$l}.cookies")],
+    ];
+    foreach ($supportedLocales as $locale) {
+        // Lower priority for non-primary markets to nudge crawl budget
+        // toward DE/EN.
+        $priorityOffset = $locale === 'de' ? 0.0 : -0.1;
+        foreach ($staticPageDefs as $page) {
+            $slug = $page['resolve']($locale);
+            if (!is_string($slug) || $slug === '') continue;
+            $urls[] = [
+                'loc'        => "{$baseUrl}/{$locale}/{$slug}",
+                'priority'   => (string) max(0.1, (float)$page['priority'] + $priorityOffset),
+                'changefreq' => 'monthly',
+            ];
+        }
     }
 
     $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
@@ -173,7 +226,7 @@ Route::get('/download/{token}', [DownloadController::class, 'download'])
 |--------------------------------------------------------------------------
 */
 Route::prefix('{locale}')
-     ->where(['locale' => 'de|en'])
+     ->where(['locale' => 'de|en|hu|cs'])
      ->middleware(['locale', 'resolve-vad'])
      ->group(function () {
 
@@ -353,6 +406,18 @@ Route::prefix('{locale}')
     Route::get('/imprint', [LegalController::class, 'imprint'])->name('impressum.en');
     Route::get('/privacy', [LegalController::class, 'privacy'])->name('datenschutz.en');
     Route::get('/terms', [LegalController::class, 'terms'])->name('agb.en');
+
+    /*
+    |----------------------------------------------------------------------
+    | HU + CS reuse the English URI surface above. Because the URI prefix
+    | is `{locale}`, the same `/login`, `/contact`, `/imprint`, etc.
+    | routes already match `/hu/login`, `/cs/contact`, etc. — no extra
+    | route registrations are needed here. Views build action URLs
+    | directly from `config('locales.*_slugs.*')` instead of relying on
+    | locale-suffixed route names (Laravel deduplicates duplicate URIs
+    | by name, so `route('contact.send.hu')` would be unreliable).
+    |----------------------------------------------------------------------
+    */
 });
 
 /*
@@ -361,30 +426,30 @@ Route::prefix('{locale}')
 | These redirect to the locale-appropriate version
 |--------------------------------------------------------------------------
 */
-Route::get('/registrieren', function () { return redirect('/de'); })->name('register');
+Route::get('/registrieren', function () { return redirect('/' . config('locales.default', 'en')); })->name('register');
 
 // Contact fallback — redirect to locale-appropriate slug
 Route::get('/contact-redirect', function () {
-    $locale = session('locale', 'de');
+    $locale = session('locale', config('locales.default', 'en'));
     $slug   = config("locales.contact_slugs.{$locale}", 'kontakt');
     return redirect("/{$locale}/{$slug}");
 })->name('contact');
 
 // Auth fallbacks (Laravel's auth middleware looks for 'login')
 Route::get('/login', function () {
-    $locale = session('locale', 'de');
+    $locale = session('locale', config('locales.default', 'en'));
     $slug = config("locales.auth_slugs.{$locale}.login", 'anmelden');
     return redirect("/{$locale}/{$slug}");
 })->name('login');
 
 Route::post('/logout', function () {
-    $locale = session('locale', 'de');
+    $locale = session('locale', config('locales.default', 'en'));
     $slug = config("locales.auth_slugs.{$locale}.logout", 'abmelden');
     return redirect("/{$locale}/{$slug}");
 })->name('logout');
 
 Route::get('/password-reset', function () {
-    $locale = session('locale', 'de');
+    $locale = session('locale', config('locales.default', 'en'));
     $slug = config("locales.auth_slugs.{$locale}.password_reset", 'passwort-reset');
     return redirect("/{$locale}/{$slug}");
 })->name('password.request');
@@ -392,7 +457,7 @@ Route::get('/password-reset', function () {
 // Default named routes Laravel's password broker looks up. The actual
 // request form lives under the localized routes; these just redirect.
 Route::get('/password-reset/{token}', function ($token) {
-    $locale = session('locale', 'de');
+    $locale = session('locale', config('locales.default', 'en'));
     $slug   = config("locales.auth_slugs.{$locale}.password_reset", 'passwort-reset');
     $query  = request()->query();
     $qs     = $query ? ('?' . http_build_query($query)) : '';
@@ -400,26 +465,26 @@ Route::get('/password-reset/{token}', function ($token) {
 })->name('password.reset');
 
 Route::post('/password-reset-save', function () {
-    $locale = session('locale', 'de');
+    $locale = session('locale', config('locales.default', 'en'));
     $url    = route('password.update.' . $locale);
     return redirect()->to($url);
 })->name('password.update');
 
 // Legal fallbacks
 Route::get('/impressum-redirect', function () {
-    $locale = session('locale', 'de');
+    $locale = session('locale', config('locales.default', 'en'));
     $slug = config("locales.legal_slugs.{$locale}.imprint", 'impressum');
     return redirect("/{$locale}/{$slug}");
 })->name('impressum');
 
 Route::get('/datenschutz-redirect', function () {
-    $locale = session('locale', 'de');
+    $locale = session('locale', config('locales.default', 'en'));
     $slug = config("locales.legal_slugs.{$locale}.privacy", 'datenschutz');
     return redirect("/{$locale}/{$slug}");
 })->name('datenschutz');
 
 Route::get('/agb-redirect', function () {
-    $locale = session('locale', 'de');
+    $locale = session('locale', config('locales.default', 'en'));
     $slug = config("locales.legal_slugs.{$locale}.terms", 'agb');
     return redirect("/{$locale}/{$slug}");
 })->name('agb');

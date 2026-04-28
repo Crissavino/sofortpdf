@@ -52,12 +52,11 @@ return [
     'bottom_bar_text' => 'Ihr Dokument ist bereit!',
     'bottom_bar_button' => 'Jetzt herunterladen',
 
-    // PayPal smoke-test (button + coming-soon alert; no real PayPal flow yet)
-    'or_pay_with_card' => 'oder mit Karte bezahlen',
-    'paypal_coming_soon' => 'PayPal-Zahlungen sind bald verfügbar! Bitte verwenden Sie Ihre Kreditkarte für jetzt.',
-
     'err_card' => 'Karte wurde abgelehnt. Bitte versuchen Sie eine andere Karte.',
     'err_generic' => 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.',
     'err_name' => 'Bitte geben Sie den Namen des Karteninhabers ein.',
     'err_email' => 'Bitte geben Sie eine gültige E-Mail-Adresse ein.',
+
+    // Used in JSON-LD SoftwareApplication offer description
+    'trial_label_short' => '2-Tage-Testversion',
 ];

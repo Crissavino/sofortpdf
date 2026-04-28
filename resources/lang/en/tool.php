@@ -150,6 +150,8 @@ return [
     'js_max_files' => 'Maximum {n} files allowed at once.',
     'js_file_too_large' => 'The file "{name}" is too large. Maximum file size: {size} MB',
     'js_add_another' => 'Add another file',
+    'js_files_added' => 'Files: {n}',
+    'js_drag_to_reorder' => 'Drag below to reorder',
     'js_upload_failed' => 'Upload failed.',
     'js_conversion_failed' => 'Conversion failed.',
 ];
