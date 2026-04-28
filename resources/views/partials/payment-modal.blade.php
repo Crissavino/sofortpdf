@@ -716,24 +716,44 @@
     var tcCheckbox     = root.querySelector('#spm-tc');
     var paypalBtn      = root.querySelector('#spm-paypal-btn');
 
-    // PayPal smoke-test handler (no real PayPal flow yet — just logging
+    // PayPal smoke-test state — tracked across the modal session so we
+    // can build a funnel without overcounting.
+    //   paypalAttemptedThisSession: did the user click PayPal at least once?
+    //   paypalFollowupLogged:       did we already log either the recovery
+    //                                (card submit after PayPal) or the
+    //                                abandonment (modal close after PayPal)?
+    //                                Whichever fires first wins.
+    var paypalAttemptedThisSession = false;
+    var paypalFollowupLogged       = false;
+
+    function logEvent(event) {
+        var token = document.querySelector('meta[name="csrf-token"]');
+        fetch('/api/log/event', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': token ? token.content : '',
+            },
+            body: JSON.stringify({ event: event }),
+        }).catch(function() { /* logging is best-effort */ });
+
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({ event: event });
+    }
+
+    // PayPal smoke-test handler. No real PayPal flow yet — just logging
     // intent so we can measure demand before investing in the full
-    // Payment Element + redirect-flow rewrite). See
+    // Payment Element + redirect-flow rewrite. See
     // resources/lang/{de,en}/payment.php for the alert copy.
     if (paypalBtn) {
         paypalBtn.addEventListener('click', function() {
-            var token = document.querySelector('meta[name="csrf-token"]');
-            fetch('/api/log/event', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': token ? token.content : '',
-                },
-                body: JSON.stringify({ event: 'paypal_attempted' }),
-            }).catch(function() { /* logging is best-effort */ });
-
-            window.dataLayer = window.dataLayer || [];
-            window.dataLayer.push({ event: 'paypal_attempted' });
+            // Dedup: log the click only the FIRST time per modal session.
+            // Subsequent clicks still get the alert + scroll, but don't
+            // pollute the count (some users click 3-5 times in frustration).
+            if (!paypalAttemptedThisSession) {
+                paypalAttemptedThisSession = true;
+                logEvent('paypal_attempted');
+            }
 
             alert(__m.paypalComingSoon);
 
@@ -1045,6 +1065,14 @@
             body: JSON.stringify({ event: 'payment_attempted' })
         }).catch(function() {});
 
+        // PayPal smoke-test funnel: did the user RECOVER and try card after
+        // clicking PayPal? Log once per session so a single submit attempt
+        // counts even if validation rejects the form first.
+        if (paypalAttemptedThisSession && !paypalFollowupLogged) {
+            paypalFollowupLogged = true;
+            logEvent('paypal_followed_with_card_submit');
+        }
+
         setLoading(true);
 
         function fail(error, msg) {
@@ -1227,6 +1255,15 @@
         if (previewWrap && previewWrap.classList.contains('is-zoomed')) {
             previewWrap.classList.remove('is-zoomed');
             if (zoomBackdrop) zoomBackdrop.classList.remove('is-active');
+        }
+
+        // PayPal smoke-test funnel: user closed the modal AFTER clicking
+        // PayPal but WITHOUT submitting the card form. Strong signal that
+        // PayPal was make-or-break for them. silent=true means the modal
+        // closed because of a successful payment (don't count as abandon).
+        if (!silent && paypalAttemptedThisSession && !paypalFollowupLogged) {
+            paypalFollowupLogged = true;
+            logEvent('paypal_abandoned_after_alert');
         }
 
         root.classList.remove('spm-open');

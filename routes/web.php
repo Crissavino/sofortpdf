@@ -125,11 +125,21 @@ Route::middleware(['paywall'])->prefix('api')->group(function () {
 // user couldn't check their own job status from a guest session).
 Route::post('/api/log/event', function (\Illuminate\Http\Request $request) {
     $event = $request->input('event', 'unknown');
+
+    // Tag entries from internal IPs (dev/QA) so analysis can filter them
+    // out of conversion ratios. Set INTERNAL_IPS=ip1,ip2 in .env.
+    $internalIps = array_values(array_filter(array_map(
+        'trim',
+        explode(',', (string) env('INTERNAL_IPS', ''))
+    )));
+    $isInternal = !empty($internalIps) && in_array($request->ip(), $internalIps, true);
+
     \Illuminate\Support\Facades\Log::channel('activity')->info("client_event", [
-        'event'   => $event,
-        'ip'      => $request->ip(),
-        'user'    => $request->user() ? $request->user()->id : null,
-        'path'    => $request->headers->get('referer', ''),
+        'event'       => $event,
+        'ip'          => $request->ip(),
+        'user'        => $request->user() ? $request->user()->id : null,
+        'path'        => $request->headers->get('referer', ''),
+        'is_internal' => $isInternal,
     ]);
     return response()->json(['ok' => true]);
 });
