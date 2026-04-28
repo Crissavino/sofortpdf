@@ -52,6 +52,10 @@ return [
     'bottom_bar_text' => 'Your document is ready!',
     'bottom_bar_button' => 'Download now',
 
+    // PayPal smoke-test (button + coming-soon alert; no real PayPal flow yet)
+    'or_pay_with_card' => 'or pay with card',
+    'paypal_coming_soon' => 'PayPal payments are coming soon! Please use your credit card for now.',
+
     'err_card' => 'Your card was declined. Please try another card.',
     'err_generic' => 'Something went wrong. Please try again.',
     'err_name' => 'Please enter the cardholder name.',
