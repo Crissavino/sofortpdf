@@ -1527,13 +1527,11 @@
             && selectedFiles.length === 1;
 
         if (canAutoStart) {
-            // Loading visible en el botón durante el delay. processBtn.click()
-            // luego sobreescribe btnText con __t.processing al disparar la
-            // conversión real.
-            // btn-arrow se re-fetchea porque lucide.createIcons() (llamado
-            // desde renderFileList más arriba) reemplaza el SVG y deja el
-            // const `btnArrow` apuntando a un elemento detached.
-            btnText.textContent = __t.startingConversion;
+            // Spinner visible en el botón durante el delay; el texto NO se
+            // toca (conversie-pdf también lo deja fijo — ver feedback del
+            // 2026-04-29). btn-arrow se re-fetchea porque lucide.createIcons()
+            // (llamado desde renderFileList más arriba) reemplaza el SVG y
+            // deja el const `btnArrow` apuntando a un elemento detached.
             var btnArrowLive = document.getElementById('btn-arrow');
             if (btnArrowLive) btnArrowLive.classList.add('hidden');
             btnSpinner.classList.remove('hidden');
@@ -2162,7 +2160,6 @@
         }
 
         processBtn.disabled = true;
-        btnText.textContent = __t.processing;
         btnSpinner.classList.remove('hidden');
         btnArrow.classList.add('hidden');
 
