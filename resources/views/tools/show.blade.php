@@ -764,7 +764,7 @@
 
             {{-- 2-column layout: benefits left + upload right (desktop)
                  Stacked on mobile: upload first, benefits below --}}
-            <div id="hero-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+            <div id="hero-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
 
                 {{-- LEFT: Benefits (hidden on mobile, shown below upload on small screens) --}}
                 <div id="benefits-col" class="order-2 lg:order-1 tool-stagger" style="--stagger: 3">
@@ -852,33 +852,14 @@
                         <input type="file" id="file-input" class="hidden" accept="{{ $accept }}" {{ $multiple ? 'multiple' : '' }}>
                     </div>
 
-                    {{-- Trust badges under upload zone --}}
-                    <div id="upload-trust-badges" class="tool-stagger flex flex-wrap items-center justify-center gap-x-5 gap-y-2 mt-4 text-xs text-slate-400" style="--stagger: 3">
-                        <span class="inline-flex items-center gap-1.5">
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                            {{ __('tool.trust_fast') }}
-                        </span>
-                        <span class="inline-flex items-center gap-1.5">
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                            {{ __('tool.trust_secure') }}
-                        </span>
-                        <span class="inline-flex items-center gap-1.5">
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                            {{ __('tool.trust_quality') }}
-                        </span>
-                        <span class="inline-flex items-center gap-1.5">
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                            {{ __('tool.trust_delete') }}
-                        </span>
-                    </div>
-
                     {{-- ═══════ ACTION BUTTON — always visible below the upload zone ═══════
                          Mirrors conversie-pdf's "Convert now!" CTA. Stays inside
                          the right column so it tracks the upload zone width on
                          desktop and stacks naturally on mobile. Click with no
                          file → opens the file picker; with file → triggers the
-                         paywall/conversion flow via the existing processBtn handler. --}}
-                    <div id="action-area" class="mt-5">
+                         paywall/conversion flow via the existing processBtn handler.
+                         tool-stagger fades it in alongside the upload zone. --}}
+                    <div id="action-area" class="tool-stagger mt-5" style="--stagger: 3">
                         <button id="process-btn"
                                 class="btn-action w-full inline-flex items-center justify-center gap-2.5 {{ $c['btn'] }} text-white font-display font-bold px-8 py-4 rounded-2xl shadow-lg transition-all duration-200 text-base disabled:opacity-50 disabled:cursor-not-allowed"
                                 style="transition: transform 160ms cubic-bezier(0.23,1,0.32,1), background-color 200ms ease-out, box-shadow 200ms ease-out, opacity 200ms ease-out;">
@@ -891,6 +872,26 @@
                                 </svg>
                             </span>
                         </button>
+                    </div>
+
+                    {{-- Trust badges below the action button. Capped at three
+                         items so they fit on a single row at the column's
+                         desktop width; "100% quality" was dropped because the
+                         instant + GDPR + auto-delete trio carries more
+                         conversion-relevant signal. --}}
+                    <div id="upload-trust-badges" class="tool-stagger flex flex-wrap items-center justify-center gap-x-5 gap-y-2 mt-4 text-xs text-slate-400" style="--stagger: 4">
+                        <span class="inline-flex items-center gap-1.5">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                            {{ __('tool.trust_fast') }}
+                        </span>
+                        <span class="inline-flex items-center gap-1.5">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                            {{ __('tool.trust_secure') }}
+                        </span>
+                        <span class="inline-flex items-center gap-1.5">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            {{ __('tool.trust_delete') }}
+                        </span>
                     </div>
                 </div>
             </div>
