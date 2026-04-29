@@ -865,12 +865,6 @@
                                 style="transition: transform 160ms cubic-bezier(0.23,1,0.32,1), background-color 200ms ease-out, box-shadow 200ms ease-out, opacity 200ms ease-out;">
                             <span id="btn-text">{{ __('tool.convert_now_button') }}</span>
                             <i data-lucide="arrow-right" id="btn-arrow" class="w-5 h-5 transition-transform duration-200"></i>
-                            <span id="btn-spinner" class="hidden">
-                                <svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                                </svg>
-                            </span>
                         </button>
                     </div>
 
@@ -1359,8 +1353,6 @@
     const downloadState = document.getElementById('download-state');
     const errorState = document.getElementById('error-state');
     const btnText = document.getElementById('btn-text');
-    const btnSpinner = document.getElementById('btn-spinner');
-    const btnArrow = document.getElementById('btn-arrow');
 
     const toolKey = zone.dataset.tool;
     const acceptTypes = zone.dataset.accept;
@@ -1527,14 +1519,10 @@
             && selectedFiles.length === 1;
 
         if (canAutoStart) {
-            // Spinner visible en el botón durante el delay; el texto NO se
-            // toca (conversie-pdf también lo deja fijo — ver feedback del
-            // 2026-04-29). btn-arrow se re-fetchea porque lucide.createIcons()
-            // (llamado desde renderFileList más arriba) reemplaza el SVG y
-            // deja el const `btnArrow` apuntando a un elemento detached.
-            var btnArrowLive = document.getElementById('btn-arrow');
-            if (btnArrowLive) btnArrowLive.classList.add('hidden');
-            btnSpinner.classList.remove('hidden');
+            // Botón se queda intacto durante el delay (texto + flecha sin
+            // cambios) — conversie-pdf no muestra ningún feedback en el
+            // botón mismo, todo el loading visual lo hace el modal de
+            // pago / la sección de processing. Ver feedback 2026-04-29.
 
             // 600ms: 200ms cubre el fade de la upload zone (renderFileList),
             // los 400ms restantes le dan al usuario tiempo a ver su archivo
@@ -2119,8 +2107,6 @@
         renderFileList();
         processBtn.disabled = false;
         btnText.textContent = '{{ __("tool.convert_now_button") }}';
-        btnSpinner.classList.add('hidden');
-        btnArrow.classList.remove('hidden');
         refreshIcons();
     };
 
@@ -2160,8 +2146,6 @@
         }
 
         processBtn.disabled = true;
-        btnSpinner.classList.remove('hidden');
-        btnArrow.classList.add('hidden');
 
         // For merge: respect the user's drag-drop order (DOM order) before upload.
         var filesInSubmitOrder = selectedFiles;
@@ -2205,8 +2189,6 @@
                 showError(needMsg);
                 processBtn.disabled = false;
                 btnText.textContent = '{{ __("tool.convert_now_button") }}';
-                btnSpinner.classList.add('hidden');
-                btnArrow.classList.remove('hidden');
                 return;
             }
             // Hidden input is bound to data-tool-param={pages | rotations}
@@ -2218,8 +2200,6 @@
             showError(__t.paramRequired);
             processBtn.disabled = false;
             btnText.textContent = '{{ __("tool.convert_now_button") }}';
-            btnSpinner.classList.add('hidden');
-            btnArrow.classList.remove('hidden');
             return;
         }
 
@@ -2334,8 +2314,6 @@
 
         processBtn.disabled = false;
         btnText.textContent = '{{ __("tool.convert_now_button") }}';
-        btnSpinner.classList.add('hidden');
-        btnArrow.classList.remove('hidden');
         refreshIcons();
     }
 })();
