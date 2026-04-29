@@ -120,6 +120,7 @@ return [
     // Meta / page-title
     'title_suffix' => ' — Okamžitě a online',
     'default_action_label' => 'Konvertovat nyní',
+    'convert_now_button' => 'Konvertovat soubor nyní!',
     'maintenance_suffix' => ' — Údržba',
     'maintenance_heading' => 'Údržba',
     'maintenance_body' => 'Tento nástroj je dočasně nedostupný. Zkuste to prosím znovu později.',

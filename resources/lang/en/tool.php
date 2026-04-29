@@ -120,6 +120,7 @@ return [
     // Meta / page-title
     'title_suffix' => ' — Instant & Online',
     'default_action_label' => 'Convert now',
+    'convert_now_button' => 'Convert file now!',
     'maintenance_suffix' => ' — Maintenance',
     'maintenance_heading' => 'Maintenance',
     'maintenance_body' => 'This tool is temporarily unavailable. Please try again later.',

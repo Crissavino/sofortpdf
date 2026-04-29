@@ -871,6 +871,27 @@
                             {{ __('tool.trust_delete') }}
                         </span>
                     </div>
+
+                    {{-- ═══════ ACTION BUTTON — always visible below the upload zone ═══════
+                         Mirrors conversie-pdf's "Convert now!" CTA. Stays inside
+                         the right column so it tracks the upload zone width on
+                         desktop and stacks naturally on mobile. Click with no
+                         file → opens the file picker; with file → triggers the
+                         paywall/conversion flow via the existing processBtn handler. --}}
+                    <div id="action-area" class="mt-5">
+                        <button id="process-btn"
+                                class="btn-action w-full inline-flex items-center justify-center gap-2.5 {{ $c['btn'] }} text-white font-display font-bold px-8 py-4 rounded-2xl shadow-lg transition-all duration-200 text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                                style="transition: transform 160ms cubic-bezier(0.23,1,0.32,1), background-color 200ms ease-out, box-shadow 200ms ease-out, opacity 200ms ease-out;">
+                            <span id="btn-text">{{ __('tool.convert_now_button') }}</span>
+                            <i data-lucide="arrow-right" id="btn-arrow" class="w-5 h-5 transition-transform duration-200"></i>
+                            <span id="btn-spinner" class="hidden">
+                                <svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                                </svg>
+                            </span>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -1027,21 +1048,6 @@
                     </div>
                 @endif
 
-                {{-- Action button --}}
-                <div id="action-area" class="mt-8">
-                    <button id="process-btn"
-                            class="btn-action w-full inline-flex items-center justify-center gap-2.5 {{ $c['btn'] }} text-white font-display font-bold px-8 py-4 rounded-2xl shadow-lg transition-all duration-200 text-base disabled:opacity-50 disabled:cursor-not-allowed"
-                            style="transition: transform 160ms cubic-bezier(0.23,1,0.32,1), background-color 200ms ease-out, box-shadow 200ms ease-out, opacity 200ms ease-out;">
-                        <span id="btn-text">{{ $actionLabel }}</span>
-                        <i data-lucide="arrow-right" id="btn-arrow" class="w-5 h-5 transition-transform duration-200"></i>
-                        <span id="btn-spinner" class="hidden">
-                            <svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                            </svg>
-                        </span>
-                    </button>
-                </div>
             </div>
 
             {{-- ═══════ SECTION 3: PROCESSING STATE ═══════ --}}
@@ -2113,7 +2119,7 @@
         // state, hides the wrapper, and resumes the idle pulse halo.
         renderFileList();
         processBtn.disabled = false;
-        btnText.textContent = '{{ $actionLabel }}';
+        btnText.textContent = '{{ __("tool.convert_now_button") }}';
         btnSpinner.classList.add('hidden');
         btnArrow.classList.remove('hidden');
         refreshIcons();
@@ -2121,7 +2127,12 @@
 
     /* ── Process button ── */
     processBtn.addEventListener('click', async function() {
-        if (selectedFiles.length === 0) return;
+        // No file yet — same behaviour as clicking the empty dropzone:
+        // open the file picker so a single CTA flow works end-to-end.
+        if (selectedFiles.length === 0) {
+            fileInput.click();
+            return;
+        }
 
         // GTM: conversion started
         window.dataLayer = window.dataLayer || [];
@@ -2195,7 +2206,7 @@
                 else needMsg = __pickerLabels.needRemove;
                 showError(needMsg);
                 processBtn.disabled = false;
-                btnText.textContent = '{{ $actionLabel }}';
+                btnText.textContent = '{{ __("tool.convert_now_button") }}';
                 btnSpinner.classList.add('hidden');
                 btnArrow.classList.remove('hidden');
                 return;
@@ -2208,7 +2219,7 @@
         if (missingRequired) {
             showError(__t.paramRequired);
             processBtn.disabled = false;
-            btnText.textContent = '{{ $actionLabel }}';
+            btnText.textContent = '{{ __("tool.convert_now_button") }}';
             btnSpinner.classList.add('hidden');
             btnArrow.classList.remove('hidden');
             return;
@@ -2324,7 +2335,7 @@
         errorCard.classList.add('shake');
 
         processBtn.disabled = false;
-        btnText.textContent = '{{ $actionLabel }}';
+        btnText.textContent = '{{ __("tool.convert_now_button") }}';
         btnSpinner.classList.add('hidden');
         btnArrow.classList.remove('hidden');
         refreshIcons();
