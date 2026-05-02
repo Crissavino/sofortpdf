@@ -58,6 +58,28 @@
     $discountPct = $hasTrialDiscount
         ? (int) round((($trialMarketingPrice - $trialPrice) / $trialMarketingPrice) * 100)
         : 0;
+
+    // Local-currency display for markets where EUR is foreign. Stripe still
+    // charges in EUR; we only show a familiar number on the price line and
+    // disclose the actual EUR charge below it. Rates are frozen estimates —
+    // accuracy isn't critical because we display "≈" and the EUR disclosure.
+    $localCurrencyMap = [
+        'hu' => ['symbol' => 'Ft', 'rate' => 405, 'step' => 10],
+        'cs' => ['symbol' => 'Kč', 'rate' => 25,  'step' => 1],
+    ];
+    $localCfg = $localCurrencyMap[$loc] ?? null;
+    $useLocalCurrency = $localCfg !== null;
+    $trialLocalFormatted = null;
+    $marketingLocalFormatted = null;
+    $chargedNote = null;
+    if ($useLocalCurrency) {
+        $step = $localCfg['step'];
+        $trialLocalNum = (int) (round(($trialPrice * $localCfg['rate']) / $step) * $step);
+        $marketingLocalNum = (int) (round(($trialMarketingPrice * $localCfg['rate']) / $step) * $step);
+        $trialLocalFormatted = number_format($trialLocalNum, 0, '', ' ') . ' ' . $localCfg['symbol'];
+        $marketingLocalFormatted = number_format($marketingLocalNum, 0, '', ' ') . ' ' . $localCfg['symbol'];
+        $chargedNote = __('payment.charged_amount', ['price' => $trialPriceFormatted]);
+    }
 @endphp
 
 <div id="sofortpdf-payment-modal" class="spm-root" aria-hidden="true" role="dialog" aria-modal="true">
@@ -97,11 +119,21 @@
             @endphp
             <div class="spm-price-line">
                 <span class="spm-price-total-label">Total:</span>
-                <span class="spm-price-current">{{ $trialNum }} {{ $currency }}</span>
-                @if ($hasTrialDiscount)
-                    <span class="spm-price-strike">{{ $marketingNum }} {{ $currency }}</span>
+                @if ($useLocalCurrency)
+                    <span class="spm-price-current">{{ $trialLocalFormatted }}</span>
+                    @if ($hasTrialDiscount)
+                        <span class="spm-price-strike">{{ $marketingLocalFormatted }}</span>
+                    @endif
+                @else
+                    <span class="spm-price-current">{{ $trialNum }} {{ $currency }}</span>
+                    @if ($hasTrialDiscount)
+                        <span class="spm-price-strike">{{ $marketingNum }} {{ $currency }}</span>
+                    @endif
                 @endif
             </div>
+            @if ($chargedNote)
+                <p class="spm-price-note">{{ $chargedNote }}</p>
+            @endif
 
             <form id="spm-form" class="spm-form" novalidate>
                 @csrf
@@ -339,6 +371,12 @@
         color: #94a3b8;
         text-decoration: line-through;
         font-weight: 500;
+    }
+    .spm-price-note {
+        margin: -4px 0 0;
+        font-size: 11px;
+        color: #94a3b8;
+        font-style: italic;
     }
 
     /* ── Form ── */

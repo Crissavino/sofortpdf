@@ -120,6 +120,7 @@ return [
     // Meta / page-title
     'title_suffix' => ' — Azonnal és online',
     'default_action_label' => 'Konvertálás most',
+    'upload_button' => 'Fájl feltöltése',
     'convert_now_button' => 'Fájl konvertálása most!',
     'maintenance_suffix' => ' — Karbantartás',
     'maintenance_heading' => 'Karbantartás',

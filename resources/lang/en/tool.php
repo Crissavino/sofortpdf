@@ -120,6 +120,7 @@ return [
     // Meta / page-title
     'title_suffix' => ' — Instant & Online',
     'default_action_label' => 'Convert now',
+    'upload_button' => 'Upload your file',
     'convert_now_button' => 'Convert file now!',
     'maintenance_suffix' => ' — Maintenance',
     'maintenance_heading' => 'Maintenance',

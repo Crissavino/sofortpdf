@@ -120,6 +120,7 @@ return [
     // Meta / page-title
     'title_suffix' => ' — Okamžitě a online',
     'default_action_label' => 'Konvertovat nyní',
+    'upload_button' => 'Nahrát soubor',
     'convert_now_button' => 'Konvertovat soubor nyní!',
     'maintenance_suffix' => ' — Údržba',
     'maintenance_heading' => 'Údržba',

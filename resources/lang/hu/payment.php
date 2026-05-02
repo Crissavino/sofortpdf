@@ -42,6 +42,7 @@ return [
     'tc_required' => 'A folytatáshoz el kell fogadnia a feltételeket.',
 
     'bank_statement' => ':name fog megjelenni a bankszámlakivonatán.',
+    'charged_amount' => 'Felszámítva: :price',
     'close_button' => 'Bezárás',
     'files_count' => '{n} fájl összesen',
     'show_preview' => 'Előnézet megjelenítése',

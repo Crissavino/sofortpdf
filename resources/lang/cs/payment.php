@@ -42,6 +42,7 @@ return [
     'tc_required' => 'Pro pokračování musíte přijmout podmínky.',
 
     'bank_statement' => ':name se objeví na vašem bankovním výpisu.',
+    'charged_amount' => 'Účtováno: :price',
     'close_button' => 'Zavřít',
     'files_count' => '{n} souborů celkem',
     'show_preview' => 'Zobrazit náhled',
