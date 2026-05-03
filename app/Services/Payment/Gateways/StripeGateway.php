@@ -92,17 +92,37 @@ class StripeGateway implements PaymentGatewayInterface
 
             Log::info('StripeGateway::payTrial payload', $payload);
 
-            $response = Http::timeout(30)->post("{$this->baseUri}/api/payments/stripe/pay-trial", $payload);
+            // Retry once on Stripe lock_timeout — the rejected request had
+            // no side-effects (Stripe holds a lock, declines, never touches
+            // the PaymentIntent), so a clean retry is safe.
+            $maxAttempts = 2;
+            $response    = null;
+            $json        = null;
 
-            Log::info('StripeGateway::payTrial response', [
-                'status' => $response->status(),
-                'body'   => $response->json(),
-            ]);
+            for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
+                $response = Http::timeout(30)->post("{$this->baseUri}/api/payments/stripe/pay-trial", $payload);
 
-            $json = $response->json();
+                Log::info('StripeGateway::payTrial response', [
+                    'status'  => $response->status(),
+                    'attempt' => $attempt,
+                    'body'    => $response->json(),
+                ]);
 
-            if ($response->successful() && ($json['success'] ?? false)) {
-                return $json;
+                $json = $response->json();
+
+                if ($response->successful() && ($json['success'] ?? false)) {
+                    return $json;
+                }
+
+                $errorCode = $json['error']['code'] ?? null;
+                if ($errorCode !== 'lock_timeout' || $attempt >= $maxAttempts) {
+                    break;
+                }
+
+                Log::warning('StripeGateway::payTrial lock_timeout — retrying', [
+                    'attempt' => $attempt,
+                ]);
+                sleep(1);
             }
 
             Log::error('StripeGateway::payTrial failed', [
