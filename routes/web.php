@@ -240,7 +240,7 @@ Route::get('/download/{token}', [DownloadController::class, 'download'])
 |--------------------------------------------------------------------------
 */
 Route::prefix('{locale}')
-     ->where(['locale' => 'de|en|hu|cs'])
+     ->where(['locale' => 'de|en|hu|cs|pl'])
      ->middleware(['locale', 'resolve-vad'])
      ->group(function () {
 
