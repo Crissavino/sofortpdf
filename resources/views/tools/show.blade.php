@@ -1446,7 +1446,7 @@
        own drag-handles, so we don't intercept clicks there. ── */
 
     /* ── Handle files ── */
-    function handleFiles(files) {
+    async function handleFiles(files) {
         var arr = Array.from(files);
 
         // New upload session — let the fake loading run again on the
@@ -1470,10 +1470,34 @@
             }
         }
 
+        // Snapshot file content into memory immediately. The original
+        // File reference is backed by an OS file handle that some mobile
+        // browsers (Chrome Android in particular) invalidate when the tab
+        // is backgrounded by the Stripe 3DS iframe or when memory pressure
+        // kicks in mid-checkout. After snapshotting, the new File is
+        // backed by an in-memory ArrayBuffer that survives those events
+        // — which is the difference between "FormData arrives empty
+        // post-payment → 302 → silent fail" and a working upload.
+        var snapshotted = [];
+        for (var i = 0; i < arr.length; i++) {
+            try {
+                var buf = await arr[i].arrayBuffer();
+                snapshotted.push(new File([buf], arr[i].name, {
+                    type: arr[i].type,
+                    lastModified: arr[i].lastModified,
+                }));
+            } catch (snapErr) {
+                // Couldn't read the file at drop time — bail out cleanly
+                // rather than letting the user pay for a doomed upload.
+                showError(__t.uploadFailed || 'Could not read the selected file. Please try again.');
+                return;
+            }
+        }
+
         if (allowMultiple) {
-            selectedFiles = selectedFiles.concat(arr);
+            selectedFiles = selectedFiles.concat(snapshotted);
         } else {
-            selectedFiles = arr;
+            selectedFiles = snapshotted;
         }
 
         renderFileList();
@@ -2210,7 +2234,10 @@
         try {
             var uploadRes = await fetch('/api/upload', {
                 method: 'POST',
-                headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                },
                 body: formData,
             });
 
@@ -2239,6 +2266,7 @@
             var convertReq = fetch('/api/convert', {
                 method: 'POST',
                 headers: {
+                    'Accept': 'application/json',
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                 },
