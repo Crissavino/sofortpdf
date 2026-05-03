@@ -37,6 +37,7 @@ Route::get('/', function () {
         'DE' => 'de', 'AT' => 'de', 'CH' => 'de', 'LI' => 'de',
         'HU' => 'hu',
         'CZ' => 'cs',
+        'PL' => 'pl',
     ];
 
     $detected = $default;

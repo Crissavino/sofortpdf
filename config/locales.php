@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'supported' => ['de', 'en', 'hu', 'cs'],
+    'supported' => ['de', 'en', 'hu', 'cs', 'pl'],
     'default' => 'en',
 
     // Tool slug mapping per locale: toolKey => slug.
@@ -94,6 +94,34 @@ return [
             'optimize'    => 'optimize-pdf',
         ],
         'cs' => [
+            'merge'       => 'merge-pdf',
+            'compress'    => 'compress-pdf',
+            'image-to-pdf'=> 'image-to-pdf',
+            'jpg-to-pdf'  => 'jpg-to-pdf',
+            'pdf-to-word' => 'pdf-to-word',
+            'word-to-pdf' => 'word-to-pdf',
+            'pdf-to-jpg'  => 'pdf-to-jpg',
+            'split'       => 'split-pdf',
+            'edit'        => 'edit-pdf',
+            'sign'        => 'sign-pdf',
+            'pdf-to-excel'=> 'pdf-to-excel',
+            'excel-to-pdf'=> 'excel-to-pdf',
+            'rotate'      => 'rotate-pdf',
+            'protect'     => 'protect-pdf',
+            'unlock'      => 'unlock-pdf',
+            'watermark'   => 'add-watermark',
+            'page-numbers'=> 'add-page-numbers',
+            'pdf-to-ppt'  => 'pdf-to-powerpoint',
+            'ppt-to-pdf'  => 'powerpoint-to-pdf',
+            'pdf-to-png'  => 'pdf-to-png',
+            'png-to-pdf'  => 'png-to-pdf',
+            'ocr'         => 'ocr-pdf',
+            'remove-pages'=> 'remove-pages',
+            'extract-pages'=> 'extract-pages',
+            'html-to-pdf' => 'html-to-pdf',
+            'optimize'    => 'optimize-pdf',
+        ],
+        'pl' => [
             'merge'       => 'merge-pdf',
             'compress'    => 'compress-pdf',
             'image-to-pdf'=> 'image-to-pdf',
@@ -237,6 +265,34 @@ return [
             'html-to-pdf' => 'HTML do PDF',
             'optimize'    => 'Optimalizovat PDF',
         ],
+        'pl' => [
+            'merge'       => 'Połącz PDF',
+            'compress'    => 'Kompresuj PDF',
+            'image-to-pdf'=> 'Obraz do PDF',
+            'jpg-to-pdf'  => 'JPG do PDF',
+            'pdf-to-word' => 'PDF do Word',
+            'word-to-pdf' => 'Word do PDF',
+            'pdf-to-jpg'  => 'PDF do JPG',
+            'split'       => 'Podziel PDF',
+            'edit'        => 'Edytuj PDF',
+            'sign'        => 'Podpisz PDF',
+            'pdf-to-excel'=> 'PDF do Excel',
+            'excel-to-pdf'=> 'Excel do PDF',
+            'rotate'      => 'Obróć PDF',
+            'protect'     => 'Zabezpiecz PDF hasłem',
+            'unlock'      => 'Odblokuj PDF',
+            'watermark'   => 'Dodaj znak wodny',
+            'page-numbers'=> 'Dodaj numery stron',
+            'pdf-to-ppt'  => 'PDF do PowerPoint',
+            'ppt-to-pdf'  => 'PowerPoint do PDF',
+            'pdf-to-png'  => 'PDF do PNG',
+            'png-to-pdf'  => 'PNG do PDF',
+            'ocr'         => 'Rozpoznaj tekst (OCR)',
+            'remove-pages'=> 'Usuń strony',
+            'extract-pages'=> 'Wyodrębnij strony',
+            'html-to-pdf' => 'HTML do PDF',
+            'optimize'    => 'Optymalizuj PDF',
+        ],
     ],
 
     // Alias slugs per locale (slug => toolKey)
@@ -252,6 +308,7 @@ return [
         ],
         'hu' => [],
         'cs' => [],
+        'pl' => [],
     ],
 
     // Auth route slugs.
@@ -263,6 +320,7 @@ return [
         'en' => ['login' => 'login',    'logout' => 'logout',   'password_reset' => 'password-reset'],
         'hu' => ['login' => 'login',    'logout' => 'logout',   'password_reset' => 'password-reset'],
         'cs' => ['login' => 'login',    'logout' => 'logout',   'password_reset' => 'password-reset'],
+        'pl' => ['login' => 'login',    'logout' => 'logout',   'password_reset' => 'password-reset'],
     ],
 
     // Legal route slugs
@@ -271,6 +329,7 @@ return [
         'en' => ['imprint' => 'imprint',   'privacy' => 'privacy',     'terms' => 'terms', 'cookies' => 'cookie-policy'],
         'hu' => ['imprint' => 'imprint',   'privacy' => 'privacy',     'terms' => 'terms', 'cookies' => 'cookie-policy'],
         'cs' => ['imprint' => 'imprint',   'privacy' => 'privacy',     'terms' => 'terms', 'cookies' => 'cookie-policy'],
+        'pl' => ['imprint' => 'imprint',   'privacy' => 'privacy',     'terms' => 'terms', 'cookies' => 'cookie-policy'],
     ],
 
     // Contact route slug
@@ -279,6 +338,7 @@ return [
         'en' => 'contact',
         'hu' => 'contact',
         'cs' => 'contact',
+        'pl' => 'contact',
     ],
 
     // Cancellation route slug
@@ -287,5 +347,6 @@ return [
         'en' => 'cancel',
         'hu' => 'cancel',
         'cs' => 'cancel',
+        'pl' => 'cancel',
     ],
 ];

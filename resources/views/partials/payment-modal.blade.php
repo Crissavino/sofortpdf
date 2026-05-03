@@ -64,8 +64,9 @@
     // disclose the actual EUR charge below it. Rates are frozen estimates —
     // accuracy isn't critical because we display "≈" and the EUR disclosure.
     $localCurrencyMap = [
-        'hu' => ['symbol' => 'Ft', 'rate' => 405, 'step' => 10],
-        'cs' => ['symbol' => 'Kč', 'rate' => 25,  'step' => 1],
+        'hu' => ['symbol' => 'Ft', 'rate' => 405,  'step' => 10],
+        'cs' => ['symbol' => 'Kč', 'rate' => 25,   'step' => 1],
+        'pl' => ['symbol' => 'zł', 'rate' => 4.30, 'step' => 1],
     ];
     $localCfg = $localCurrencyMap[$loc] ?? null;
     $useLocalCurrency = $localCfg !== null;
