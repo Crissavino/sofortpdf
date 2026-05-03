@@ -53,9 +53,18 @@ class DownloadController extends Controller
 
         $filePath         = $cached['file_path'] ?? null;
         $originalFilename = $cached['original_filename'] ?? 'download';
+        $documentId       = $cached['document_id'] ?? null;
 
         if (!$filePath || !file_exists($filePath)) {
             abort(404, 'Datei nicht mehr verfügbar.');
+        }
+
+        // Mark the document as downloaded so BO's "DOWNLOADED" column flips
+        // from "Not Success" to "Success". The token-based path didn't do
+        // this historically, which made every successful download look
+        // failed in the dashboard.
+        if ($documentId) {
+            \App\Models\Document::where('id', $documentId)->update(['download' => 1]);
         }
 
         return response()->download($filePath, $originalFilename);

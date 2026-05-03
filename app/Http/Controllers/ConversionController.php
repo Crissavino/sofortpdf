@@ -220,7 +220,12 @@ class ConversionController extends Controller
             $originalName = pathinfo($originalName, PATHINFO_FILENAME) . '.' . $outputExt;
         }
 
-        $tokenInfo = $this->issueDownloadToken($user, $outputPath, $originalName, (bool) ($entry['bypass'] ?? false));
+        // Persist the document row first so the download token can reference
+        // it — the token-based /download/{token} path uses the cached
+        // document_id to bump documents.download = 1 on actual download.
+        $document = $this->saveDocument($entry, $originalName, $outputExt, $outputPath);
+
+        $tokenInfo = $this->issueDownloadToken($user, $outputPath, $originalName, (bool) ($entry['bypass'] ?? false), $document?->id);
 
         Cache::put($this->jobKey($documentId), array_merge($entry, [
             'status' => 'completed',
@@ -243,9 +248,6 @@ class ConversionController extends Controller
             'filename' => $originalName,
             'user_id'  => $entry['user_id'] ?? null,
         ]);
-
-        // Save document to the shared `documents` table (same as conversie-pdf)
-        $this->saveDocument($entry, $originalName, $outputExt, $outputPath);
 
         $this->cleanupInputs($entry);
 
@@ -531,7 +533,7 @@ class ConversionController extends Controller
         return 'conversion_job:' . $id;
     }
 
-    private function saveDocument(array $entry, string $originalName, string $outputExt, string $outputPath): void
+    private function saveDocument(array $entry, string $originalName, string $outputExt, string $outputPath): ?\App\Models\Document
     {
         try {
             $srcName = $entry['original_filename'] ?? $entry['original_names'][0] ?? 'unknown';
@@ -548,7 +550,7 @@ class ConversionController extends Controller
                 }
             }
 
-            \App\Models\Document::create([
+            return \App\Models\Document::create([
                 'name'               => base64_encode($srcName),
                 'service'            => $tool,
                 'file_path'          => $outputPath,
@@ -566,6 +568,7 @@ class ConversionController extends Controller
             ]);
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::warning('Document save failed', ['error' => $e->getMessage()]);
+            return null;
         }
     }
 
@@ -614,7 +617,7 @@ class ConversionController extends Controller
      *
      * @return array{token: string, download_url: string}
      */
-    private function issueDownloadToken($user, string $primaryPath, string $originalName, bool $bypass): array
+    private function issueDownloadToken($user, string $primaryPath, string $originalName, bool $bypass, ?int $documentId = null): array
     {
         // Auth-Path used to write a Download row to a local table, but that
         // table doesn't exist on the shared DB; cache-backed tokens cover
@@ -626,6 +629,7 @@ class ConversionController extends Controller
         Cache::put('guest_download:' . $token, [
             'file_path' => $primaryPath,
             'original_filename' => $originalName,
+            'document_id' => $documentId,
             'expires_at' => now()->addHours($ttlHours)->toIso8601String(),
         ], now()->addHours($ttlHours));
 
