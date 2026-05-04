@@ -34,142 +34,17 @@
     <link rel="preconnect" href="https://api.fontshare.com" data-cookieconsent="ignore">
     <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@700,800&f[]=dm-sans@400,500,700&display=swap" rel="stylesheet" data-cookieconsent="ignore">
 
-    {{-- Lucide Icons --}}
-    <script data-cookieconsent="ignore" src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    {{-- Lucide Icons — pinned version (was @latest), deferred to unblock render --}}
+    <script data-cookieconsent="ignore" src="https://unpkg.com/lucide@0.263.1/dist/umd/lucide.min.js" defer></script>
 
-    {{-- Tailwind via CDN — must not be blocked by Cookiebot --}}
-    <script data-cookieconsent="ignore" src="https://cdn.tailwindcss.com"></script>
-    <script data-cookieconsent="ignore">
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            50:  '#eef4ff',
-                            100: '#dbe6fe',
-                            200: '#bfd3fe',
-                            300: '#93b4fd',
-                            400: '#6090fa',
-                            500: '#3b6cf5',
-                            600: '#254bea',
-                            700: '#1d3ad7',
-                            800: '#1e31ae',
-                            900: '#1e2f89',
-                            950: '#171e54',
-                        },
-                        surface: {
-                            50:  '#f8fafc',
-                            100: '#f1f5f9',
-                            200: '#e2e8f0',
-                            300: '#cbd5e1',
-                        },
-                    },
-                    fontFamily: {
-                        display: ['"Cabinet Grotesk"', 'system-ui', 'sans-serif'],
-                        body:    ['"DM Sans"', 'system-ui', 'sans-serif'],
-                    },
-                },
-            },
-        }
-    </script>
-
-    <style>
-        * { font-family: 'DM Sans', system-ui, sans-serif; }
-        .font-display { font-family: 'Cabinet Grotesk', system-ui, sans-serif; }
-
-        /* Upload zone pulse */
-        @keyframes dropzone-pulse {
-            0%, 100% { border-color: rgb(59 108 245 / 0.3); }
-            50% { border-color: rgb(59 108 245 / 0.7); }
-        }
-        .dropzone-active { animation: dropzone-pulse 1.5s ease-in-out infinite; }
-
-        /* Smooth fade-in for tool cards */
-        @keyframes fade-up {
-            from { opacity: 0; transform: translateY(20px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-up {
-            animation: fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            opacity: 0;
-        }
-
-        /* Fade in only */
-        @keyframes fade-in {
-            from { opacity: 0; }
-            to   { opacity: 1; }
-        }
-        .animate-fade-in {
-            animation: fade-in 0.5s ease-out forwards;
-            opacity: 0;
-        }
-
-        /* Scale up entrance */
-        @keyframes scale-up {
-            from { opacity: 0; transform: scale(0.95); }
-            to   { opacity: 1; transform: scale(1); }
-        }
-        .animate-scale-up {
-            animation: scale-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            opacity: 0;
-        }
-
-        /* Processing spinner */
-        @keyframes spin-slow { to { transform: rotate(360deg); } }
-        .animate-spin-slow { animation: spin-slow 1.2s linear infinite; }
-
-        /* Gradient text */
-        .text-gradient {
-            background: linear-gradient(135deg, #3b6cf5 0%, #1d3ad7 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        /* Floating background shapes */
-        @keyframes float-slow {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(3deg); }
-        }
-        .animate-float { animation: float-slow 8s ease-in-out infinite; }
-        .animate-float-delay { animation: float-slow 10s ease-in-out 2s infinite; }
-
-        /* Shimmer for loading */
-        @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-        }
-        .animate-shimmer {
-            background: linear-gradient(90deg, transparent 25%, rgba(255,255,255,0.4) 50%, transparent 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s ease-in-out infinite;
-        }
-
-        /* Gradient border animation */
-        @keyframes gradient-rotate {
-            0% { --angle: 0deg; }
-            100% { --angle: 360deg; }
-        }
-
-        /* Card hover lift */
-        .card-hover {
-            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease-out;
-        }
-        .card-hover:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 40px -8px rgba(37, 75, 234, 0.15);
-        }
-
-        /* Respect reduced motion */
-        @media (prefers-reduced-motion: reduce) {
-            .animate-fade-up,
-            .animate-fade-in,
-            .animate-scale-up,
-            .animate-float,
-            .animate-float-delay { animation: none; opacity: 1; transform: none; }
-            .card-hover:hover { transform: none; }
-        }
-    </style>
+    {{-- Compiled Tailwind CSS + custom animations.
+         Built via `npx tailwindcss -i resources/css/app.css -o public/css/app.css --minify`.
+         Cache-busted by file mtime. --}}
+    @php
+        $appCssPath = public_path('css/app.css');
+        $appCssVersion = file_exists($appCssPath) ? filemtime($appCssPath) : '0';
+    @endphp
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}?v={{ $appCssVersion }}" data-cookieconsent="ignore">
 
     <!-- Google Ads Conversion Tracking — completar AW-XXXXXXXXX al configurar cuenta
     <script async src="https://www.googletagmanager.com/gtag/js?id={{ config('services.google_ads.tag_id', 'AW-XXXXXXXXX') }}"></script>
@@ -454,6 +329,13 @@
     </script>
 
     @stack('scripts')
-    <script>lucide.createIcons();</script>
+    {{-- Lucide is loaded with `defer` in <head>, so it executes after
+         HTML parse but before DOMContentLoaded — wait for that event
+         before calling createIcons() to avoid a ReferenceError. --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.lucide) lucide.createIcons();
+        });
+    </script>
 </body>
 </html>

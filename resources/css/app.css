@@ -1,0 +1,111 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─────────────────────────────────────────────────────────────────────
+   Global font defaults
+   Tailwind preflight resets to system sans-serif. We want DM Sans for
+   body and Cabinet Grotesk for display elements applied globally.
+   ───────────────────────────────────────────────────────────────────── */
+* { font-family: 'DM Sans', system-ui, sans-serif; }
+.font-display { font-family: 'Cabinet Grotesk', system-ui, sans-serif; }
+
+/* ─────────────────────────────────────────────────────────────────────
+   Animations migrated from layouts/app.blade.php inline <style>
+   These classes are referenced from blade templates and inline JS in
+   tools/show.blade.php — must remain stable utilities even if we
+   later restructure the partials.
+   ───────────────────────────────────────────────────────────────────── */
+
+/* Upload zone pulse */
+@keyframes dropzone-pulse {
+    0%, 100% { border-color: rgb(59 108 245 / 0.3); }
+    50%      { border-color: rgb(59 108 245 / 0.7); }
+}
+.dropzone-active { animation: dropzone-pulse 1.5s ease-in-out infinite; }
+
+/* Smooth fade-in for tool cards */
+@keyframes fade-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up {
+    animation: fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+}
+
+/* Fade in only */
+@keyframes fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+.animate-fade-in {
+    animation: fade-in 0.5s ease-out forwards;
+    opacity: 0;
+}
+
+/* Scale up entrance */
+@keyframes scale-up {
+    from { opacity: 0; transform: scale(0.95); }
+    to   { opacity: 1; transform: scale(1); }
+}
+.animate-scale-up {
+    animation: scale-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+}
+
+/* Processing spinner */
+@keyframes spin-slow { to { transform: rotate(360deg); } }
+.animate-spin-slow { animation: spin-slow 1.2s linear infinite; }
+
+/* Gradient text */
+.text-gradient {
+    background: linear-gradient(135deg, #3b6cf5 0%, #1d3ad7 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Floating background shapes */
+@keyframes float-slow {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50%      { transform: translateY(-20px) rotate(3deg); }
+}
+.animate-float       { animation: float-slow 8s ease-in-out infinite; }
+.animate-float-delay { animation: float-slow 10s ease-in-out 2s infinite; }
+
+/* Shimmer for loading */
+@keyframes shimmer {
+    0%   { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+.animate-shimmer {
+    background: linear-gradient(90deg, transparent 25%, rgba(255,255,255,0.4) 50%, transparent 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* Gradient border animation (used by some hover states elsewhere) */
+@keyframes gradient-rotate {
+    0%   { --angle: 0deg; }
+    100% { --angle: 360deg; }
+}
+
+/* Card hover lift */
+.card-hover {
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease-out;
+}
+.card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px -8px rgba(37, 75, 234, 0.15);
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .animate-fade-up,
+    .animate-fade-in,
+    .animate-scale-up,
+    .animate-float,
+    .animate-float-delay { animation: none; opacity: 1; transform: none; }
+    .card-hover:hover    { transform: none; }
+}
