@@ -67,7 +67,11 @@ class StripeGateway implements PaymentGatewayInterface
                 'body'   => $response->body(),
             ]);
 
-            return ['success' => false];
+            return [
+                'success' => false,
+                'message' => $json['message'] ?? 'Customer creation failed',
+                'error'   => $json['error'] ?? null,
+            ];
         } catch (\Throwable $e) {
             Log::error('StripeGateway::createCustomer exception', ['error' => $e->getMessage()]);
             return ['success' => false];
@@ -130,7 +134,11 @@ class StripeGateway implements PaymentGatewayInterface
                 'body'   => $response->body(),
             ]);
 
-            return ['success' => false, 'message' => $json['message'] ?? 'Payment failed'];
+            return [
+                'success' => false,
+                'message' => $json['message'] ?? 'Payment failed',
+                'error'   => $json['error'] ?? null,
+            ];
         } catch (\Throwable $e) {
             Log::error('StripeGateway::payTrial exception', ['error' => $e->getMessage()]);
             return ['success' => false];
@@ -181,7 +189,11 @@ class StripeGateway implements PaymentGatewayInterface
                 'body'   => $response->body(),
             ]);
 
-            return ['success' => false, 'message' => $json['message'] ?? 'Subscription failed'];
+            return [
+                'success' => false,
+                'message' => $json['message'] ?? 'Subscription failed',
+                'error'   => $json['error'] ?? null,
+            ];
         } catch (\Throwable $e) {
             Log::error('StripeGateway::createSubscription exception', ['error' => $e->getMessage()]);
             return ['success' => false];

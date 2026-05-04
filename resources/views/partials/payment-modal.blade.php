@@ -36,6 +36,7 @@
         'errName'            => __('payment.err_name'),
         'errEmail'           => __('payment.err_email'),
         'errGeneric'         => __('payment.err_generic'),
+        'errCard'            => __('payment.err_card'),
         'tcRequired'         => __('payment.tc_required'),
     ], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
     // Stripe public key from the VAD-resolved account (bo_stripe_accounts),
@@ -722,6 +723,16 @@
     }
     function hideError() { errorEl.hidden = true; errorEl.textContent = ''; }
 
+    // Map BO/Stripe error responses to a localized user-facing message.
+    // The BO returns Stripe's English message verbatim; we translate the
+    // most common case (card_declined) to the user's locale and fall
+    // back to the generic message for everything else.
+    function localizeError(data) {
+        var code = data && data.error && data.error.code;
+        if (code === 'card_declined') return __m.errCard;
+        return __m.errGeneric;
+    }
+
     function setLoading(loading) {
         submitBtn.disabled = loading;
         submitText.textContent = loading ? __m.processing : __m.payButton;
@@ -1024,7 +1035,7 @@
             });
             var step1Data = await step1.json();
             console.log('Step 1:', step1.status, step1Data);
-            if (!step1Data.success) { fail('create_customer', step1Data.message); return; }
+            if (!step1Data.success) { fail('create_customer', localizeError(step1Data)); return; }
 
             // GTM: signup (new customer created during payment)
             window.dataLayer.push({ event: 'signup', method: 'payment' });
@@ -1044,7 +1055,7 @@
             });
             var step2Data = await step2.json();
             console.log('Step 2:', step2.status, step2Data);
-            if (!step2Data.success) { fail('pay_trial', step2Data.message); return; }
+            if (!step2Data.success) { fail('pay_trial', localizeError(step2Data)); return; }
 
             // Handle 3D Secure if required
             if (step2Data.paymentIntent && step2Data.paymentIntent.status === 'requires_action') {
@@ -1061,7 +1072,7 @@
             });
             var step3Data = await step3.json();
             console.log('Step 3:', step3.status, step3Data);
-            if (!step3Data.success) { fail('subscription', step3Data.message); return; }
+            if (!step3Data.success) { fail('subscription', localizeError(step3Data)); return; }
 
             // GTM: purchase event (GA4 ecommerce + Google Ads conversion)
             window.dataLayer.push({
