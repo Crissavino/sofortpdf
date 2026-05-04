@@ -35,7 +35,7 @@
     <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@700,800&f[]=dm-sans@400,500,700&display=swap" rel="stylesheet" data-cookieconsent="ignore">
 
     {{-- Lucide Icons — pinned version (was @latest), deferred to unblock render --}}
-    <script data-cookieconsent="ignore" src="https://unpkg.com/lucide@0.263.1/dist/umd/lucide.min.js" defer></script>
+    <script data-cookieconsent="ignore" src="https://unpkg.com/lucide@0.263.0/dist/umd/lucide.min.js" defer></script>
 
     {{-- Compiled Tailwind CSS + custom animations.
          Built via `npx tailwindcss -i resources/css/app.css -o public/css/app.css --minify`.
