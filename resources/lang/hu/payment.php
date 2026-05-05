@@ -36,9 +36,9 @@ return [
     'preview_link' => 'Előnézet',
     'processing' => 'Feldolgozás…',
 
-    'tc_label' => 'Elfogadom az ÁSZF-et.',
-    'tc_details_label' => 'Részletek megtekintése',
-    'tc_text' => ':days napos próbaidő :trialPrice áron. Utána :fullPrice/hó. A próbaidő vége előtt bármikor lemondhatja. A próbaidő után az előfizetése automatikusan havonta megújul.',
+    'tc_label' => 'Kijelentem, hogy elolvastam és elfogadtam az ÁSZF-et.',
+    'tc_details_label' => 'Részletek',
+    'tc_text' => 'Elfogadom az előfizetési feltételeket és megerősítem a megrendelésemet egy korlátlan havi előfizetésre :fullPrice áron. Tudomásul veszem, hogy jogosult vagyok egy :days napos kedvezményes próbaajánlatra mindössze :trialPrice áron. A próbaidőszak után az előfizetésem automatikusan havonta megújul, és az előfizetési díjat ugyanarra a fizetési módra terheljük, amelyet a próbaajánlathoz használtam. Az előfizetés lemondásához kattintson <a href=":cancelUrl">ide</a>. Felhatalmazom a sofortpdf.com-ot, hogy az előfizetési díjat az előfizetésem havi évfordulójának napján levonja a fizetési módomról.',
     'tc_required' => 'A folytatáshoz el kell fogadnia a feltételeket.',
 
     'bank_statement' => ':name fog megjelenni a bankszámlakivonatán.',

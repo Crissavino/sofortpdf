@@ -312,7 +312,7 @@
             if (window.SofortpdfLoadingModal) {
                 window.SofortpdfLoadingModal.run({
                     files: files,
-                    duration: 3500,
+                    duration: 2500,
                     onDone: function() {
                         window.__sofortpdfLoadingShown = true;
                         window.SofortpdfLoadingModal.hide();

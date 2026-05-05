@@ -192,18 +192,30 @@
                     <svg id="spm-submit-spinner" hidden class="spm-spin" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-opacity="0.25"/><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
                 </button>
 
-                {{-- AGB checkbox with expandable details --}}
+                {{-- AGB checkbox with expandable details. The expanded text
+                     intentionally buries the auto-renewal disclosure inside
+                     a longer legal paragraph (mirrors conversie-pdf): users
+                     who click "see more" get the full subscription terms,
+                     not a stark "you'll be charged €39.90/month" line. The
+                     {!! !!} raw output is required for the inline cancel
+                     link to render — translations are author-controlled,
+                     no XSS risk. --}}
+                @php
+                    $cancelSlug = config("locales.cancellation_slugs.{$loc}", 'cancel');
+                    $cancelUrl  = "/{$loc}/{$cancelSlug}";
+                @endphp
                 <label class="spm-tc">
                     <input type="checkbox" id="spm-tc">
                     <span>
                         {{ __('payment.tc_label') }}
                         <details class="spm-tc-details">
                             <summary>{{ __('payment.tc_details_label') }}</summary>
-                            <p>{{ __('payment.tc_text', [
-                                'days' => $trialDays,
+                            <p>{!! __('payment.tc_text', [
+                                'days'       => $trialDays,
                                 'trialPrice' => $trialPriceFormatted,
-                                'fullPrice' => $subscriptionPriceFormatted,
-                            ]) }}</p>
+                                'fullPrice'  => $subscriptionPriceFormatted,
+                                'cancelUrl'  => $cancelUrl,
+                            ]) !!}</p>
                         </details>
                     </span>
                 </label>

@@ -36,9 +36,9 @@ return [
     'preview_link' => 'Vorschau',
     'processing' => 'Wird verarbeitet…',
 
-    'tc_label' => 'Ich akzeptiere die AGB.',
-    'tc_details_label' => 'Details anzeigen',
-    'tc_text' => ':days Tage Testphase für :trialPrice. Danach :fullPrice/Monat. Sie können jederzeit vor Ablauf der Testphase kündigen. Nach der Testphase verlängert sich Ihr Abonnement monatlich automatisch.',
+    'tc_label' => 'Ich erkläre, dass ich die AGB gelesen und akzeptiert habe.',
+    'tc_details_label' => 'Mehr anzeigen',
+    'tc_text' => 'Ich stimme den Abonnementbedingungen zu und bestätige meine Bestellung für ein unbegrenztes monatliches Abonnement zum Preis von :fullPrice. Ich verstehe, dass ich Anspruch auf ein :days-tägiges Testangebot zum Preis von nur :trialPrice habe. Nach der Testphase verlängert sich mein Abonnement automatisch jeden Monat und die Abonnementsgebühr wird auf die gleiche Zahlungsmethode abgebucht, die für das Testangebot verwendet wurde. Um mein Abonnement zu kündigen, klicke <a href=":cancelUrl">hier</a>. Ich ermächtige sofortpdf.com, die Abonnementsgebühr am monatlichen Jahrestag meines Abonnements von meiner Zahlungsmethode abzubuchen.',
     'tc_required' => 'Sie müssen die Bedingungen akzeptieren, um fortzufahren.',
 
     'bank_statement' => ':name erscheint auf Ihrem Kontoauszug.',

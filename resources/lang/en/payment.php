@@ -36,9 +36,9 @@ return [
     'preview_link' => 'Preview',
     'processing' => 'Processing…',
 
-    'tc_label' => 'I accept the Terms & Conditions.',
-    'tc_details_label' => 'View details',
-    'tc_text' => ':days-day trial for :trialPrice. Then :fullPrice/month. You can cancel anytime before the trial ends. After the trial, your subscription renews monthly automatically.',
+    'tc_label' => 'I declare that I have read and accepted the Terms & Conditions.',
+    'tc_details_label' => 'See more',
+    'tc_text' => 'I agree to the Terms of Subscription and confirm my order for an unlimited monthly subscription at the price of :fullPrice. I understand that I am eligible for a :days-day promotional trial offer at the cost of only :trialPrice. After the trial period, my subscription will automatically renew each month and the subscription fee will be charged to the same payment method used for the trial offer. To cancel my subscription, click <a href=":cancelUrl">here</a>. I authorize sofortpdf.com to deduct the subscription fee from my payment method on the monthly anniversary date of my subscription.',
     'tc_required' => 'You must accept the terms to continue.',
 
     'bank_statement' => ':name will appear on your bank statement.',

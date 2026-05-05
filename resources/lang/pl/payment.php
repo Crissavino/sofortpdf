@@ -36,9 +36,9 @@ return [
     'preview_link' => 'Podgląd',
     'processing' => 'Przetwarzanie…',
 
-    'tc_label' => 'Akceptuję regulamin.',
-    'tc_details_label' => 'Pokaż szczegóły',
-    'tc_text' => ':days-dniowy okres próbny za :trialPrice. Następnie :fullPrice/mies. Możesz anulować w każdej chwili przed końcem okresu próbnego. Po okresie próbnym Twoja subskrypcja odnawia się automatycznie co miesiąc.',
+    'tc_label' => 'Oświadczam, że przeczytałem/am i akceptuję regulamin.',
+    'tc_details_label' => 'Pokaż więcej',
+    'tc_text' => 'Wyrażam zgodę na Warunki Subskrypcji i potwierdzam moje zamówienie nielimitowanej subskrypcji miesięcznej w cenie :fullPrice. Rozumiem, że jestem uprawniony/a do :days-dniowej promocyjnej oferty próbnej w cenie zaledwie :trialPrice. Po okresie próbnym moja subskrypcja będzie automatycznie odnawiana co miesiąc, a opłata za subskrypcję będzie pobierana z tej samej metody płatności, której użyłem/am dla oferty próbnej. Aby anulować subskrypcję, kliknij <a href=":cancelUrl">tutaj</a>. Upoważniam sofortpdf.com do potrącania opłaty za subskrypcję z mojej metody płatności w miesięcznicę mojej subskrypcji.',
     'tc_required' => 'Aby kontynuować, musisz zaakceptować regulamin.',
 
     'bank_statement' => ':name pojawi się na Twoim wyciągu bankowym.',

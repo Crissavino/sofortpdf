@@ -36,9 +36,9 @@ return [
     'preview_link' => 'Náhled',
     'processing' => 'Zpracování…',
 
-    'tc_label' => 'Souhlasím s obchodními podmínkami.',
-    'tc_details_label' => 'Zobrazit podrobnosti',
-    'tc_text' => ':days denní zkušební doba za :trialPrice. Poté :fullPrice/měsíc. Můžete kdykoli zrušit před koncem zkušební doby. Po zkušební době se vaše předplatné automaticky obnovuje měsíčně.',
+    'tc_label' => 'Prohlašuji, že jsem si přečetl/a a přijímám obchodní podmínky.',
+    'tc_details_label' => 'Zobrazit více',
+    'tc_text' => 'Souhlasím s podmínkami předplatného a potvrzuji svou objednávku neomezeného měsíčního předplatného za cenu :fullPrice. Beru na vědomí, že mám nárok na :days denní propagační zkušební nabídku za pouhých :trialPrice. Po skončení zkušební doby se mé předplatné automaticky obnovuje každý měsíc a poplatek za předplatné bude účtován ze stejné platební metody, kterou jsem použil/a pro zkušební nabídku. Pro zrušení předplatného klikněte <a href=":cancelUrl">zde</a>. Opravňuji sofortpdf.com k odečtení poplatku za předplatné z mé platební metody v měsíční výroční den mého předplatného.',
     'tc_required' => 'Pro pokračování musíte přijmout podmínky.',
 
     'bank_statement' => ':name se objeví na vašem bankovním výpisu.',
