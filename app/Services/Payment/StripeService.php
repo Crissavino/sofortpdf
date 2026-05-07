@@ -26,15 +26,21 @@ class StripeService
     /**
      * The Stripe account for this website (test or live depending on env).
      *
-     * Honors the VAD routing decision: if the resolved BoVadProduct points
-     * to a specific account_id, that account wins. Falls back to the first
-     * stripe account matching website + env when no VAD route is active
-     * (first visit before middleware runs, etc.).
-     *
-     * Without this VAD-aware lookup, sites with multiple stripe accounts
-     * per website (different VAD entities — e.g. Avocode SRL + JackCode
-     * FZE for sofortpdf) would always charge via the lowest-id account
-     * regardless of which VAD the router selected.
+     * Resolution order:
+     *   1. Session VAD route → BoVadProduct.account_id (set by ResolveVad
+     *      middleware on the user-facing page load).
+     *   2. Lazy VadRouter::selectVad() — covers requests that hit
+     *      /api/payment/* without ever passing through the locale-prefixed
+     *      group (e.g. cached HTML, browser back button, prefetcher). The
+     *      middleware skips api/* by design, so without this lazy call the
+     *      session would have no VAD and we'd fall through to the legacy
+     *      fallback below.
+     *   3. Latest-id fallback. Used only when steps 1+2 both fail (no
+     *      country code, geoip down, etc.). `latest('id')` instead of the
+     *      old `first()` — multi-account sites must not silently default
+     *      to the oldest stripe account just because it has the lowest PK.
+     *      The most recent account is the one most likely to match the
+     *      currently-active VAD rule.
      */
     public function getStripeAccount(): ?BoStripeAccount
     {
@@ -49,8 +55,38 @@ class StripeService
         $websiteId = config('services.bo.website_id');
         $isTest    = app()->environment('local', 'testing');
 
+        // Lazy resolve — request hit /api/payment/* without ever loading
+        // a page-bound view, so ResolveVad never ran for this session.
+        try {
+            $countryCode = session('country_code')
+                ?: \App\Classes\GetIpInformation::get(request()->ip(), 'countryCode')
+                ?: 'XX';
+
+            $vad = app(VadRouter::class)->selectVad(
+                strtoupper((string) $countryCode),
+                request()->ip()
+            );
+
+            if (!empty($vad['payment_route_id'])) {
+                session(['bo_payment_route_id' => $vad['payment_route_id']]);
+            }
+
+            if (!empty($vad['account_id'])) {
+                $account = BoStripeAccount::find($vad['account_id']);
+                if ($account) {
+                    return $account;
+                }
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning(
+                'StripeService::getStripeAccount lazy VAD resolution failed',
+                ['error' => $e->getMessage()]
+            );
+        }
+
         return BoStripeAccount::where('website_id', $websiteId)
             ->where('is_test', $isTest ? 1 : 0)
+            ->latest('id')
             ->first();
     }
 
