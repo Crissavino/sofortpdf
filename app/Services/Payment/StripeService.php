@@ -46,9 +46,28 @@ class StripeService
     {
         $vadProduct = $this->getVadProduct();
         if ($vadProduct && $vadProduct->account_id) {
-            $account = BoStripeAccount::find($vadProduct->account_id);
-            if ($account) {
-                return $account;
+            // The session may carry a route ID from a previous visit when
+            // a different VAD rule was active. Before honoring it, confirm
+            // the VAD is still served by an active rule on this website —
+            // otherwise we'd charge via a deactivated entity (the bug that
+            // bit melindabujaki, winsbox, santalpal on 2026-05-07+).
+            $websiteId = config('services.bo.website_id');
+            $hasActiveRule = \App\Models\BoVadRule::where('bo_vad_id', $vadProduct->bo_vad_id)
+                ->where('active', 1)
+                ->where('website_id', $websiteId)
+                ->exists();
+
+            if ($hasActiveRule) {
+                $account = BoStripeAccount::find($vadProduct->account_id);
+                if ($account) {
+                    return $account;
+                }
+            } else {
+                \Illuminate\Support\Facades\Log::info(
+                    'StripeService: dropping stale session VAD (rule no longer active)',
+                    ['bo_vad_id' => $vadProduct->bo_vad_id, 'website_id' => $websiteId]
+                );
+                session()->forget(['bo_payment_route_id', 'vad.used_vad', 'bo_vad_id']);
             }
         }
 
