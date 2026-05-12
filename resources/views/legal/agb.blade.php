@@ -18,13 +18,32 @@
     $jurisdiction   = $pick($company['jurisdiction'] ?? '');
     $governingLaw   = $pick($company['governing_law'] ?? '');
 
+    // Pricing tokens for Section 4 — match the format the payment modal
+    // already shows ("0,69 €" in non-EN locales, "0.69 €" in EN). Falls
+    // back to the marketing defaults when the VAD pricing chain hasn't
+    // resolved (e.g., direct hit on /terms without a session).
+    $trialNum         = (float) ($pricing['trial']           ?? 0.69);
+    $trialMarketing   = (float) ($pricing['trial_marketing'] ?? 2.00);
+    $subscriptionNum  = (float) ($pricing['subscription']    ?? 39.90);
+    $currencySym      = $pricing['symbol'] ?? '€';
+    $trialDays        = (int) config('services.stripe.trial_days', 2);
+    $fmt              = function (float $v) use ($loc, $currencySym) {
+        $useDot = $loc === 'en';
+        return number_format($v, 2, $useDot ? '.' : ',', $useDot ? ',' : '.') . ' ' . $currencySym;
+    };
+
     $tokens = [
-        'company'        => $companyName,
-        'address'        => $companyAddress ?: 'sofortpdf.com',
-        'email'          => $companyEmail,
-        'country'        => $companyCountry,
-        'jurisdiction'   => $jurisdiction,
-        'governing_law'  => $governingLaw,
+        'company'             => $companyName,
+        'address'             => $companyAddress ?: 'sofortpdf.com',
+        'email'               => $companyEmail,
+        'country'             => $companyCountry,
+        'jurisdiction'        => $jurisdiction,
+        'governing_law'       => $governingLaw,
+        'website'             => 'sofortpdf.com',
+        'trial_days'          => $trialDays,
+        'trial_price'         => $fmt($trialNum),
+        'trial_marketing'     => $fmt($trialMarketing),
+        'subscription_price' => $fmt($subscriptionNum),
     ];
 @endphp
 <div class="max-w-3xl mx-auto px-4 py-12">
@@ -44,6 +63,8 @@
     <h2 class="text-xl font-semibold mt-8 mb-4">{{ __('legal.agb_section_4_title') }}</h2>
     <p class="mb-4 leading-relaxed">{{ __('legal.agb_section_4_p1') }}</p>
     <p class="mb-4 leading-relaxed">{{ __('legal.agb_section_4_p2') }}</p>
+    <p class="mb-4 leading-relaxed">{{ __('legal.agb_section_4_p3', $tokens) }}</p>
+    <p class="mb-4 leading-relaxed">{{ __('legal.agb_section_4_p4') }}</p>
 
     <h2 class="text-xl font-semibold mt-8 mb-4">{{ __('legal.agb_section_5_title') }}</h2>
     <p class="mb-4 leading-relaxed">{{ __('legal.agb_section_5_p1') }}</p>
