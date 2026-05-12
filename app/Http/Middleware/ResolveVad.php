@@ -343,20 +343,33 @@ class ResolveVad
             }
         }
 
-        if ($hasNew) {
-            session(['utm_params' => $params]);
+        // Click identifiers also indicate paid traffic. URLs with only
+        // gclid/fbclid (no utm_* — happens with hand-tagged links,
+        // referrer-policy trimming, or some non-Google ad networks)
+        // would otherwise fall through to the referer check and miss.
+        $gclid       = $request->query('gclid');
+        $fbclid      = $request->query('fbclid');
+        $hasClickId  = !empty($gclid) || !empty($fbclid);
+
+        if ($hasNew || $hasClickId) {
             session(['cameFromAds' => true]);
-            if ($request->query('gclid')) {
-                session(['gclid' => $request->query('gclid')]);
-                $params['gclid'] = $request->query('gclid');
+
+            if ($hasNew) {
                 session(['utm_params' => $params]);
             }
-            if ($request->query('fbclid')) {
-                session(['fbclid' => $request->query('fbclid')]);
+            if ($gclid) {
+                session(['gclid' => $gclid]);
+                $params['gclid'] = $gclid;
+                session(['utm_params' => $params]);
+            }
+            if ($fbclid) {
+                session(['fbclid' => $fbclid]);
             }
         }
 
-        // Detect ads from referer (same as conversie-pdf AppController)
+        // Last-resort fallback: referer matches a known ads network.
+        // Modern referrer-policy strips most of these, kept for the
+        // rare cases where the URL was clean but the referer leaked.
         if (!session('cameFromAds')) {
             $referer = $request->headers->get('referer', '');
             if (preg_match('/google|bing|gclid/i', $referer)) {
