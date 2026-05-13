@@ -372,7 +372,7 @@ class ResolveVad
         // rare cases where the URL was clean but the referer leaked.
         if (!session('cameFromAds')) {
             $referer = $request->headers->get('referer', '');
-            if (preg_match('/google|bing|gclid/i', $referer)) {
+            if (preg_match('/[?&]gclid=/i', $referer)) {
                 session(['cameFromAds' => true]);
             }
         }
