@@ -18,9 +18,11 @@ class LoginController extends Controller
             'email'    => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
         ], [
-            'email.required'    => 'Bitte geben Sie Ihre E-Mail-Adresse ein.',
-            'email.email'       => 'Bitte geben Sie eine gueltige E-Mail-Adresse ein.',
-            'password.required' => 'Bitte geben Sie Ihr Passwort ein.',
+            // Reuse the password-reset form's validation strings — same
+            // wording, already translated in all 5 locale auth_ui files.
+            'email.required'    => __('auth_ui.reset_err_email_required'),
+            'email.email'       => __('auth_ui.reset_err_email_invalid'),
+            'password.required' => __('auth_ui.reset_err_password_required'),
         ]);
 
         // Customers can sign up across multiple brands with the same email,
@@ -33,14 +35,19 @@ class LoginController extends Controller
 
         if (!Auth::attempt($credentials, $request->boolean('remember'))) {
             return back()->withErrors([
-                'email' => 'Diese Anmeldedaten stimmen nicht mit unseren Aufzeichnungen überein.',
+                'email' => __('auth.failed'),
             ])->onlyInput('email');
         }
 
         $request->session()->regenerate();
         session()->flash('gtm_event', 'login');
 
-        return redirect()->intended('/dashboard');
+        // Dashboard routes live inside the {locale} prefix group, so a
+        // bare `/dashboard` 404s. Prefix with the active locale, falling
+        // back to the configured default if for some reason the request
+        // has none resolved (direct POST to an unprefixed login URL).
+        $locale = app()->getLocale() ?: config('locales.default', 'en');
+        return redirect()->intended("/{$locale}/dashboard");
     }
 
     public function logout(Request $request)
