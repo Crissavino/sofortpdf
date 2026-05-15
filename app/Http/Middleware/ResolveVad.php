@@ -221,12 +221,14 @@ class ResolveVad
 
         $ip = $request->ip();
 
-        if (in_array($ip, ['127.0.0.1', '::1'], true)
-            || strpos($ip, '192.168.') === 0
-            || strpos($ip, '10.') === 0
-            || strpos($ip, '172.') === 0
-        ) {
-            // Local / private — fall back to DE since this is a German site.
+        // Use filter_var to detect RFC1918 (10/8, 172.16/12, 192.168/16),
+        // loopback (127/8 + ::1) and reserved ranges. The previous
+        // `strpos($ip, '172.') === 0` matched the entire 172.0.0.0/8 block,
+        // which falsely flags Cloudflare edges (172.64.0.0/13) as private —
+        // not an issue today since sofortpdf isn't behind CF, but the moment
+        // a CDN gets added in front, every visitor would be routed to the DE
+        // default with no geo lookup.
+        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
             session(['country_code' => 'DE']);
             return 'DE';
         }
