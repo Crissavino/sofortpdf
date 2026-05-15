@@ -176,6 +176,37 @@ class PaymentController extends Controller
             'payment_method_id' => 'required|string',
         ]);
 
+        $customerId = session('idCustomer');
+
+        // Idempotency guard — bail out if this customer already paid the
+        // trial successfully within the last 30 minutes. Without this the
+        // BO charges Stripe again on every call: lenka.imex@gmail.com on
+        // 2026-05-15 hit /api/payment/pay-trial three times in 4 minutes
+        // (08:17, 08:19, 08:21) and ended up with 3 Stripe charges + 3
+        // subscriptions. The 3-step flow has no native idempotency upstream.
+        if ($customerId) {
+            $recent = Payment::where('customer_id', $customerId)
+                ->where('payment_status_id', 2)
+                ->where('create_time', '>=', now()->subMinutes(30))
+                ->latest('id')
+                ->first();
+
+            if ($recent) {
+                Log::warning('PaymentController::payTrial — duplicate detected, returning cached success', [
+                    'customer_id'  => $customerId,
+                    'payment_id'   => $recent->id,
+                    'age_seconds'  => now()->diffInSeconds($recent->create_time),
+                    'ip'           => $request->ip(),
+                ]);
+                session(['payment_id' => $recent->id]);
+                return response()->json([
+                    'success'       => true,
+                    'paymentIntent' => null,
+                    'duplicate'     => true,
+                ]);
+            }
+        }
+
         $gateway = $this->gatewayFactory->resolveFromSession();
 
         $result = $gateway->payTrial([
@@ -184,8 +215,6 @@ class PaymentController extends Controller
         ]);
 
         Log::info('PaymentController::payTrial BO response', ['result' => $result]);
-
-        $customerId = session('idCustomer');
 
         if (!($result['success'] ?? false)) {
             $this->savePaymentFailed($customerId, $result['message'] ?? 'Payment failed');
@@ -209,6 +238,35 @@ class PaymentController extends Controller
             'payment_method_id' => 'required|string',
         ]);
 
+        $customerId = session('idCustomer');
+
+        // Idempotency guard — same problem as payTrial: the BO creates a
+        // brand-new Stripe subscription on every call, regardless of
+        // whether the same customer already has one for this product.
+        // last_four_digit is populated only after step 3 succeeds, so its
+        // presence on a recent payment means "subscription was created
+        // for this trial already, do not call the BO again."
+        if ($customerId) {
+            $recent = Payment::where('customer_id', $customerId)
+                ->where('payment_status_id', 2)
+                ->where('create_time', '>=', now()->subMinutes(30))
+                ->whereNotNull('last_four_digit')
+                ->latest('id')
+                ->first();
+
+            if ($recent) {
+                Log::warning('PaymentController::createSubscription — duplicate detected, returning cached success', [
+                    'customer_id' => $customerId,
+                    'payment_id'  => $recent->id,
+                    'ip'          => $request->ip(),
+                ]);
+                return response()->json([
+                    'success'   => true,
+                    'duplicate' => true,
+                ]);
+            }
+        }
+
         $gateway = $this->gatewayFactory->resolveFromSession();
 
         $result = $gateway->createSubscription([
@@ -223,7 +281,6 @@ class PaymentController extends Controller
         }
 
         // Update payment with card details (like contract-kit)
-        $customerId = session('idCustomer');
         $payment    = Payment::where('customer_id', $customerId)->latest('id')->first();
 
         if ($payment) {
