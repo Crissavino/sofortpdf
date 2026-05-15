@@ -79,6 +79,29 @@ class PaymentController extends Controller
         $email     = strtolower(trim($validated['email']));
         $websiteId = (int) config('services.bo.website_id');
 
+        // Pre-flight: if a customer already exists for this email +
+        // website AND has an active subscription, bail out with a
+        // typed error. The modal shows "you already subscribed, please
+        // log in" instead of silently re-charging (the Lenka case).
+        $existing = Customer::where('email', $email)
+            ->where('website_id', $websiteId)
+            ->first();
+        if ($existing && $existing->hasSofortpdfSubscription()) {
+            Log::warning('PaymentController::createCustomer — email already has active subscription', [
+                'customer_id' => $existing->id,
+                'email'       => $email,
+                'ip'          => $request->ip(),
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => __('payment.err_already_subscribed'),
+                'error'   => [
+                    'type' => 'already_subscribed',
+                    'code' => 'already_subscribed',
+                ],
+            ], 409);
+        }
+
         // Create/find customer in shared DB (scoped to this brand)
         $plainPassword = Str::random(16);
 

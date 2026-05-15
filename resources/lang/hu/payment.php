@@ -54,6 +54,7 @@ return [
     'bottom_bar_button' => 'Letöltés most',
 
     'err_card' => 'Kártyáját elutasítottuk. Kérjük, próbáljon meg másik kártyát.',
+    'err_already_subscribed' => 'Ezzel az e-mail-címmel már van aktív előfizetés. Kérjük, jelentkezzen be a hitelesítő adataival.',
     'err_generic' => 'Hiba történt. Kérjük, próbálja újra.',
     'err_name' => 'Kérjük, adja meg a kártyabirtokos nevét.',
     'err_email' => 'Kérjük, adjon meg egy érvényes e-mail-címet.',

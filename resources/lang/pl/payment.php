@@ -54,6 +54,7 @@ return [
     'bottom_bar_button' => 'Pobierz teraz',
 
     'err_card' => 'Twoja karta została odrzucona. Spróbuj inną kartą.',
+    'err_already_subscribed' => 'Z tym adresem e-mail masz już aktywną subskrypcję. Zaloguj się przy użyciu swoich danych logowania.',
     'err_generic' => 'Coś poszło nie tak. Spróbuj ponownie.',
     'err_name' => 'Wprowadź imię i nazwisko właściciela karty.',
     'err_email' => 'Wprowadź prawidłowy adres e-mail.',

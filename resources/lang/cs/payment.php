@@ -54,6 +54,7 @@ return [
     'bottom_bar_button' => 'Stáhnout nyní',
 
     'err_card' => 'Vaše karta byla odmítnuta. Zkuste prosím jinou kartu.',
+    'err_already_subscribed' => 'S touto e-mailovou adresou již máte aktivní předplatné. Přihlaste se prosím svými přihlašovacími údaji.',
     'err_generic' => 'Něco se pokazilo. Zkuste to prosím znovu.',
     'err_name' => 'Zadejte prosím jméno držitele karty.',
     'err_email' => 'Zadejte prosím platnou e-mailovou adresu.',

@@ -53,6 +53,7 @@ return [
     'bottom_bar_button' => 'Jetzt herunterladen',
 
     'err_card' => 'Karte wurde abgelehnt. Bitte versuchen Sie eine andere Karte.',
+    'err_already_subscribed' => 'Mit dieser E-Mail-Adresse besteht bereits ein aktives Abonnement. Bitte melden Sie sich mit Ihren Zugangsdaten an.',
     'err_generic' => 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.',
     'err_name' => 'Bitte geben Sie den Namen des Karteninhabers ein.',
     'err_email' => 'Bitte geben Sie eine gültige E-Mail-Adresse ein.',

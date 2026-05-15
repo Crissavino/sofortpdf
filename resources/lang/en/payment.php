@@ -53,6 +53,7 @@ return [
     'bottom_bar_button' => 'Download now',
 
     'err_card' => 'Your card was declined. Please try another card.',
+    'err_already_subscribed' => 'You already have an active subscription with this email. Please log in with your credentials.',
     'err_generic' => 'Something went wrong. Please try again.',
     'err_name' => 'Please enter the cardholder name.',
     'err_email' => 'Please enter a valid email address.',

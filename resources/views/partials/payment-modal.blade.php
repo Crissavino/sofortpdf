@@ -37,6 +37,7 @@
         'errEmail'           => __('payment.err_email'),
         'errGeneric'         => __('payment.err_generic'),
         'errCard'            => __('payment.err_card'),
+        'errAlreadySubscribed' => __('payment.err_already_subscribed'),
         'tcRequired'         => __('payment.tc_required'),
     ], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
     // Stripe public key from the VAD-resolved account (bo_stripe_accounts),
@@ -741,7 +742,8 @@
     // back to the generic message for everything else.
     function localizeError(data) {
         var code = data && data.error && data.error.code;
-        if (code === 'card_declined') return __m.errCard;
+        if (code === 'card_declined')      return __m.errCard;
+        if (code === 'already_subscribed') return __m.errAlreadySubscribed;
         return __m.errGeneric;
     }
 
