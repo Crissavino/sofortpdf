@@ -10,5 +10,5 @@ return [
     | MAIL_FROM_ADDRESS so nothing breaks if CONTACT_EMAIL isn't set.
     |
     */
-    'email' => env('CONTACT_EMAIL', env('MAIL_FROM_ADDRESS', 'info@sofortpdf.com')),
+    'email' => env('CONTACT_EMAIL', env('MAIL_FROM_ADDRESS', 'contact@sofortpdf.com')),
 ];

@@ -111,6 +111,6 @@ return [
     | Shared contact info (independent of company profile)
     |--------------------------------------------------------------------------
     */
-    'email'   => env('COMPANY_EMAIL', env('CONTACT_EMAIL', 'info@sofortpdf.com')),
+    'email'   => env('COMPANY_EMAIL', env('CONTACT_EMAIL', 'contact@sofortpdf.com')),
     'website' => env('COMPANY_WEBSITE', 'sofortpdf.com'),
 ];
