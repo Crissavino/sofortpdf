@@ -372,10 +372,31 @@ class ResolveVad
         // Last-resort fallback: referer matches a known ads network.
         // Modern referrer-policy strips most of these, kept for the
         // rare cases where the URL was clean but the referer leaked.
-        if (!session('cameFromAds')) {
-            $referer = $request->headers->get('referer', '');
-            if (preg_match('/[?&]gclid=/i', $referer)) {
-                session(['cameFromAds' => true]);
+        // Also rescues utm_params from the referer's query string when
+        // the customer landed on an ad URL and then immediately POSTed
+        // to a clean API endpoint (without this, cameFromAds=true but
+        // utm_campaign would stay empty in GoogleAdsDetail).
+        $referer = $request->headers->get('referer', '');
+        if ($referer && preg_match('/[?&]gclid=/i', $referer)) {
+            session(['cameFromAds' => true]);
+
+            if (!session('utm_params')) {
+                $refQuery = parse_url($referer, PHP_URL_QUERY);
+                if ($refQuery) {
+                    parse_str($refQuery, $refParams);
+                    $captured = [];
+                    foreach (['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'gclid'] as $key) {
+                        if (isset($refParams[$key]) && $refParams[$key] !== '') {
+                            $captured[$key] = $refParams[$key];
+                        }
+                    }
+                    if (!empty($captured)) {
+                        session(['utm_params' => $captured]);
+                        if (isset($captured['gclid'])) {
+                            session(['gclid' => $captured['gclid']]);
+                        }
+                    }
+                }
             }
         }
     }
