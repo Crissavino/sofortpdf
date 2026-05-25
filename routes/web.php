@@ -70,14 +70,15 @@ Route::get('/sitemap.xml', function () {
     $urls = [];
     $supportedLocales = config('locales.supported', ['en']);
 
-    // Per-locale homepage priorities (DE is the primary German market,
-    // EN is the global anchor, HU/CS are exploratory test markets so
-    // they get the lowest weight).
+    // Per-locale homepage priorities. HU/CS/PL are the active ad markets
+    // and the primary SEO focus; DE/EN no longer get paid traffic so they
+    // sit a tier lower (still indexed for organic).
     $homepagePriority = [
-        'de' => '1.0',
-        'en' => '0.9',
-        'hu' => '0.6',
-        'cs' => '0.6',
+        'hu' => '1.0',
+        'cs' => '1.0',
+        'pl' => '1.0',
+        'de' => '0.7',
+        'en' => '0.7',
     ];
     foreach ($supportedLocales as $locale) {
         $urls[] = [
@@ -90,9 +91,9 @@ Route::get('/sitemap.xml', function () {
     // Tool pages (only enabled) — all supported locales
     foreach ($supportedLocales as $locale) {
         $slugs = config("locales.tool_slugs.{$locale}", []);
-        // DE gets the highest tool-page priority since it's the primary
-        // organic/SEO target; everything else is secondary.
-        $priority = $locale === 'de' ? '0.9' : '0.7';
+        // HU/CS/PL are the active ad + SEO markets, so their tool pages
+        // get the highest priority; DE/EN are secondary (no paid traffic).
+        $priority = in_array($locale, ['hu', 'cs', 'pl'], true) ? '0.9' : '0.6';
         foreach ($tools as $key => $tool) {
             if (empty($tool['enabled'])) continue;
             if (!isset($slugs[$key])) continue;
@@ -131,9 +132,9 @@ Route::get('/sitemap.xml', function () {
         ['priority' => '0.2', 'resolve' => fn($l) => config("locales.legal_slugs.{$l}.cookies")],
     ];
     foreach ($supportedLocales as $locale) {
-        // Lower priority for non-primary markets to nudge crawl budget
-        // toward DE/EN.
-        $priorityOffset = $locale === 'de' ? 0.0 : -0.1;
+        // Nudge crawl budget toward the active markets (HU/CS/PL); the
+        // now-secondary DE/EN static pages get a small penalty.
+        $priorityOffset = in_array($locale, ['hu', 'cs', 'pl'], true) ? 0.0 : -0.1;
         foreach ($staticPageDefs as $page) {
             $slug = $page['resolve']($locale);
             if (!is_string($slug) || $slug === '') continue;
