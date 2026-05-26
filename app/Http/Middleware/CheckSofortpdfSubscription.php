@@ -13,12 +13,12 @@ class CheckSofortpdfSubscription
 
         if (!$user) {
             $returnUrl = $request->url();
-            return redirect()->route('checkout.start', ['return_to' => $returnUrl]);
+            return redirect()->route('checkout.start', ['locale' => app()->getLocale(), 'return_to' => $returnUrl]);
         }
 
         if (!$user->hasSofortpdfSubscription()) {
             $returnUrl = $request->url();
-            return redirect()->route('checkout.start', ['return_to' => $returnUrl]);
+            return redirect()->route('checkout.start', ['locale' => app()->getLocale(), 'return_to' => $returnUrl]);
         }
 
         return $next($request);

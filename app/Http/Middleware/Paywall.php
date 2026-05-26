@@ -33,7 +33,7 @@ class Paywall
                 return response()->json(['message' => 'Authentication required.'], 401);
             }
 
-            return redirect()->route('checkout.start', ['return_to' => $returnUrl]);
+            return redirect()->route('checkout.start', ['locale' => app()->getLocale(), 'return_to' => $returnUrl]);
         }
 
         if (! $user->hasSofortpdfSubscription()) {
@@ -43,7 +43,7 @@ class Paywall
                 return response()->json(['message' => 'Subscription required.'], 402);
             }
 
-            return redirect()->route('checkout.start', ['return_to' => $returnUrl]);
+            return redirect()->route('checkout.start', ['locale' => app()->getLocale(), 'return_to' => $returnUrl]);
         }
 
         return $next($request);
