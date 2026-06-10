@@ -715,6 +715,17 @@
     var stripeReady = false;
     var onSuccessCb = null;
     var onCloseCb = null;
+    var formStartedTracked = false;
+
+    function trackFormStarted() {
+        if (formStartedTracked) return;
+        formStartedTracked = true;
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({ event: 'payment_form_started' });
+    }
+
+    if (emailInput) emailInput.addEventListener('input', trackFormStarted);
+    if (nameInput)  nameInput.addEventListener('input', trackFormStarted);
 
     // --- Helpers -----------------------------------------------------------
     function formatSize(bytes) {
@@ -974,14 +985,17 @@
         cardCvcElement.mount(root.querySelector('#spm-card-cvc'));
 
         cardNumberElement.on('change', function(event) {
+            trackFormStarted();
             if (event.error) showError(event.error.message);
             else hideError();
         });
         cardExpiryElement.on('change', function(event) {
+            trackFormStarted();
             if (event.error) showError(event.error.message);
             else hideError();
         });
         cardCvcElement.on('change', function(event) {
+            trackFormStarted();
             if (event.error) showError(event.error.message);
             else hideError();
         });
@@ -1175,6 +1189,8 @@
         root.classList.add('spm-open');
         root.setAttribute('aria-hidden', 'false');
         document.body.classList.add('spm-lock');
+
+        formStartedTracked = false;
 
         // GTM: payment form opened
         window.dataLayer = window.dataLayer || [];
