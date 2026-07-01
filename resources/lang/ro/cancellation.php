@@ -1,0 +1,19 @@
+<?php
+return [
+    'title'                  => 'Anulare abonament',
+    'subtitle'               => 'Introdu adresa de email cu care te-ai înregistrat.',
+    'email_label'            => 'Adresă de email',
+    'email_placeholder'      => 'email@tau.com',
+    'warning'                => 'După anulare vei pierde imediat accesul la toate instrumentele PDF premium. Această acțiune nu poate fi anulată.',
+    'cancel_button'          => 'Anulează abonamentul',
+    'confirm_title'          => 'Ești sigur?',
+    'confirm_body'           => 'Abonamentul tău va fi anulat imediat și vei pierde accesul la toate funcțiile premium.',
+    'keep_subscription'      => 'Păstrează abonamentul',
+    'confirm_cancel_button'  => 'Da, anulează',
+    'customer_not_found'     => 'Nu am găsit un utilizator cu această adresă de email.',
+    'no_active_subscription' => 'Nu există un abonament activ pentru această adresă de email.',
+    'cancel_failed'          => 'Anularea nu a putut fi procesată. Te rugăm să încerci din nou sau să contactezi suportul.',
+    'success'                => 'Abonamentul tău a fost anulat cu succes.',
+    'help_text'              => 'Probleme cu anularea?',
+    'contact_support'        => 'Contactează suportul',
+];

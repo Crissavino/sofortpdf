@@ -1,0 +1,31 @@
+<?php
+return [
+    'payment_heading'    => 'Deblochează acum',
+    'payment_subheading' => ':days zile de probă pentru doar :price €',
+    'plan_name'          => 'sofortpdf Pro',
+    'plan_tagline'       => 'Toate instrumentele PDF — nelimitat',
+    'then_per_month'     => 'apoi :price €/lună',
+    'email_label'        => 'Adresă de email',
+    'email_placeholder'  => 'email@tau.com',
+    'full_name_label'    => 'Nume complet',
+    'full_name_placeholder' => 'Ion Popescu',
+    'cardholder_label'   => 'Titular card',
+    'cardholder_placeholder' => 'Ion Popescu',
+    'card_number_label'  => 'Număr card',
+    'expiry_label'       => 'Dată expirare',
+    'submit_try_now'     => 'Încearcă acum pentru :price €',
+    'terms_disclaimer_html' => 'Apăsând butonul ești de acord cu <a href=":terms_url" class="underline hover:text-slate-600" target="_blank">Termenii și Condițiile</a>. Perioada de probă se încheie după :days zile. Ulterior se va percepe :price €/lună. Poți anula oricând.',
+
+    'js_processing'      => 'Se procesează…',
+    'js_submit_try_now'  => 'Încearcă acum pentru :price €',
+    'js_err_cardholder'  => 'Te rugăm să introduci numele titularului cardului.',
+    'js_err_email'       => 'Te rugăm să introduci adresa de email.',
+    'js_err_name'        => 'Te rugăm să introduci numele complet.',
+    'js_err_generic'     => 'A apărut o eroare. Te rugăm să încerci din nou.',
+
+    'success_title'        => 'Mulțumim - sofortpdf',
+    'success_heading'      => 'Mulțumim! Perioada ta de probă a început.',
+    'success_trial_info'   => 'Ai :days zile să testezi toate instrumentele gratuit.',
+    'success_renewal_info' => 'După perioada de probă, abonamentul tău se va reînnoi automat la :price EUR pe lună. Poți anula oricând.',
+    'success_cta'          => 'Începe acum',
+];

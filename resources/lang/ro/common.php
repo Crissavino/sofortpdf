@@ -1,0 +1,21 @@
+<?php
+return [
+    'login'        => 'Autentificare',
+    'logout'       => 'Deconectare',
+    'register'     => 'Înregistrare',
+    'dashboard'    => 'Cont',
+    'imprint'      => 'Imprint',
+    'privacy'      => 'Confidențialitate',
+    'terms'        => 'Termeni',
+    'back'         => 'Înapoi la pagina principală',
+    'save'         => 'Salvează',
+    'cancel'       => 'Anulează',
+    'confirm'      => 'Confirmă',
+    'continue'     => 'Continuă',
+    'close'        => 'Închide',
+    'users'        => 'Utilizatori',
+    'gdpr_compliant'  => 'Conform GDPR',
+    'ssl_encryption'  => 'Criptare SSL',
+    'servers_in_eu'   => 'Servere în UE',
+    'auto_deletion'   => 'Ștergere automată',
+];

@@ -1,0 +1,21 @@
+<?php
+return [
+    'title_suffix'      => 'Contact - SofortPDF',
+    'heading'           => 'Contact',
+    'sub'               => 'Ai o întrebare sau o problemă? Trimite-ne un mesaj — de obicei răspundem în cel mult o zi lucrătoare.',
+    'label_name'        => 'Nume',
+    'label_email'       => 'Adresă de email',
+    'label_message'     => 'Mesajul tău',
+    'privacy_notice'    => 'Prin trimiterea acestui formular ești de acord ca noi să procesăm informațiile tale pentru a răspunde solicitării tale. Vezi politica noastră de confidențialitate pentru detalii.',
+    'submit'            => 'Trimite mesaj',
+    'success'           => 'Mulțumim! Am primit mesajul tău și îți vom răspunde în curând.',
+    'err_name_required'    => 'Te rugăm să ne spui numele tău.',
+    'err_email_required'   => 'Te rugăm să introduci o adresă de email.',
+    'err_email_invalid'    => 'Te rugăm să introduci o adresă de email validă.',
+    'err_message_required' => 'Te rugăm să ne scrii un mesaj.',
+    'err_message_min'      => 'Mesajul tău este prea scurt (cel puțin 10 caractere).',
+    'err_send_failed'      => 'Mesajul tău nu a putut fi trimis. Te rugăm să încerci din nou mai târziu.',
+    'err_rate_limited'     => 'Prea multe solicitări de la IP-ul tău. Te rugăm să încerci din nou mai târziu.',
+    'err_generic'          => 'Solicitarea ta nu a putut fi procesată.',
+    'footer_link'          => 'Contact',
+];

@@ -1,0 +1,42 @@
+<?php
+return [
+    'login_title_suffix'  => 'Autentificare - SofortPDF',
+    'login_heading'       => 'Autentificare',
+    'email'               => 'Adresă de email',
+    'password'            => 'Parolă',
+    'remember_me'         => 'Ține-mă minte',
+    'forgot_password'     => 'Ai uitat parola?',
+    'login_submit'        => 'Autentificare',
+    'no_account'          => 'Nu ai cont încă?',
+    'register_free'       => 'Înregistrează-te gratuit',
+
+    'register_title_suffix' => 'Înregistrare - SofortPDF',
+    'register_heading'      => 'Creează cont',
+    'name'                  => 'Nume',
+    'password_confirm'      => 'Confirmă parola',
+    'already_registered'    => 'Ai deja cont?',
+    'login_now'             => 'Autentifică-te acum',
+
+    'reset_title_suffix'   => 'Resetare parolă - SofortPDF',
+    'reset_heading'        => 'Resetare parolă',
+    'reset_instructions'   => 'Introdu adresa de email și îți vom trimite un link pentru resetarea parolei.',
+    'reset_submit'         => 'Trimite link de resetare',
+    'back_to_login'        => 'Înapoi la autentificare',
+
+    'reset_err_email_required' => 'Te rugăm să introduci adresa de email.',
+    'reset_err_email_invalid'  => 'Te rugăm să introduci o adresă de email validă.',
+    'reset_err_user_not_found' => 'Nu am găsit un utilizator cu această adresă de email.',
+    'reset_status_sent'        => 'Ți-am trimis un link de resetare a parolei pe email.',
+
+    'reset_confirm_title_suffix'  => 'Alege o nouă parolă - SofortPDF',
+    'reset_confirm_heading'       => 'Alege o parolă nouă',
+    'reset_confirm_instructions'  => 'Introdu o parolă nouă pentru contul tău.',
+    'reset_new_password'          => 'Parolă nouă',
+    'reset_confirm_password'      => 'Confirmă parola',
+    'reset_confirm_submit'        => 'Salvează parola',
+    'reset_err_password_required' => 'Te rugăm să introduci o parolă nouă.',
+    'reset_err_password_confirmed'=> 'Parolele nu se potrivesc.',
+    'reset_err_password_min'      => 'Parola trebuie să aibă cel puțin :min caractere.',
+    'reset_err_token_invalid'     => 'Acest link de resetare este invalid sau a expirat. Te rugăm să soliciți unul nou.',
+    'reset_status_updated'        => 'Parola a fost actualizată cu succes. Te poți autentifica acum.',
+];

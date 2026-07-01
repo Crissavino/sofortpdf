@@ -1,0 +1,23 @@
+<?php
+return [
+    'meta_title'        => 'Gata — Fișierul tău este pregătit',
+    'meta_description'  => 'Fișierul tău a fost procesat și este gata de descărcare.',
+    'heading'           => 'Gata!',
+    'subheading'        => 'Fișierul tău a fost procesat cu succes și este gata de descărcare.',
+    'subheading_paid'   => 'Mulțumim pentru plată. Fișierul tău a fost procesat cu succes și este gata de descărcare.',
+    'auto_download_note'=> 'Descărcarea începe automat. Dacă nu, apasă butonul de mai jos.',
+    'filename_label'    => 'Nume fișier',
+    'download_button'   => 'Descarcă fișierul',
+    'redownload_button' => 'Descarcă din nou',
+    'dashboard_button'  => 'Mergi la contul meu',
+    'home_button'       => 'Înapoi la pagina principală',
+    'no_token_heading'  => 'Nicio descărcare disponibilă',
+    'no_token_message'  => 'Nu am găsit un fișier pentru acest link. Este posibil să fi expirat.',
+    'working_heading'   => 'Pregătim fișierul tău',
+    'working_message'   => 'Procesarea rulează în fundal. Poți lăsa pagina deschisă — se va actualiza automat când fișierul tău este gata.',
+    'working_dashboard_hint' => 'Poți și să închizi pagina: rezultatul va apărea în spațiul tău personal și îți vom trimite un email când este gata.',
+    'working_elapsed'   => 'Se procesează de :seconds sec.',
+    'failed_heading'    => 'Procesarea a eșuat',
+    'failed_message_fallback' => 'Fișierul tău nu a putut fi procesat. Te rugăm să încerci din nou.',
+    'retry_button'      => 'Încearcă din nou',
+];
