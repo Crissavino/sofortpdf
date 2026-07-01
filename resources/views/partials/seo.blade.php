@@ -18,6 +18,7 @@
         'en' => 'en_US',
         'hu' => 'hu_HU',
         'cs' => 'cs_CZ',
+        'ro' => 'ro_RO',
     ];
     $ogLocale = $ogLocaleMap[$locale] ?? 'en_US';
 
@@ -27,6 +28,7 @@
         'en' => 'Online PDF tools — merge, compress, convert and more.',
         'hu' => 'Online PDF eszközök — egyesítés, tömörítés, konvertálás és több.',
         'cs' => 'Online PDF nástroje — slučování, komprese, konverze a další.',
+        'ro' => 'Instrumente PDF online — îmbinare, comprimare, conversie și altele.',
     ];
     $orgDescription = $orgDescriptionMap[$locale] ?? $orgDescriptionMap['en'];
 
@@ -63,6 +65,7 @@
         'en'    => 'en',
         'hu'    => 'hu',
         'cs'    => 'cs',
+        'ro'    => 'ro',
     ];
 @endphp
 @foreach ($hreflangTags as $tag => $sourceLocale)
