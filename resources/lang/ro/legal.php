@@ -1,0 +1,133 @@
+<?php
+return [
+    'agb_heading' => 'Termeni și Condiții',
+
+    'agb_section_1_title' => 'Secțiunea 1 — Domeniu de aplicare',
+    'agb_section_1_p1' => 'Acești Termeni și Condiții (denumiți în continuare „Termeni") se aplică tuturor contractelor încheiate între :company (denumit în continuare „Furnizor") și client (denumit în continuare „Utilizator") prin intermediul site-ului sofortpdf.com.',
+    'agb_section_1_p2' => 'Acești Termeni se aplică exclusiv. Termenii divergenți ai Utilizatorului nu vor fi acceptați dacă Furnizorul nu îi agreează în mod expres în scris.',
+
+    'agb_section_2_title' => 'Secțiunea 2 — Obiect',
+    'agb_section_2_p1' => 'Furnizorul oferă instrumente online pentru editarea documentelor PDF prin intermediul site-ului sofortpdf.com (de exemplu, îmbinare, comprimare, conversie, editare, semnare). Accesul la aceste instrumente se face printr-un abonament plătit.',
+
+    'agb_section_3_title' => 'Secțiunea 3 — Încheierea contractului',
+    'agb_section_3_p1' => 'Contractul este încheiat la înregistrarea Utilizatorului pe site și achiziționarea unui abonament. Prin înregistrare, Utilizatorul acceptă acești Termeni.',
+    'agb_section_3_p2' => 'Furnizorul va confirma primirea comenzii fără întârziere prin email. Această confirmare constituie acceptarea ofertei contractuale.',
+
+    'agb_section_4_title' => 'Secțiunea 4 — Prețuri și plată',
+    'agb_section_4_p1' => 'Toate prețurile afișate includ taxa pe valoarea adăugată aplicabilă. Plata se procesează prin furnizorul de servicii de plată Stripe. Utilizatorul autorizează Furnizorul să colecteze sumele convenite conform perioadei de facturare selectate (lunar sau anual).',
+    'agb_section_4_p2' => 'În cazul neplății, Furnizorul are dreptul să suspende temporar accesul la servicii.',
+    'agb_section_4_p3' => 'La :website oferim acces bazat pe abonament la toate instrumentele PDF. Abonamentul este în mod normal evaluat la :trial_marketing, dar în prezent oferim o perioadă promoțională de probă de :trial_days zile la prețul redus de :trial_price. După perioada de probă, abonamentul se reînnoiește automat lunar la :subscription_price pe lună. Plasând comanda, ești de acord că această sumă va fi dedusă automat din metoda ta de plată la sfârșitul perioadei de probă, cu excepția cazului în care anulezi în prealabil. Dacă nu dorești să continui, trebuie să anulezi înainte de sfârșitul perioadei de probă pentru a evita taxa recurentă. Plata pentru abonamentul tău va fi dedusă automat în data lunară aniversară și va apărea ca „:website" pe extrasul tău bancar.',
+    'agb_section_4_p4' => 'Abonamentul are o durată de o lună și se reînnoiește automat la sfârșitul fiecărei perioade de facturare. Poți anula oricând prin pagina de anulare sau prin email — anulările intră în vigoare imediat și previn orice taxă ulterioară. Rambursările sunt disponibile dacă sunt solicitate în termen de 14 zile de la tranzacție; după această perioadă, nu se vor emite rambursări, cu excepția cazurilor prevăzute de lege.',
+
+    'agb_section_5_title' => 'Secțiunea 5 — Dreptul de retragere',
+    'agb_section_5_p1' => 'Consumatorii au dreptul de a se retrage din acest contract în termen de paisprezece zile fără a da nicio justificare. Perioada de retragere este de paisprezece zile de la data încheierii contractului.',
+    'agb_section_5_p2' => 'Pentru a-ți exercita dreptul de retragere, trebuie să ne informezi (:company, :address) printr-o declarație clară (de exemplu, o scrisoare trimisă prin poștă sau un email la :email) cu privire la decizia ta de a te retrage din acest contract.',
+    'agb_section_5_p3' => 'Pentru a respecta termenul de retragere, este suficient să trimiți comunicarea privind exercitarea dreptului de retragere înainte de expirarea perioadei de retragere.',
+    'agb_section_5_consequences_title' => 'Consecințele retragerii',
+    'agb_section_5_consequences_p1' => 'Dacă te retragi din acest contract, vom rambursa toate plățile primite de la tine fără întârziere nejustificată și cel târziu în termen de paisprezece zile de la data la care primim notificarea retragerii tale din acest contract.',
+
+    'agb_section_5b_title' => 'Secțiunea 5a — Rambursări după perioada de retragere',
+    'agb_section_5b_p1' => 'După expirarea perioadei de retragere de 14 zile, rambursările nu sunt în general disponibile. În circumstanțe excepționale justificate (de exemplu, erori tehnice care fac imposibilă utilizarea serviciului), Furnizorul poate, la discreția sa exclusivă, să acorde o rambursare totală sau parțială.',
+    'agb_section_5b_p2' => 'Solicitările de rambursare pot fi trimise prin email la :email. Furnizorul va analiza fiecare solicitare individual și va comunica o decizie în termen de 14 zile lucrătoare.',
+    'agb_section_5b_p3' => 'Anularea abonamentului este posibilă oricând și se poate face prin pagina de anulare sau prin email.',
+
+    'agb_section_6_title' => 'Secțiunea 6 — Durată și anulare',
+    'agb_section_6_p1' => 'Abonamentul se reînnoiește automat pentru perioada de facturare selectată, cu excepția cazului în care este anulat înainte de sfârșitul perioadei curente. Anularea se poate face oricând prin tabloul de bord al utilizatorului, pagina de anulare sau prin email.',
+
+    'agb_section_7_title' => 'Secțiunea 7 — Disponibilitate și garanție',
+    'agb_section_7_p1' => 'Furnizorul se străduiește să asigure disponibilitatea neîntreruptă a serviciilor. O disponibilitate de 100% nu poate fi garantată tehnic. Lucrările de întreținere vor fi anunțate în prealabil, când este posibil.',
+
+    'agb_section_8_title' => 'Secțiunea 8 — Răspundere',
+    'agb_section_8_p1' => 'Furnizorul este pe deplin răspunzător pentru intenție și neglijență gravă. În cazurile de neglijență ușoară, Furnizorul este răspunzător numai pentru încălcarea obligațiilor contractuale esențiale și limitat la daunele previzibile, tipice contractului.',
+    'agb_section_8_p2' => 'Limitările de răspundere de mai sus nu se aplică daunelor rezultate din vătămarea vieții, corpului sau sănătății.',
+
+    'agb_section_9_title' => 'Secțiunea 9 — Protecția datelor',
+    'agb_section_9_p1_html' => 'Informații privind prelucrarea datelor cu caracter personal pot fi găsite în <a href=":url" class="text-blue-600 hover:underline">Politica noastră de confidențialitate</a>.',
+
+    'agb_section_10_title' => 'Secțiunea 10 — Dispoziții finale',
+    'agb_section_10_p1' => 'Acest contract este guvernat de :governing_law. În măsura permisă de lege, locul de jurisdicție va fi :jurisdiction.',
+    'agb_section_10_p2' => 'Dacă anumite prevederi ale acestor Termeni sunt sau devin invalide, valabilitatea celorlalte prevederi nu va fi afectată.',
+
+    'impressum_heading'               => 'Mențiuni legale',
+    'impressum_tmg_title'             => 'Operatorul acestui site web',
+    'impressum_contact_title'         => 'Contact',
+    'impressum_contact_email_label'   => 'Email:',
+    'impressum_contact_website_label' => 'Site web:',
+    'impressum_vat_title'             => 'TVA / Cod fiscal',
+    'impressum_registration_title'    => 'Număr de înregistrare în registrul comerțului',
+    'impressum_dispute_title'         => 'Soluționarea litigiilor UE',
+    'impressum_dispute_p1_html'       => 'Comisia Europeană oferă o platformă pentru soluționarea online a litigiilor (SOL): <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener" class="text-blue-600 hover:underline">https://ec.europa.eu/consumers/odr</a>.<br>Adresa noastră de email se găsește mai sus în mențiunile legale.',
+    'impressum_dispute_p2'            => 'Nu suntem dispuși și nici obligați să participăm la proceduri de soluționare a litigiilor în fața unui consiliu de arbitraj pentru consumatori.',
+    'impressum_liability_content_title'=> 'Răspundere pentru conținut',
+    'impressum_liability_content_p1'  => 'Ca furnizor de servicii, suntem responsabili pentru propriul nostru conținut de pe aceste pagini în conformitate cu legislația generală. Cu toate acestea, nu suntem obligați să monitorizăm informațiile transmise sau stocate de terți sau să investigăm circumstanțe care indică activitate ilegală.',
+    'impressum_liability_links_title' => 'Răspundere pentru linkuri',
+    'impressum_liability_links_p1'    => 'Site-ul nostru conține linkuri către site-uri externe ale terților asupra conținutului cărora nu avem nicio influență. Prin urmare, nu putem prelua nicio responsabilitate pentru conținutul extern. Furnizorul sau operatorul respectiv al paginilor linkuite este întotdeauna responsabil pentru conținutul acestora.',
+    'impressum_copyright_title'       => 'Drepturi de autor',
+    'impressum_copyright_p1'          => 'Conținutul și lucrările create de :company pe aceste pagini sunt supuse legilor aplicabile privind drepturile de autor. Duplicarea, procesarea, distribuirea și orice formă de comercializare care depășesc domeniul de aplicare al legii drepturilor de autor necesită consimțământul scris al autorului sau creatorului respectiv.',
+
+    'datenschutz_heading' => 'Politica de confidențialitate',
+
+    'datenschutz_section_1_title' => '1. Responsabilul cu prelucrarea datelor',
+    'datenschutz_section_1_intro' => 'Responsabilul cu prelucrarea datelor pe acest site web este:',
+    'datenschutz_section_1_email_label' => 'Email:',
+
+    'datenschutz_section_2_title'    => '2. Colectarea datelor pe site-ul nostru',
+    'datenschutz_section_2a_title'   => 'a) Fișiere jurnal ale serverului',
+    'datenschutz_section_2a_p1'      => 'Furnizorul de găzduire al acestor pagini colectează și stochează automat informații în fișiere jurnal ale serverului, pe care browser-ul tău le transmite automat. Acestea sunt:',
+    'datenschutz_section_2a_li1'     => 'Tipul și versiunea browser-ului',
+    'datenschutz_section_2a_li2'     => 'Sistemul de operare utilizat',
+    'datenschutz_section_2a_li3'     => 'URL-ul referrer',
+    'datenschutz_section_2a_li4'     => 'Numele de gazdă al computerului care accesează',
+    'datenschutz_section_2a_li5'     => 'Ora solicitării serverului',
+    'datenschutz_section_2a_li6'     => 'Adresa IP',
+    'datenschutz_section_2a_p2'      => 'Aceste date nu sunt combinate cu alte surse de date. Colectarea se bazează pe Art. 6 alin. (1) lit. (f) GDPR.',
+    'datenschutz_section_2b_title'   => 'b) Înregistrare și cont de utilizator',
+    'datenschutz_section_2b_p1'      => 'La înregistrare, colectăm numele și adresa ta de email. Aceste date sunt prelucrate pentru furnizarea contului tău de utilizator și executarea contractului (Art. 6 alin. (1) lit. (b) GDPR).',
+
+    'datenschutz_section_3_title' => '3. Cookie-uri',
+    'datenschutz_section_3_p1'    => 'Site-ul nostru folosește cookie-uri. Acestea sunt fișiere text mici pe care browser-ul tău le stochează pe dispozitivul tău. Cookie-urile ne ajută să facem serviciile noastre mai ușor de utilizat și mai sigure.',
+    'datenschutz_section_3_p2'    => 'Cookie-urile strict necesare sunt setate în baza Art. 6 alin. (1) lit. (f) GDPR. Avem un interes legitim în stocarea cookie-urilor pentru furnizarea tehnică fără erori și optimizată a serviciilor noastre.',
+
+    'datenschutz_section_4_title' => '4. Procesarea plăților prin Stripe',
+    'datenschutz_section_4_p1'    => 'Folosim serviciul Stripe (Stripe, Inc., 510 Townsend Street, San Francisco, CA 94103, SUA) pentru procesarea plăților. La plată, datele tale de plată sunt transmise direct către Stripe. Stripe prelucrează aceste date pentru a efectua plata.',
+    'datenschutz_section_4_p2_html' => 'Prelucrarea datelor se bazează pe Art. 6 alin. (1) lit. (b) GDPR (executarea contractului). Pentru mai multe informații, consultați <a href="https://stripe.com/privacy" target="_blank" rel="noopener" class="text-blue-600 hover:underline">Politica de confidențialitate a Stripe</a>.',
+
+    'datenschutz_section_5_title' => '5. Formularul de contact',
+    'datenschutz_section_5_p1'    => 'Dacă ne contactezi prin formularul de contact sau email, datele tale vor fi stocate în scopul procesării solicitării tale și în caz de întrebări ulterioare. Nu vom partaja aceste date fără consimțământul tău. Prelucrarea se bazează pe Art. 6 alin. (1) lit. (b) GDPR.',
+
+    'datenschutz_section_6_title' => '6. Procesarea fișierelor (instrumente PDF)',
+    'datenschutz_section_6_p1'    => 'Fișierele încărcate sunt procesate exclusiv în scopul efectuării operațiunii solicitate (de exemplu, îmbinare, comprimare, conversie). După finalizare, fișierele sunt șterse automat de pe serverele noastre în termen de 24 de ore.',
+
+    'datenschutz_section_7_title' => '7. Drepturile tale',
+    'datenschutz_section_7_p1'    => 'Conform legii aplicabile, ai dreptul oricând la:',
+    'datenschutz_section_7_li1'   => 'Informații gratuite despre datele personale stocate (Art. 15 GDPR)',
+    'datenschutz_section_7_li2'   => 'Rectificarea datelor inexacte (Art. 16 GDPR)',
+    'datenschutz_section_7_li3'   => 'Ștergerea datelor tale stocate (Art. 17 GDPR)',
+    'datenschutz_section_7_li4'   => 'Restricționarea prelucrării datelor (Art. 18 GDPR)',
+    'datenschutz_section_7_li5'   => 'Portabilitatea datelor (Art. 20 GDPR)',
+    'datenschutz_section_7_li6'   => 'Obiecția la prelucrare (Art. 21 GDPR)',
+    'datenschutz_section_7_p2'    => 'Ai de asemenea dreptul de a depune o plângere la o autoritate de supraveghere a protecției datelor cu privire la prelucrarea datelor tale personale.',
+
+    'datenschutz_section_8_title' => '8. Modificări ale acestei politici de confidențialitate',
+    'datenschutz_section_8_p1'    => 'Ne rezervăm dreptul de a actualiza această politică de confidențialitate pentru a asigura conformitatea cu cerințele legale actuale sau pentru a reflecta modificările serviciilor noastre.',
+
+    'cookies_heading'          => 'Politica privind cookie-urile',
+    'cookies_what_title'       => 'Ce sunt cookie-urile?',
+    'cookies_what_p1'          => 'Cookie-urile sunt fișiere text mici stocate pe dispozitivul tău de site-uri web pentru a îmbunătăți experiența ta de navigare. Această politică explică ce cookie-uri folosim și de ce.',
+    'cookies_types_title'      => 'Tipuri de cookie-uri',
+    'cookies_necessary_title'  => 'Cookie-uri strict necesare',
+    'cookies_necessary_p1'     => 'Aceste cookie-uri sunt esențiale pentru funcțiile de bază ale site-ului (de exemplu, autentificare, gestionarea sesiunilor, protecție CSRF). Nu pot fi dezactivate.',
+    'cookies_analytics_title'  => 'Cookie-uri de analiză',
+    'cookies_analytics_p1'     => 'Aceste cookie-uri ne ajută să înțelegem cum vizitatorii folosesc site-ul nostru. Datele sunt colectate anonim și sunt folosite exclusiv pentru îmbunătățirea serviciului nostru. Sunt setate numai cu consimțământul tău.',
+    'cookies_marketing_title'  => 'Cookie-uri de marketing',
+    'cookies_marketing_p1'     => 'Cookie-urile de marketing sunt folosite pentru a-ți afișa publicitate relevantă. Aceste cookie-uri sunt setate numai cu consimțământul tău explicit.',
+    'cookies_tools_title'      => 'Servicii pe care le folosim',
+    'cookies_ga4_p1'           => 'Folosim Google Analytics 4 (GA4) pentru a analiza comportamentul utilizatorilor. GA4 prelucrează datele anonim și le transferă pe serverele Google. Pentru mai multe informații, consultați politica de confidențialitate a Google.',
+    'cookies_gtm_p1'           => 'Google Tag Manager (GTM) este utilizat pentru a gestiona etichetele noastre de urmărire. GTM în sine nu setează cookie-uri, dar permite încărcarea altor servicii care pot seta cookie-uri.',
+    'cookies_stripe_p1'        => 'Stripe setează cookie-uri strict necesare pentru procesarea securizată a plăților. Aceste cookie-uri sunt necesare pentru funcționarea procesului de plată.',
+    'cookies_cookiebot_p1'     => 'Cookiebot gestionează consimțământul tău privind cookie-urile. Stochează preferințele tale de cookie-uri astfel încât să nu fii întrebat din nou la fiecare vizită.',
+    'cookies_manage_title'     => 'Gestionarea cookie-urilor',
+    'cookies_manage_p1'        => 'Poți modifica setările de cookie-uri oricând prin bannerul de cookie-uri sau setările browser-ului. Apasă <a href="javascript:Cookiebot.renew()" class="text-blue-600 hover:underline">modifică setările de cookie-uri</a> pentru a-ți ajusta preferințele.',
+    'cookies_changes_title'    => 'Modificări ale acestei politici',
+    'cookies_changes_p1'       => 'Ne rezervăm dreptul de a actualiza această politică privind cookie-urile după cum este necesar. Versiunea actuală este disponibilă întotdeauna pe această pagină.',
+];

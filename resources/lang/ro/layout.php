@@ -1,0 +1,20 @@
+<?php
+return [
+    'nav_all_tools' => 'Toate instrumentele',
+    'nav_convert'   => 'Conversie',
+    'nav_legal'     => 'Legal',
+    'nav_tools'     => 'Instrumente PDF',
+    'nav_dashboard' => 'Cont',
+    'nav_login'     => 'Autentificare',
+    'nav_logout'    => 'Deconectare',
+    'footer_brand_tagline' => 'Instrumentele tale online pentru PDF. Rapid, sigur și fără instalare.',
+    'footer_imprint'   => 'Imprint',
+    'footer_privacy'   => 'Confidențialitate',
+    'footer_terms'     => 'Termeni',
+    'footer_copyright' => '© :year sofortpdf.com — Toate drepturile rezervate.',
+    'footer_ssl'       => 'Criptat SSL',
+    'footer_eu_servers'=> 'Servere în Europa',
+    'footer_cookies'   => 'Cookie-uri',
+    'footer_cancel'    => 'Anulare',
+    'breadcrumb_home'  => 'Acasă',
+];
