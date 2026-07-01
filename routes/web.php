@@ -38,6 +38,7 @@ Route::get('/', function () {
         'HU' => 'hu',
         'CZ' => 'cs',
         'PL' => 'pl',
+        'RO' => 'ro',
     ];
 
     $detected = $default;
@@ -77,6 +78,7 @@ Route::get('/sitemap.xml', function () {
         'hu' => '1.0',
         'cs' => '1.0',
         'pl' => '1.0',
+        'ro' => '1.0',
         'de' => '0.7',
         'en' => '0.7',
     ];
@@ -93,7 +95,7 @@ Route::get('/sitemap.xml', function () {
         $slugs = config("locales.tool_slugs.{$locale}", []);
         // HU/CS/PL are the active ad + SEO markets, so their tool pages
         // get the highest priority; DE/EN are secondary (no paid traffic).
-        $priority = in_array($locale, ['hu', 'cs', 'pl'], true) ? '0.9' : '0.6';
+        $priority = in_array($locale, ['hu', 'cs', 'pl', 'ro'], true) ? '0.9' : '0.6';
         foreach ($tools as $key => $tool) {
             if (empty($tool['enabled'])) continue;
             if (!isset($slugs[$key])) continue;
@@ -241,7 +243,7 @@ Route::get('/download/{token}', [DownloadController::class, 'download'])
 |--------------------------------------------------------------------------
 */
 Route::prefix('{locale}')
-     ->where(['locale' => 'de|en|hu|cs|pl'])
+     ->where(['locale' => 'de|en|hu|cs|pl|ro'])
      ->middleware(['locale', 'resolve-vad'])
      ->group(function () {
 
