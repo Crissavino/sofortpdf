@@ -318,7 +318,7 @@
                     @php
                         // BCP-47 tag for the count-up animation's
                         // Intl.NumberFormat. Mirrors $decimalSep above.
-                        $bcp47Map = ['de' => 'de-DE', 'en' => 'en-US', 'hu' => 'hu-HU', 'cs' => 'cs-CZ'];
+                        $bcp47Map = ['de' => 'de-DE', 'en' => 'en-US', 'hu' => 'hu-HU', 'cs' => 'cs-CZ', 'ro' => 'ro-RO', 'pl' => 'pl-PL'];
                         $jsLocale = $bcp47Map[app()->getLocale()] ?? 'en-US';
                     @endphp
                     @if(($pricing['trial_marketing'] ?? 0) > ($pricing['trial'] ?? 0))
