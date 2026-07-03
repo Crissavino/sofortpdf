@@ -25,7 +25,7 @@ class ToolController extends Controller
                 'toolName' => $pageTitle ?: $toolConfig['name'],
                 'pageTitle' => ($pageTitle ?: $toolConfig['name']) . __('tool.maintenance_suffix'),
                 'metaDescription' => $toolConfig['meta_description'] ?? '',
-                'slug' => $request->path(),
+                'slug' => config("locales.tool_slugs.{$locale}.{$tool}", $tool),
             ]);
         }
 
@@ -64,7 +64,7 @@ class ToolController extends Controller
             'h2' => $h2,
             'pageTitle' => $h1 . __('tool.title_suffix'),
             'metaDescription' => $metaDesc,
-            'slug' => $request->path(),
+            'slug' => config("locales.tool_slugs.{$locale}.{$tool}", $tool),
             'canonical' => null,
             'accept' => $toolConfig['accept'] ?? '.pdf',
             'multiple' => $toolConfig['multiple'] ?? false,

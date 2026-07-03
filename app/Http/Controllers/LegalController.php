@@ -8,7 +8,7 @@ class LegalController extends Controller
     {
         return view('legal.impressum', [
             'pageTitle' => __('legal.impressum_heading'),
-            'slug'      => 'impressum',
+            'slug'      => $this->localizedSlug('imprint', 'impressum'),
         ]);
     }
 
@@ -16,7 +16,7 @@ class LegalController extends Controller
     {
         return view('legal.datenschutz', [
             'pageTitle' => __('legal.datenschutz_heading'),
-            'slug'      => 'datenschutz',
+            'slug'      => $this->localizedSlug('privacy', 'datenschutz'),
         ]);
     }
 
@@ -24,7 +24,7 @@ class LegalController extends Controller
     {
         return view('legal.cookie-policy', [
             'pageTitle' => __('legal.cookies_heading'),
-            'slug'      => 'cookie-policy',
+            'slug'      => $this->localizedSlug('cookies', 'cookie-policy'),
         ]);
     }
 
@@ -32,7 +32,18 @@ class LegalController extends Controller
     {
         return view('legal.agb', [
             'pageTitle' => __('legal.agb_heading'),
-            'slug'      => 'agb',
+            'slug'      => $this->localizedSlug('terms', 'agb'),
         ]);
+    }
+
+    /**
+     * The seo partial builds the canonical as /{locale}/{slug}, so the
+     * slug must be the locale's own URL slug — not the German one.
+     */
+    private function localizedSlug(string $key, string $fallback): string
+    {
+        $locale = app()->getLocale();
+
+        return config("locales.legal_slugs.{$locale}.{$key}", $fallback);
     }
 }

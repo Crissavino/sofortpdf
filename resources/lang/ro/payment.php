@@ -41,6 +41,7 @@ return [
     'tc_required'     => 'Trebuie să accepți termenii pentru a continua.',
 
     'bank_statement'  => ':name va apărea pe extrasul tău bancar.',
+    'charged_amount'  => 'Se debitează: :price',
     'close_button'    => 'Închide',
     'files_count'     => '{n} fișiere în total',
     'show_preview'    => 'Arată previzualizarea',

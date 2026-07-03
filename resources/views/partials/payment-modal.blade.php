@@ -69,6 +69,7 @@
         'hu' => ['symbol' => 'Ft', 'rate' => 405,  'step' => 10],
         'cs' => ['symbol' => 'Kč', 'rate' => 25,   'step' => 1],
         'pl' => ['symbol' => 'zł', 'rate' => 4.30, 'step' => 1],
+        'ro' => ['symbol' => 'lei', 'rate' => 4.97, 'step' => 1],
     ];
     $localCfg = $localCurrencyMap[$loc] ?? null;
     $useLocalCurrency = $localCfg !== null;
