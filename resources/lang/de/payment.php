@@ -53,6 +53,13 @@ return [
     'bottom_bar_button' => 'Jetzt herunterladen',
 
     'err_card' => 'Karte wurde abgelehnt. Bitte versuchen Sie eine andere Karte.',
+    'err_card_number' => 'Die Kartennummer ist nicht korrekt. Bitte überprüfen Sie sie und versuchen Sie es erneut.',
+    'err_card_cvc' => 'Die Prüfnummer (CVC) ist nicht korrekt. Es sind die 3 Ziffern auf der Rückseite Ihrer Karte.',
+    'err_card_expired' => 'Diese Karte ist abgelaufen. Bitte versuchen Sie eine andere Karte.',
+    'err_card_funds' => 'Die Karte weist kein ausreichendes Guthaben auf. Bitte versuchen Sie eine andere Karte.',
+    'err_card_not_supported' => 'Ihre Karte unterstützt diese Art von Zahlung nicht. Bitte versuchen Sie eine andere Karte.',
+    'err_card_retry' => 'Ihre Bank konnte die Zahlung im Moment nicht verarbeiten. Bitte versuchen Sie es in ein paar Minuten erneut.',
+    'err_card_auth' => 'Ihre Bank verlangt eine zusätzliche Bestätigung für diese Zahlung. Bitte versuchen Sie es erneut oder verwenden Sie eine andere Karte.',
     'err_already_subscribed' => 'Mit dieser E-Mail-Adresse besteht bereits ein aktives Abonnement. Bitte melden Sie sich mit Ihren Zugangsdaten an.',
     'err_generic' => 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.',
     'err_name' => 'Bitte geben Sie den Namen des Karteninhabers ein.',

@@ -39,6 +39,33 @@
         'errCard'            => __('payment.err_card'),
         'errAlreadySubscribed' => __('payment.err_already_subscribed'),
         'tcRequired'         => __('payment.tc_required'),
+        // Stripe decline_code / code → localized message. Keyed by the most
+        // specific value Stripe gives us; localizeError() looks up
+        // decline_code first, then code, then falls back to errGeneric.
+        'errByCode'          => [
+            'incorrect_number'                => __('payment.err_card_number'),
+            'invalid_number'                  => __('payment.err_card_number'),
+            'incorrect_cvc'                   => __('payment.err_card_cvc'),
+            'invalid_cvc'                     => __('payment.err_card_cvc'),
+            'expired_card'                    => __('payment.err_card_expired'),
+            'invalid_expiry_month'            => __('payment.err_card_expired'),
+            'invalid_expiry_year'             => __('payment.err_card_expired'),
+            'insufficient_funds'              => __('payment.err_card_funds'),
+            'withdrawal_count_limit_exceeded' => __('payment.err_card_funds'),
+            'transaction_not_allowed'         => __('payment.err_card_not_supported'),
+            'card_not_supported'              => __('payment.err_card_not_supported'),
+            'invalid_account'                 => __('payment.err_card_not_supported'),
+            'try_again_later'                 => __('payment.err_card_retry'),
+            'processing_error'                => __('payment.err_card_retry'),
+            // Stripe object lock — StripeGateway already retried once, so by
+            // the time the user sees this, waiting is the right advice.
+            'lock_timeout'                    => __('payment.err_card_retry'),
+            'authentication_required'         => __('payment.err_card_auth'),
+            // Catch-all for declines the bank gives no usable reason for
+            // (generic_decline, do_not_honor, fraudulent, …).
+            'card_declined'                   => __('payment.err_card'),
+            'already_subscribed'              => __('payment.err_already_subscribed'),
+        ],
     ], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
     // Stripe public key from the VAD-resolved account (bo_stripe_accounts),
     // falling back to the .env value if StripeService hasn't resolved yet.
@@ -749,14 +776,22 @@
     function hideError() { errorEl.hidden = true; errorEl.textContent = ''; }
 
     // Map BO/Stripe error responses to a localized user-facing message.
-    // The BO returns Stripe's English message verbatim; we translate the
-    // most common case (card_declined) to the user's locale and fall
-    // back to the generic message for everything else.
+    // The BO returns Stripe's English message verbatim, so we never show it.
+    // decline_code is the specific reason (insufficient_funds, try_again_later,
+    // …) and code is the broad bucket (card_declined, incorrect_cvc, …) — try
+    // the specific one first so the message tells the user what to actually do.
+    function messageForCode(key) {
+        var map = __m.errByCode || {};
+        return (key && Object.prototype.hasOwnProperty.call(map, key))
+            ? map[key]
+            : null;
+    }
+
     function localizeError(data) {
-        var code = data && data.error && data.error.code;
-        if (code === 'card_declined')      return __m.errCard;
-        if (code === 'already_subscribed') return __m.errAlreadySubscribed;
-        return __m.errGeneric;
+        var err = (data && data.error) || {};
+        return messageForCode(err.decline_code)
+            || messageForCode(err.code)
+            || __m.errGeneric;
     }
 
     function setLoading(loading) {
@@ -1091,7 +1126,10 @@
                 var confirmRes = await stripe.confirmCardPayment(step2Data.paymentIntent.client_secret, {
                     payment_method: paymentMethodId,
                 });
-                if (confirmRes.error) { fail('3ds', confirmRes.error.message); return; }
+                // Stripe.js errors carry the same code/decline_code shape as the
+                // BO ones, but confirmRes.error.message is English — localize it
+                // through the same map instead of showing it raw.
+                if (confirmRes.error) { fail('3ds', localizeError({ error: confirmRes.error })); return; }
             }
 
             // ═══ Step 3: Create subscription (BO → Stripe subscription) ═══

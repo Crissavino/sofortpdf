@@ -54,6 +54,13 @@ return [
     'bottom_bar_button' => 'Pobierz teraz',
 
     'err_card' => 'Twoja karta została odrzucona. Spróbuj inną kartą.',
+    'err_card_number' => 'Numer karty jest nieprawidłowy. Sprawdź go i spróbuj ponownie.',
+    'err_card_cvc' => 'Kod bezpieczeństwa (CVC) jest nieprawidłowy. To 3 cyfry na odwrocie karty.',
+    'err_card_expired' => 'Ta karta wygasła. Spróbuj inną kartą.',
+    'err_card_funds' => 'Na karcie brakuje środków. Spróbuj inną kartą.',
+    'err_card_not_supported' => 'Twoja karta nie obsługuje tego rodzaju płatności. Spróbuj inną kartą.',
+    'err_card_retry' => 'Twój bank nie mógł teraz przetworzyć płatności. Spróbuj ponownie za kilka minut.',
+    'err_card_auth' => 'Twój bank wymaga dodatkowej weryfikacji tej płatności. Spróbuj ponownie lub użyj innej karty.',
     'err_already_subscribed' => 'Z tym adresem e-mail masz już aktywną subskrypcję. Zaloguj się przy użyciu swoich danych logowania.',
     'err_generic' => 'Coś poszło nie tak. Spróbuj ponownie.',
     'err_name' => 'Wprowadź imię i nazwisko właściciela karty.',

@@ -53,6 +53,13 @@ return [
     'bottom_bar_button'=> 'Descarcă acum',
 
     'err_card'               => 'Cardul tău a fost refuzat. Te rugăm să încerci alt card.',
+    'err_card_number'        => 'Numărul cardului este incorect. Te rugăm să îl verifici și să încerci din nou.',
+    'err_card_cvc'           => 'Codul de securitate (CVC) este incorect. Sunt cele 3 cifre de pe spatele cardului.',
+    'err_card_expired'       => 'Acest card a expirat. Te rugăm să încerci alt card.',
+    'err_card_funds'         => 'Cardul nu are fonduri suficiente. Te rugăm să încerci alt card.',
+    'err_card_not_supported' => 'Cardul tău nu acceptă acest tip de plată. Te rugăm să încerci alt card.',
+    'err_card_retry'         => 'Banca ta nu a putut procesa plata acum. Te rugăm să încerci din nou în câteva minute.',
+    'err_card_auth'          => 'Banca ta solicită o verificare suplimentară pentru această plată. Te rugăm să încerci din nou sau să folosești alt card.',
     'err_already_subscribed' => 'Ai deja un abonament activ cu acest email. Te rugăm să te autentifici cu datele tale.',
     'err_generic'            => 'Ceva nu a mers bine. Te rugăm să încerci din nou.',
     'err_name'               => 'Te rugăm să introduci numele titularului cardului.',

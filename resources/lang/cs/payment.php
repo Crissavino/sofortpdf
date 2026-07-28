@@ -54,6 +54,13 @@ return [
     'bottom_bar_button' => 'Stáhnout nyní',
 
     'err_card' => 'Vaše karta byla odmítnuta. Zkuste prosím jinou kartu.',
+    'err_card_number' => 'Číslo karty je nesprávné. Zkontrolujte ho prosím a zkuste to znovu.',
+    'err_card_cvc' => 'Bezpečnostní kód (CVC) je nesprávný. Jsou to 3 číslice na zadní straně karty.',
+    'err_card_expired' => 'Platnost této karty vypršela. Zkuste prosím jinou kartu.',
+    'err_card_funds' => 'Na kartě není dostatek prostředků. Zkuste prosím jinou kartu.',
+    'err_card_not_supported' => 'Vaše karta tento typ platby nepodporuje. Zkuste prosím jinou kartu.',
+    'err_card_retry' => 'Vaše banka nyní nemohla platbu zpracovat. Zkuste to prosím za několik minut znovu.',
+    'err_card_auth' => 'Vaše banka vyžaduje pro tuto platbu dodatečné ověření. Zkuste to prosím znovu nebo použijte jinou kartu.',
     'err_already_subscribed' => 'S touto e-mailovou adresou již máte aktivní předplatné. Přihlaste se prosím svými přihlašovacími údaji.',
     'err_generic' => 'Něco se pokazilo. Zkuste to prosím znovu.',
     'err_name' => 'Zadejte prosím jméno držitele karty.',

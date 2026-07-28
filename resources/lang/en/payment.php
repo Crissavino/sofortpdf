@@ -53,6 +53,13 @@ return [
     'bottom_bar_button' => 'Download now',
 
     'err_card' => 'Your card was declined. Please try another card.',
+    'err_card_number' => 'The card number is incorrect. Please check it and try again.',
+    'err_card_cvc' => 'The security code (CVC) is incorrect. It is the 3-digit number on the back of your card.',
+    'err_card_expired' => 'This card has expired. Please try another card.',
+    'err_card_funds' => 'Your card has insufficient funds. Please try another card.',
+    'err_card_not_supported' => 'Your card does not support this type of payment. Please try another card.',
+    'err_card_retry' => 'Your bank could not process the payment right now. Please try again in a few minutes.',
+    'err_card_auth' => 'Your bank requires additional verification for this payment. Please try again or use another card.',
     'err_already_subscribed' => 'You already have an active subscription with this email. Please log in with your credentials.',
     'err_generic' => 'Something went wrong. Please try again.',
     'err_name' => 'Please enter the cardholder name.',

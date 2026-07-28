@@ -54,6 +54,13 @@ return [
     'bottom_bar_button' => 'Letöltés most',
 
     'err_card' => 'Kártyáját elutasítottuk. Kérjük, próbáljon meg másik kártyát.',
+    'err_card_number' => 'A kártyaszám hibás. Kérjük, ellenőrizze és próbálja újra.',
+    'err_card_cvc' => 'A biztonsági kód (CVC) hibás. Ez a kártya hátoldalán található 3 számjegy.',
+    'err_card_expired' => 'Ez a kártya lejárt. Kérjük, próbáljon meg másik kártyát.',
+    'err_card_funds' => 'A kártyán nincs elegendő fedezet. Kérjük, próbáljon meg másik kártyát.',
+    'err_card_not_supported' => 'Kártyája nem támogatja az ilyen típusú fizetést. Kérjük, próbáljon meg másik kártyát.',
+    'err_card_retry' => 'Bankja jelenleg nem tudta feldolgozni a fizetést. Kérjük, próbálja újra néhány perc múlva.',
+    'err_card_auth' => 'Bankja további megerősítést kér ehhez a fizetéshez. Kérjük, próbálja újra, vagy használjon másik kártyát.',
     'err_already_subscribed' => 'Ezzel az e-mail-címmel már van aktív előfizetés. Kérjük, jelentkezzen be a hitelesítő adataival.',
     'err_generic' => 'Hiba történt. Kérjük, próbálja újra.',
     'err_name' => 'Kérjük, adja meg a kártyabirtokos nevét.',
