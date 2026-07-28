@@ -41,10 +41,14 @@ class PasswordResetController extends Controller
      * Show the form where the user chooses a new password after clicking
      * the reset link in their email.
      */
-    public function showResetConfirmForm(Request $request, string $token)
+    public function showResetConfirmForm(Request $request)
     {
+        // Read {token} by name, not as a method argument: this route sits
+        // inside the `{locale}` prefix group and Laravel binds scalar route
+        // parameters positionally, so a `string $token` argument would
+        // receive the locale instead of the token.
         return view('auth.password-reset-confirm', [
-            'token' => $token,
+            'token' => (string) $request->route('token'),
             'email' => $request->query('email', ''),
         ]);
     }
