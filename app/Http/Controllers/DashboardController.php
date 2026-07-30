@@ -3,13 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\BoStripeCustomer;
+use App\Models\Payment;
+use App\Services\Payment\PaymentGatewayFactory;
 use App\Services\ToolConfig;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Stripe\BillingPortal\Session as BillingPortalSession;
-use Stripe\Stripe;
-use Stripe\Subscription as StripeSubscription;
+use Illuminate\Support\Facades\Log;
 
 class DashboardController extends Controller
 {
@@ -126,51 +126,73 @@ class DashboardController extends Controller
         ]);
     }
 
-    public function billingPortal()
+    public function cancelSubscription(Request $request)
     {
-        $customer = Auth::user();
+        $customer  = Auth::user();
+        $websiteId = config('services.bo.website_id');
 
         $boStripe = BoStripeCustomer::where('customer_id', $customer->id)
-            ->where('website_id', config('services.bo.website_id'))
-            ->first();
-
-        if (!$boStripe || !$boStripe->id_stripe_customer) {
-            return redirect()->route('dashboard.billing')->with('error', __('dashboard.flash_no_active_subscription'));
-        }
-
-        Stripe::setApiKey(config('services.stripe.secret'));
-
-        $session = BillingPortalSession::create([
-            'customer'   => $boStripe->id_stripe_customer,
-            'return_url' => route('dashboard.billing'),
-            'locale'     => app()->getLocale(),
-        ]);
-
-        return redirect($session->url);
-    }
-
-    public function cancelSubscription()
-    {
-        $customer = Auth::user();
-
-        $boStripe = BoStripeCustomer::where('customer_id', $customer->id)
-            ->where('website_id', config('services.bo.website_id'))
+            ->where('website_id', $websiteId)
             ->first();
 
         if (!$boStripe || !$boStripe->id_stripe_subscription) {
             return redirect()->route('dashboard.billing')->with('error', __('dashboard.flash_no_active_subscription'));
         }
 
-        Stripe::setApiKey(config('services.stripe.secret'));
-        StripeSubscription::update($boStripe->id_stripe_subscription, [
-            'cancel_at_period_end' => true,
-        ]);
+        $payment = Payment::where('customer_id', $customer->id)
+            ->where('payment_status_id', 2)
+            ->latest('create_time')
+            ->first();
 
-        // Local row is updated by the customer.subscription.updated webhook;
-        // optimistically reflect the cancel intent in the UI now.
+        if (!$payment) {
+            return redirect()->route('dashboard.billing')->with('error', __('dashboard.flash_no_active_subscription'));
+        }
+
+        // Stripe credentials live in bo_stripe_accounts, not in this app's env —
+        // the BO resolves them from the customer's own account (AVOCODE vs JACKCODE).
+        try {
+            $result = app(PaymentGatewayFactory::class)->resolve('stripe')->cancelSubscription([
+                'customer'          => $customer,
+                'payment_id'        => $payment->id,
+                'stripe_account_id' => $boStripe->bo_stripe_account_id,
+            ]);
+
+            if (!($result['success'] ?? false)) {
+                return redirect()->route('dashboard.billing')->with('error', __('cancellation.cancel_failed'));
+            }
+        } catch (\Throwable $e) {
+            Log::error('DashboardController::cancelSubscription failed', [
+                'error'       => $e->getMessage(),
+                'customer_id' => $customer->id,
+            ]);
+
+            return redirect()->route('dashboard.billing')->with('error', __('cancellation.cancel_failed'));
+        }
+
+        $payment->update(['payment_status_id' => 3]);
+
+        $sub = $customer->subscriptions()
+            ->where('website_id', $websiteId)
+            ->latest('id')
+            ->first();
+        if ($sub) {
+            $sub->update([
+                'is_trial_active'        => false,
+                'is_subscription_active' => false,
+                'cancelled_at'           => now(),
+            ]);
+        }
+
         $boStripe->update(['stripe_subscription_status' => 'canceled']);
 
-        return redirect()->route('dashboard.billing')->with('success', __('dashboard.flash_subscription_canceled'));
+        $locale = app()->getLocale();
+
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('home', ['locale' => $locale])
+            ->with('success', __('dashboard.flash_subscription_canceled'));
     }
 
     public function profile()

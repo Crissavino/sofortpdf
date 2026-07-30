@@ -384,7 +384,6 @@ Route::prefix('{locale}')
         Route::get('/', [DashboardController::class, 'index'])->name('index');
         Route::get('/downloads', [DashboardController::class, 'downloads'])->name('downloads');
         Route::get('/billing', [DashboardController::class, 'billing'])->name('billing');
-        Route::get('/billing/portal', [DashboardController::class, 'billingPortal'])->name('billing.portal');
         Route::post('/billing/cancel', [DashboardController::class, 'cancelSubscription'])->name('billing.cancel');
         Route::get('/profil', [DashboardController::class, 'profile'])->name('profile');
         Route::put('/profil', [DashboardController::class, 'updateProfile'])->name('profile.update');
