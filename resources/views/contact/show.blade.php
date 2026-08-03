@@ -49,6 +49,18 @@
                     @error('message')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                 </div>
 
+                @if(config('services.turnstile.site_key'))
+                    <div>
+                        <div class="cf-turnstile"
+                             data-sitekey="{{ config('services.turnstile.site_key') }}"
+                             data-language="{{ app()->getLocale() }}"></div>
+                        @error('captcha')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+                    </div>
+                    @push('scripts')
+                        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+                    @endpush
+                @endif
+
                 <p class="text-xs text-slate-500">{{ __('contact_ui.privacy_notice') }}</p>
 
                 <button type="submit"

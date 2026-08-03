@@ -21,6 +21,7 @@ return [
     'err_send_failed'      => 'Ihre Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es später erneut.',
     'err_rate_limited'     => 'Zu viele Anfragen von Ihrer IP. Bitte versuchen Sie es später erneut.',
     'err_generic'          => 'Ihre Anfrage konnte nicht verarbeitet werden.',
+    'err_captcha'          => 'Wir konnten nicht überprüfen, ob Sie ein Mensch sind. Bitte laden Sie die Seite neu und versuchen Sie es erneut.',
 
     // Footer
     'footer_link'       => 'Kontakt',

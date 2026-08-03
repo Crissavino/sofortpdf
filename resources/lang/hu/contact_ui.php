@@ -21,6 +21,7 @@ return [
     'err_send_failed'      => 'Az üzenetet nem sikerült elküldeni. Kérjük, próbálja újra később.',
     'err_rate_limited'     => 'Túl sok kérés érkezett az IP-címéről. Kérjük, próbálja újra később.',
     'err_generic'          => 'A kérését nem tudtuk feldolgozni.',
+    'err_captcha'          => 'Nem tudtuk ellenőrizni, hogy Ön ember-e. Kérjük, töltse újra az oldalt és próbálja meg újra.',
 
     // Footer
     'footer_link'       => 'Kapcsolat',

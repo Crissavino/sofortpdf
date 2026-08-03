@@ -62,4 +62,11 @@ return [
         'key' => env('IPINFO_KEY'),
     ],
 
+    // Cloudflare Turnstile — anti-spam on the contact form.
+    // Both keys empty = Turnstile disabled (widget not rendered, token not required).
+    'turnstile' => [
+        'site_key'   => env('TURNSTILE_SITE_KEY'),
+        'secret_key' => env('TURNSTILE_SECRET_KEY'),
+    ],
+
 ];

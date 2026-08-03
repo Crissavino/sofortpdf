@@ -21,6 +21,7 @@ return [
     'err_send_failed'      => 'Nie udało się wysłać Twojej wiadomości. Spróbuj ponownie później.',
     'err_rate_limited'     => 'Zbyt wiele żądań z Twojego adresu IP. Spróbuj ponownie później.',
     'err_generic'          => 'Nie udało się przetworzyć Twojego żądania.',
+    'err_captcha'          => 'Nie udało nam się zweryfikować, że jesteś człowiekiem. Odśwież stronę i spróbuj ponownie.',
 
     // Footer
     'footer_link'       => 'Kontakt',

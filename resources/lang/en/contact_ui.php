@@ -21,6 +21,7 @@ return [
     'err_send_failed'      => 'Your message could not be sent. Please try again later.',
     'err_rate_limited'     => 'Too many requests from your IP. Please try again later.',
     'err_generic'          => 'Your request could not be processed.',
+    'err_captcha'          => 'We could not verify that you are human. Please reload the page and try again.',
 
     // Footer
     'footer_link'       => 'Contact',

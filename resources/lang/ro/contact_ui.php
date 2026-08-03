@@ -17,5 +17,6 @@ return [
     'err_send_failed'      => 'Mesajul tău nu a putut fi trimis. Te rugăm să încerci din nou mai târziu.',
     'err_rate_limited'     => 'Prea multe solicitări de la IP-ul tău. Te rugăm să încerci din nou mai târziu.',
     'err_generic'          => 'Solicitarea ta nu a putut fi procesată.',
+    'err_captcha'          => 'Nu am putut verifica dacă ești o persoană reală. Te rugăm să reîncarci pagina și să încerci din nou.',
     'footer_link'          => 'Contact',
 ];

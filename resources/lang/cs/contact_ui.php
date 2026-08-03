@@ -21,6 +21,7 @@ return [
     'err_send_failed'      => 'Vaši zprávu nebylo možné odeslat. Zkuste to prosím znovu později.',
     'err_rate_limited'     => 'Příliš mnoho požadavků z vaší IP adresy. Zkuste to prosím znovu později.',
     'err_generic'          => 'Vaši žádost nebylo možné zpracovat.',
+    'err_captcha'          => 'Nepodařilo se nám ověřit, že jste člověk. Načtěte prosím stránku znovu a zkuste to znovu.',
 
     // Footer
     'footer_link'       => 'Kontakt',
