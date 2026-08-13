@@ -272,10 +272,14 @@
 
 <style>
     /* ── Modal root & backdrop ── */
+    /* --spm-cookie-h reserves the height of the Cookiebot consent banner, which
+       is position:fixed at the bottom with a z-index far above ours. Without it
+       the banner sits on top of the pay button and swallows the click. Set from
+       JS on open; back to 0 once consent is given. */
     .spm-root {
         position: fixed; inset: 0; z-index: 9999;
         display: flex; align-items: center; justify-content: center;
-        padding: 0;
+        padding: 0 0 var(--spm-cookie-h, 0px);
         opacity: 0; pointer-events: none;
         transition: opacity 220ms cubic-bezier(0.23, 1, 0.32, 1);
     }
@@ -292,7 +296,7 @@
     .spm-panel {
         position: relative;
         width: 100%; max-width: 480px;
-        max-height: 96vh;
+        max-height: calc(96vh - var(--spm-cookie-h, 0px));
         background: #fff;
         border-radius: 14px;
         box-shadow: 0 24px 60px -12px rgba(15, 23, 42, 0.35);
@@ -307,7 +311,7 @@
     }
     @media (max-width: 520px) {
         .spm-panel {
-            max-height: 100vh;
+            max-height: calc(100vh - var(--spm-cookie-h, 0px));
             border-radius: 14px 14px 0 0;
             margin: 0;
             align-self: flex-end;
@@ -982,6 +986,49 @@
         return s.trim();
     }
 
+    // --- Cookie banner clearance -------------------------------------------
+    // Cookiebot's consent dialog is position:fixed at the bottom with a z-index
+    // far above ours, so it sits on top of the pay button and swallows the
+    // click — the button is unreachable until the visitor dismisses the banner.
+    // Reserve its height in --spm-cookie-h so both stay usable.
+    var cookieBannerObserver = null;
+
+    function measureCookieClearance() {
+        var el = document.getElementById('CybotCookiebotDialog');
+        var h = 0;
+        if (el) {
+            var cs = window.getComputedStyle(el);
+            var r  = el.getBoundingClientRect();
+            // Only a visible, bottom-anchored banner can cover the button.
+            if (cs.display !== 'none' && cs.visibility !== 'hidden' &&
+                r.height > 0 && r.bottom >= window.innerHeight - 4) {
+                h = Math.ceil(r.height);
+            }
+        }
+        root.style.setProperty('--spm-cookie-h', h + 'px');
+        return h > 0 ? el : null;
+    }
+
+    function watchCookieClearance() {
+        var el = measureCookieClearance();
+        if (cookieBannerObserver) { cookieBannerObserver.disconnect(); cookieBannerObserver = null; }
+        // Re-measure if the banner resizes (e.g. the "Customize" view expands).
+        if (el && window.ResizeObserver) {
+            cookieBannerObserver = new ResizeObserver(function() { measureCookieClearance(); });
+            cookieBannerObserver.observe(el);
+        }
+    }
+
+    // The banner can appear after the modal opens, or vanish while it is open.
+    ['CookiebotOnDialogDisplay', 'CookiebotOnAccept', 'CookiebotOnDecline'].forEach(function(evt) {
+        window.addEventListener(evt, function() {
+            if (root.classList.contains('spm-open')) watchCookieClearance();
+        });
+    });
+    window.addEventListener('resize', function() {
+        if (root.classList.contains('spm-open')) measureCookieClearance();
+    });
+
     // --- Stripe init (lazy) -------------------------------------------------
     function ensureStripeLoaded() {
         return new Promise(function(resolve, reject) {
@@ -1225,6 +1272,8 @@
             renderPreview(files).catch(function() { /* ignore */ });
         }
 
+        watchCookieClearance();
+
         root.classList.add('spm-open');
         root.setAttribute('aria-hidden', 'false');
         document.body.classList.add('spm-lock');
@@ -1252,6 +1301,8 @@
             previewWrap.classList.remove('is-zoomed');
             if (zoomBackdrop) zoomBackdrop.classList.remove('is-active');
         }
+
+        if (cookieBannerObserver) { cookieBannerObserver.disconnect(); cookieBannerObserver = null; }
 
         root.classList.remove('spm-open');
         root.setAttribute('aria-hidden', 'true');
