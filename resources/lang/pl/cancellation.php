@@ -15,6 +15,7 @@ return [
     'no_active_subscription' => 'Dla tego adresu e-mail nie znaleziono aktywnej subskrypcji.',
     'cancel_failed'          => 'Nie udało się przetworzyć anulowania. Spróbuj ponownie później lub skontaktuj się z pomocą.',
     'success'                => 'Twoja subskrypcja została pomyślnie anulowana.',
+    'already_cancelled'      => 'Twoja subskrypcja jest już anulowana. Nie pobierzemy kolejnych opłat.',
     'help_text'              => 'Masz problem z anulowaniem?',
     'contact_support'        => 'Skontaktuj się z pomocą',
 ];

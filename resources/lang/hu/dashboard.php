@@ -24,6 +24,7 @@ return [
 
     // Flash messages (controller)
     'flash_no_active_subscription' => 'Nem található aktív előfizetés.',
+    'flash_already_cancelled'      => 'Előfizetése már le van mondva. Nem terheljük meg többé.',
     'flash_subscription_canceled' => 'Előfizetését lemondtuk. A jelenlegi számlázási időszak végéig megőrzi a hozzáférést.',
     'flash_profile_saved' => 'A módosításokat elmentettük.',
 

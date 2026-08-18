@@ -24,6 +24,7 @@ return [
 
     // Flash messages (controller)
     'flash_no_active_subscription' => 'Nie znaleziono aktywnej subskrypcji.',
+    'flash_already_cancelled'      => 'Twoja subskrypcja jest już anulowana. Nie pobierzemy kolejnych opłat.',
     'flash_subscription_canceled' => 'Twoja subskrypcja została anulowana. Zachowasz dostęp do końca bieżącego okresu rozliczeniowego.',
     'flash_profile_saved' => 'Twoje zmiany zostały zapisane.',
 

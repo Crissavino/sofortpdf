@@ -28,18 +28,37 @@ class CancellationController extends Controller
             ->first();
 
         if (!$customer) {
+            Log::warning('Cancellation: customer not found', ['email' => $validated['email']]);
             return back()->withInput()->withErrors([
                 'email' => __('cancellation.customer_not_found'),
             ]);
         }
 
-        // Find active payment
+        // Find a cancellable payment. Status 4 (pending/failed) is included on
+        // purpose: those customers are stuck mid-trial and used to be unable to
+        // cancel through any path at all.
         $payment = Payment::where('customer_id', $customer->id)
-            ->where('payment_status_id', 2)
+            ->whereIn('payment_status_id', [2, 4])
             ->latest('create_time')
             ->first();
 
         if (!$payment) {
+            // Already cancelled — say so instead of "no subscription found".
+            // A double-submitted form races the first request here: request #1
+            // cancels and flips the payment to status 3, request #2 lands on
+            // this branch. Telling the user they have no subscription reads as
+            // "the cancellation failed" and sends them to support demanding a
+            // refund, when in fact they are already cancelled.
+            $alreadyCancelled = Payment::where('customer_id', $customer->id)
+                ->where('payment_status_id', 3)
+                ->exists();
+
+            if ($alreadyCancelled) {
+                return redirect()->route('home', ['locale' => app()->getLocale()])
+                    ->with('success', __('cancellation.already_cancelled'));
+            }
+
+            Log::warning('Cancellation: no cancellable payment', ['customer_id' => $customer->id]);
             return back()->withInput()->withErrors([
                 'email' => __('cancellation.no_active_subscription'),
             ]);

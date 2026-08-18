@@ -14,6 +14,7 @@ return [
     'no_active_subscription' => 'Nu există un abonament activ pentru această adresă de email.',
     'cancel_failed'          => 'Anularea nu a putut fi procesată. Te rugăm să încerci din nou sau să contactezi suportul.',
     'success'                => 'Abonamentul tău a fost anulat cu succes.',
+    'already_cancelled'      => 'Abonamentul tău este deja anulat. Nu îți vom mai debita nicio sumă.',
     'help_text'              => 'Probleme cu anularea?',
     'contact_support'        => 'Contactează suportul',
 ];

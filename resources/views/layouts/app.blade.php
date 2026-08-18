@@ -341,5 +341,30 @@
             if (window.lucide) lucide.createIcons();
         });
     </script>
+
+    {{-- Double-submit guard for forms marked [data-guard-submit].
+         A second click aborts the first request in the browser (nginx logs it
+         as 499) while the server keeps processing it. On the cancellation
+         forms that raced the two requests: the first one cancelled, the second
+         found nothing left to cancel and told the user they had no
+         subscription — which read as "cancellation failed". --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('form[data-guard-submit]').forEach(function (form) {
+                form.addEventListener('submit', function (e) {
+                    if (form.dataset.submitting === '1') {
+                        e.preventDefault();
+                        return;
+                    }
+                    form.dataset.submitting = '1';
+                    form.querySelectorAll('button[type="submit"]').forEach(function (btn) {
+                        btn.disabled = true;
+                        btn.style.opacity = '0.6';
+                        btn.style.cursor = 'wait';
+                    });
+                });
+            });
+        });
+    </script>
 </body>
 </html>

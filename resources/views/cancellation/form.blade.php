@@ -17,7 +17,7 @@
 
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="p-6">
-            <form method="POST" action="/{{ app()->getLocale() }}/{{ config('locales.cancellation_slugs.' . app()->getLocale(), 'cancel') }}">
+            <form method="POST" action="/{{ app()->getLocale() }}/{{ config('locales.cancellation_slugs.' . app()->getLocale(), 'cancel') }}" data-guard-submit>
                 @csrf
 
                 <div class="mb-5">

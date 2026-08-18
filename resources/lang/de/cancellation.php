@@ -15,6 +15,7 @@ return [
     'no_active_subscription' => 'Kein aktives Abonnement für diese E-Mail-Adresse gefunden.',
     'cancel_failed'          => 'Die Kündigung konnte nicht verarbeitet werden. Bitte versuchen Sie es später erneut oder kontaktieren Sie den Support.',
     'success'                => 'Ihr Abonnement wurde erfolgreich gekündigt.',
+    'already_cancelled'      => 'Ihr Abonnement ist bereits gekündigt. Es werden Ihnen keine weiteren Beträge berechnet.',
     'help_text'              => 'Probleme bei der Kündigung?',
     'contact_support'        => 'Support kontaktieren',
 ];

@@ -24,6 +24,7 @@ return [
 
     // Flash messages (controller)
     'flash_no_active_subscription' => 'Kein aktives Abonnement gefunden.',
+    'flash_already_cancelled'      => 'Ihr Abonnement ist bereits gekündigt. Es werden Ihnen keine weiteren Beträge berechnet.',
     'flash_subscription_canceled' => 'Ihr Abonnement wurde gekündigt. Sie behalten Ihren Zugang bis zum Ende des aktuellen Abrechnungszeitraums.',
     'flash_profile_saved' => 'Ihre Änderungen wurden gespeichert.',
 

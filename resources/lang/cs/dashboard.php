@@ -24,6 +24,7 @@ return [
 
     // Flash messages (controller)
     'flash_no_active_subscription' => 'Nebylo nalezeno žádné aktivní předplatné.',
+    'flash_already_cancelled'      => 'Vaše předplatné je již zrušeno. Nebudeme vám nic dalšího účtovat.',
     'flash_subscription_canceled' => 'Vaše předplatné bylo zrušeno. Přístup si zachováte do konce aktuálního zúčtovacího období.',
     'flash_profile_saved' => 'Vaše změny byly uloženy.',
 

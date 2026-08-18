@@ -20,6 +20,7 @@ return [
     'quick_access_sub'     => 'Treci direct la un instrument.',
 
     'flash_no_active_subscription' => 'Nu s-a găsit niciun abonament activ.',
+    'flash_already_cancelled'      => 'Abonamentul tău este deja anulat. Nu îți vom mai debita nicio sumă.',
     'flash_subscription_canceled'  => 'Abonamentul tău a fost anulat. Vei păstra accesul până la sfârșitul perioadei de facturare curente.',
     'flash_profile_saved'          => 'Modificările tale au fost salvate.',
 

@@ -15,6 +15,7 @@ return [
     'no_active_subscription' => 'No active subscription found for this email address.',
     'cancel_failed'          => 'The cancellation could not be processed. Please try again later or contact support.',
     'success'                => 'Your subscription has been successfully cancelled.',
+    'already_cancelled'      => 'Your subscription is already cancelled. You will not be charged again.',
     'help_text'              => 'Having trouble cancelling?',
     'contact_support'        => 'Contact support',
 ];

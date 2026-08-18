@@ -24,6 +24,7 @@ return [
 
     // Flash messages (controller)
     'flash_no_active_subscription' => 'No active subscription found.',
+    'flash_already_cancelled'      => 'Your subscription is already cancelled. You will not be charged again.',
     'flash_subscription_canceled' => 'Your subscription has been canceled. You will keep access until the end of the current billing period.',
     'flash_profile_saved' => 'Your changes have been saved.',
 

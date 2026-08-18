@@ -15,6 +15,7 @@ return [
     'no_active_subscription' => 'Ehhez az e-mail-címhez nem található aktív előfizetés.',
     'cancel_failed'          => 'A lemondás nem volt sikeres. Kérjük, próbálja újra később, vagy lépjen kapcsolatba az ügyfélszolgálattal.',
     'success'                => 'Előfizetését sikeresen lemondtuk.',
+    'already_cancelled'      => 'Előfizetése már le van mondva. Nem terheljük meg többé.',
     'help_text'              => 'Problémái vannak a lemondással?',
     'contact_support'        => 'Kapcsolatfelvétel az ügyfélszolgálattal',
 ];

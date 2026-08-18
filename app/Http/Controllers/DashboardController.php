@@ -136,15 +136,30 @@ class DashboardController extends Controller
             ->first();
 
         if (!$boStripe || !$boStripe->id_stripe_subscription) {
+            Log::warning('Dashboard cancel: no stripe subscription on record', ['customer_id' => $customer->id]);
             return redirect()->route('dashboard.billing')->with('error', __('dashboard.flash_no_active_subscription'));
         }
 
+        // Status 4 (pending/failed) is included on purpose — those customers are
+        // stuck mid-trial and used to be unable to cancel through any path.
         $payment = Payment::where('customer_id', $customer->id)
-            ->where('payment_status_id', 2)
+            ->whereIn('payment_status_id', [2, 4])
             ->latest('create_time')
             ->first();
 
         if (!$payment) {
+            // Already cancelled — say so instead of "no active subscription".
+            // A double-submitted form races the first request here (see
+            // CancellationController::process for the full reasoning).
+            $alreadyCancelled = Payment::where('customer_id', $customer->id)
+                ->where('payment_status_id', 3)
+                ->exists();
+
+            if ($alreadyCancelled) {
+                return redirect()->route('dashboard.billing')->with('success', __('dashboard.flash_already_cancelled'));
+            }
+
+            Log::warning('Dashboard cancel: no cancellable payment', ['customer_id' => $customer->id]);
             return redirect()->route('dashboard.billing')->with('error', __('dashboard.flash_no_active_subscription'));
         }
 

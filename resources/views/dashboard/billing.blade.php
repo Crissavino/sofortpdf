@@ -98,7 +98,7 @@
                                     class="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 rounded-lg hover:bg-slate-100 transition-colors">
                                 {{ __('dashboard.go_back') }}
                             </button>
-                            <form method="POST" action="{{ route('dashboard.billing.cancel') }}">
+                            <form method="POST" action="{{ route('dashboard.billing.cancel') }}" data-guard-submit>
                                 @csrf
                                 <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg shadow-sm transition-colors">
                                     {{ __('dashboard.yes_cancel_subscription') }}
