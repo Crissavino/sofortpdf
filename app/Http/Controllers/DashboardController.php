@@ -131,14 +131,19 @@ class DashboardController extends Controller
         $customer  = Auth::user();
         $websiteId = config('services.bo.website_id');
 
+        // Only used to pass the Stripe account through; StripeGateway falls back
+        // to StripeService::getStripeAccount() when it is missing.
+        //
+        // Deliberately NOT gated on $boStripe->id_stripe_subscription. That
+        // column is never sent to the BO — cancelSubscription() posts customer,
+        // payment_id, stripeAccountId and siteId, and the BO resolves the
+        // subscription from payment_id — yet it was empty for roughly one in
+        // three trials, which blocked exactly the people trying to cancel
+        // before the first rebill. The /cancel page never had this check and
+        // worked fine for the same customers.
         $boStripe = BoStripeCustomer::where('customer_id', $customer->id)
             ->where('website_id', $websiteId)
             ->first();
-
-        if (!$boStripe || !$boStripe->id_stripe_subscription) {
-            Log::warning('Dashboard cancel: no stripe subscription on record', ['customer_id' => $customer->id]);
-            return redirect()->route('dashboard.billing')->with('error', __('dashboard.flash_no_active_subscription'));
-        }
 
         // Status 4 (pending/failed) is included on purpose — those customers are
         // stuck mid-trial and used to be unable to cancel through any path.
@@ -169,7 +174,7 @@ class DashboardController extends Controller
             $result = app(PaymentGatewayFactory::class)->resolve('stripe')->cancelSubscription([
                 'customer'          => $customer,
                 'payment_id'        => $payment->id,
-                'stripe_account_id' => $boStripe->bo_stripe_account_id,
+                'stripe_account_id' => $boStripe ? $boStripe->bo_stripe_account_id : null,
             ]);
 
             if (!($result['success'] ?? false)) {
