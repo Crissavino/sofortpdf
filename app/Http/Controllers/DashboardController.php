@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\BoStripeCustomer;
-use App\Models\Payment;
 use App\Services\Payment\PaymentGatewayFactory;
 use App\Services\ToolConfig;
 use Illuminate\Http\Request;
@@ -145,26 +144,17 @@ class DashboardController extends Controller
             ->where('website_id', $websiteId)
             ->first();
 
-        // Status 4 (pending/failed) is included on purpose — those customers are
-        // stuck mid-trial and used to be unable to cancel through any path.
-        $payment = Payment::where('customer_id', $customer->id)
-            ->whereIn('payment_status_id', [2, 4])
-            ->latest('create_time')
-            ->first();
+        // The subscription row decides, not the payment status — see
+        // Customer::resolveCancellation().
+        $resolved = $customer->resolveCancellation((int) $websiteId);
+        $payment  = $resolved['payment'];
 
-        if (!$payment) {
-            // Already cancelled — say so instead of "no active subscription".
-            // A double-submitted form races the first request here (see
-            // CancellationController::process for the full reasoning).
-            $alreadyCancelled = Payment::where('customer_id', $customer->id)
-                ->where('payment_status_id', 3)
-                ->exists();
+        if ($resolved['action'] === 'already_cancelled') {
+            return redirect()->route('dashboard.billing')->with('success', __('dashboard.flash_already_cancelled'));
+        }
 
-            if ($alreadyCancelled) {
-                return redirect()->route('dashboard.billing')->with('success', __('dashboard.flash_already_cancelled'));
-            }
-
-            Log::warning('Dashboard cancel: no cancellable payment', ['customer_id' => $customer->id]);
+        if ($resolved['action'] !== 'cancel') {
+            Log::warning('Dashboard cancel: nothing cancellable', ['customer_id' => $customer->id]);
             return redirect()->route('dashboard.billing')->with('error', __('dashboard.flash_no_active_subscription'));
         }
 

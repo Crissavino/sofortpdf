@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Customer;
-use App\Models\Payment;
 use App\Services\Payment\PaymentGatewayFactory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -34,31 +33,23 @@ class CancellationController extends Controller
             ]);
         }
 
-        // Find a cancellable payment. Status 4 (pending/failed) is included on
-        // purpose: those customers are stuck mid-trial and used to be unable to
-        // cancel through any path at all.
-        $payment = Payment::where('customer_id', $customer->id)
-            ->whereIn('payment_status_id', [2, 4])
-            ->latest('create_time')
-            ->first();
+        // The subscription row decides, not the payment status — see
+        // Customer::resolveCancellation().
+        $resolved = $customer->resolveCancellation((int) $websiteId);
+        $payment  = $resolved['payment'];
 
-        if (!$payment) {
-            // Already cancelled — say so instead of "no subscription found".
-            // A double-submitted form races the first request here: request #1
-            // cancels and flips the payment to status 3, request #2 lands on
-            // this branch. Telling the user they have no subscription reads as
-            // "the cancellation failed" and sends them to support demanding a
-            // refund, when in fact they are already cancelled.
-            $alreadyCancelled = Payment::where('customer_id', $customer->id)
-                ->where('payment_status_id', 3)
-                ->exists();
+        if ($resolved['action'] === 'already_cancelled') {
+            // Say so instead of "no subscription found". A double-submitted
+            // form races the first request here: request #1 cancels, request #2
+            // arrives after. Telling the user they have no subscription reads
+            // as "the cancellation failed" and sends them to support demanding
+            // a refund, when in fact they are already cancelled.
+            return redirect()->route('home', ['locale' => app()->getLocale()])
+                ->with('success', __('cancellation.already_cancelled'));
+        }
 
-            if ($alreadyCancelled) {
-                return redirect()->route('home', ['locale' => app()->getLocale()])
-                    ->with('success', __('cancellation.already_cancelled'));
-            }
-
-            Log::warning('Cancellation: no cancellable payment', ['customer_id' => $customer->id]);
+        if ($resolved['action'] !== 'cancel') {
+            Log::warning('Cancellation: nothing cancellable', ['customer_id' => $customer->id]);
             return back()->withInput()->withErrors([
                 'email' => __('cancellation.no_active_subscription'),
             ]);

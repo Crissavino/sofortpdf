@@ -94,6 +94,62 @@ class Customer extends Authenticatable
     }
 
     /**
+     * Decide what a cancellation request should do for this customer.
+     *
+     * The subscription row is the authority, not payments.payment_status_id.
+     * The two desync: customer 66156 had an active subscription with a rebill
+     * booked for the following month while their only payment row sat at
+     * status 3, so every cancel path refused them and — worse — told them they
+     * were already cancelled. Anyone whose subscription is live must be able
+     * to cancel, whatever shape the payment row is in.
+     *
+     * Returns:
+     *   ['action' => 'cancel',            'payment' => Payment]  proceed
+     *   ['action' => 'already_cancelled', 'payment' => null]     say so, truthfully
+     *   ['action' => 'none',              'payment' => null]     nothing on record
+     *
+     * payment is only needed so the BO can resolve the Stripe subscription
+     * from payment_id; an active payment is preferred, otherwise the most
+     * recent one of any status.
+     */
+    public function resolveCancellation(int $websiteId): array
+    {
+        $none = ['action' => 'none', 'payment' => null];
+        $done = ['action' => 'already_cancelled', 'payment' => null];
+
+        $payment = $this->payments()
+                ->whereIn('payment_status_id', [2, 4])
+                ->orderBy('create_time', 'desc')
+                ->first()
+            ?: $this->payments()->orderBy('create_time', 'desc')->first();
+
+        $subscription = $this->subscriptions()
+            ->where('website_id', $websiteId)
+            ->orderBy('id', 'desc')
+            ->first();
+
+        if ($subscription) {
+            $isLive = !$subscription->cancelled_at
+                && ($subscription->is_subscription_active || $subscription->is_trial_active);
+
+            if (!$isLive) {
+                return $done;
+            }
+
+            // Live subscription but no payment row at all — nothing to hand the
+            // BO, so we cannot cancel from here.
+            return $payment ? ['action' => 'cancel', 'payment' => $payment] : $none;
+        }
+
+        // No subscription row: fall back to the payment status alone.
+        if ($payment && in_array($payment->payment_status_id, [2, 4], true)) {
+            return ['action' => 'cancel', 'payment' => $payment];
+        }
+
+        return $payment && $payment->payment_status_id == 3 ? $done : $none;
+    }
+
+    /**
      * Subscription status for UI display — reads from both sources.
      */
     public function getSubscriptionStatus(): string
