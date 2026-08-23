@@ -100,6 +100,7 @@ return [
     'order_amount'             => 'Kwota: :amount',
     'order_number'             => 'Numer zamówienia: :number',
     'order_cancel_notice'      => 'Możesz w każdej chwili anulować subskrypcję poprzez swój panel użytkownika.',
+    'order_auto_renew_notice' => '*Po :days-dniowym okresie próbnym subskrypcja automatycznie się aktywuje, chyba że zostanie anulowana. Cena to :price/miesiąc. Możesz ją anulować w dowolnym momencie.',
     'order_cta'                => 'Przejdź do moich narzędzi PDF',
 
     // Download ready

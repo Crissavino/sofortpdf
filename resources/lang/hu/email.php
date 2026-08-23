@@ -100,6 +100,7 @@ return [
     'order_amount'             => 'Összeg: :amount',
     'order_number'             => 'Megrendelési szám: :number',
     'order_cancel_notice'      => 'Előfizetését bármikor lemondhatja a saját felületén keresztül.',
+    'order_auto_renew_notice' => '*A :days napos próbaidőszak után az előfizetés automatikusan aktiválódik, hacsak le nem mondják. Az ár :price/hó. Bármikor lemondhatja.',
     'order_cta'                => 'Tovább a PDF eszközeimhez',
 
     // Download ready

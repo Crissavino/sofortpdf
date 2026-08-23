@@ -100,6 +100,7 @@ return [
     'order_amount'             => 'Částka: :amount',
     'order_number'             => 'Číslo objednávky: :number',
     'order_cancel_notice'      => 'Své předplatné můžete kdykoli zrušit prostřednictvím svého osobního prostoru.',
+    'order_auto_renew_notice' => '*Po uplynutí zkušebního období :days dnů se předplatné automaticky aktivuje, pokud nebude zrušeno. Cena je :price/měsíc. Můžete jej kdykoli zrušit.',
     'order_cta'                => 'Přejít k mým PDF nástrojům',
 
     // Download ready

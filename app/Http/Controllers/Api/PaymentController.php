@@ -364,8 +364,17 @@ class PaymentController extends Controller
             $amount = number_format($trialPrice, 2, ',', '') . ' ' . $symbol;
             $orderNumber = $payment ? $payment->order_number : '';
 
+            // What the customer is actually signing up for. Read from the same
+            // resolved VAD pricing the modal quotes, never from a constant, so
+            // the email cannot drift away from what gets charged.
+            $monthlyPrice  = session('vad.pricing.subscription');
+            $monthlyAmount = $monthlyPrice
+                ? number_format((float) $monthlyPrice, 2, ',', '') . ' ' . $symbol
+                : '';
+            $trialDays = (int) config('services.stripe.trial_days', 2);
+
             $emailService->sendWelcome($customer, '', $locale);
-            $emailService->sendOrderConfirmation($customer, $amount, $orderNumber, $locale);
+            $emailService->sendOrderConfirmation($customer, $amount, $orderNumber, $locale, $monthlyAmount, $trialDays);
         }
 
         return response()->json([

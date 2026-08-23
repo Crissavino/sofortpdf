@@ -100,6 +100,7 @@ return [
     'order_amount'             => 'Betrag: :amount',
     'order_number'             => 'Bestellnummer: :number',
     'order_cancel_notice'      => 'Sie können Ihr Abonnement jederzeit über Ihren persönlichen Bereich kündigen.',
+    'order_auto_renew_notice' => '*Nach der :days-tägigen Testphase wird das Abonnement automatisch aktiviert, es sei denn, es wird gekündigt. Der Preis beträgt :price/Monat. Sie können es jederzeit kündigen.',
     'order_cta'                => 'Zu meinen PDF-Tools',
 
     // Download ready

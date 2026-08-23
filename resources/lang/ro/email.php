@@ -88,6 +88,7 @@ return [
     'order_amount'        => 'Sumă: :amount',
     'order_number'        => 'Număr comandă: :number',
     'order_cancel_notice' => 'Poți anula abonamentul oricând din spațiul tău personal.',
+    'order_auto_renew_notice' => '*După perioada de încercare de :days zile, abonamentul se va activa automat, cu excepția cazului în care este anulat. Prețul este de :price/lună. Îl puteți anula în orice moment.',
     'order_cta'           => 'Mergi la instrumentele mele PDF',
 
     'download_ready_subject'               => 'Documentul tău este gata — sofortpdf.com',

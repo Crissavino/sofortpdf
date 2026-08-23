@@ -21,6 +21,17 @@
         </p>
     </div>
 
+    {{-- What the customer is actually signing up for. Until this was added the
+         only email stating the trial auto-converts was trial-started, which
+         this app never dispatches, so nobody was ever told the price. Hidden
+         when the recurring price is unknown — a blank or guessed figure in a
+         disclosure is worse than none. --}}
+    @if($monthlyAmount && $trialDays)
+        <p style="margin: 0 0 24px 0; font-size: 12px; color: #9ca3af; line-height: 1.6;">
+            {{ __('email.order_auto_renew_notice', ['days' => $trialDays, 'price' => $monthlyAmount]) }}
+        </p>
+    @endif
+
     <table role="presentation" cellpadding="0" cellspacing="0">
         <tr>
             <td style="background-color: #1a56db; border-radius: 6px;">

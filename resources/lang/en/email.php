@@ -100,6 +100,7 @@ return [
     'order_amount'             => 'Amount: :amount',
     'order_number'             => 'Order number: :number',
     'order_cancel_notice'      => 'You can cancel your subscription at any time via your personal space.',
+    'order_auto_renew_notice' => '*After the :days-day trial period, the subscription activates automatically unless cancelled. The price is :price/month. You can cancel at any time.',
     'order_cta'                => 'Go to my PDF tools',
 
     // Download ready
