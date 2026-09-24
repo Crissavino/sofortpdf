@@ -45,6 +45,8 @@ writing a single line.
    done
    ```
 
+**Post-deploy**: después de cada deploy exitoso, guardar una entrada en memoria (`~/.claude/projects/.../memory/`) con fecha (YYYY-MM-DD), qué se deployó (1-3 líneas), y commits incluidos (hashes abreviados).
+
 **`.env` is NOT in git.** To change it, ssh in and edit directly,
 then `config:clear`. Confirm the change with `grep ^KEY .env`.
 
@@ -205,10 +207,29 @@ catches lock_timeout retries and idempotency guard fires.
    the session and would wipe `vad.*` keys without the snapshot/
    restore pattern in `createCustomer`. Don't refactor that away.
 
-4. **No TrustProxies configured.** Sofortpdf serves nginx directly,
-   no Cloudflare in front. If a CDN is added later, both
-   `TrustProxies::$proxies` AND the `filter_var` private-IP check
-   in `ResolveVad::detectCountry()` need attention.
+4. **Cloudflare IS in front, and TrustProxies is NOT configured.**
+   (Verified 2026-07-19; CF went live around 2026-06-08 — week 24
+   in `bo_payment_routes`. This entry previously claimed the
+   opposite.) Consequences:
+   - `TrustProxies::$proxies` is `null`, so `$request->ip()` returns
+     the **Cloudflare edge IP**, not the visitor's. That feeds
+     `ResolveVad::findExistingVadByIp()` (Tiers 1 + 2) and the
+     contact-form rate limiter, so unrelated visitors sharing an
+     edge collide. Latent today — only one VAD rule is active, so
+     inheriting a neighbour's route changes nothing — but it turns
+     into real VAD/currency cross-contamination the moment a second
+     weighted rule goes live.
+   - Geo still resolves correctly: `GetIpInformation` reads
+     `HTTP_CF_IPCOUNTRY` / `HTTP_CF_CONNECTING_IP` straight from
+     `$_SERVER`, bypassing TrustProxies entirely.
+   - The origin (`13.60.11.219`) still answers on 80/443 when you
+     bypass CF, and those CF headers are trusted unvalidated — so
+     **country is spoofable today** by hitting the origin directly
+     with a forged `CF-IPCountry`, which influences segment and
+     currency.
+   - Fix, in this order: lock the AWS Security Group to Cloudflare
+     ranges, then set `TrustProxies::$proxies` to those ranges.
+     Do NOT use `'*'` while the origin is publicly reachable.
 
 5. **The BO is not idempotent.** Every call to pay-trial creates a
    new Stripe charge; every call to create-subscription creates a
