@@ -1,13 +1,14 @@
 <?php
 
 return [
-    'supported' => ['de', 'en', 'hu', 'cs', 'pl', 'ro', 'it'],
+    'supported' => ['de', 'en', 'hu', 'cs', 'pl', 'ro', 'it', 'el'],
     'default' => 'en',
 
     // Tool slug mapping per locale: toolKey => slug.
-    // HU and CS reuse the English slugs by request — display path on
-    // ads is what matters; localising the URL slug is not worth the
-    // extra translation overhead for these markets.
+    // HU, CS, PL, RO and EL reuse the English slugs by request — display
+    // path on ads is what matters, and for EL specifically Greek searches
+    // mix English and Greek while Greek-alphabet URLs do not help.
+    // DE and IT are the locales with genuinely localised slugs.
     'tool_slugs' => [
         'de' => [
             'merge'       => 'pdf-zusammenfuegen',
@@ -204,6 +205,34 @@ return [
             'extract-pages' => 'estrarre-pagine',
             'html-to-pdf'   => 'html-in-pdf',
             'optimize'      => 'ottimizzare-pdf',
+        ],
+        'el' => [
+            'merge'       => 'merge-pdf',
+            'compress'    => 'compress-pdf',
+            'image-to-pdf'=> 'image-to-pdf',
+            'jpg-to-pdf'  => 'jpg-to-pdf',
+            'pdf-to-word' => 'pdf-to-word',
+            'word-to-pdf' => 'word-to-pdf',
+            'pdf-to-jpg'  => 'pdf-to-jpg',
+            'split'       => 'split-pdf',
+            'edit'        => 'edit-pdf',
+            'sign'        => 'sign-pdf',
+            'pdf-to-excel'=> 'pdf-to-excel',
+            'excel-to-pdf'=> 'excel-to-pdf',
+            'rotate'      => 'rotate-pdf',
+            'protect'     => 'protect-pdf',
+            'unlock'      => 'unlock-pdf',
+            'watermark'   => 'add-watermark',
+            'page-numbers'=> 'add-page-numbers',
+            'pdf-to-ppt'  => 'pdf-to-powerpoint',
+            'ppt-to-pdf'  => 'powerpoint-to-pdf',
+            'pdf-to-png'  => 'pdf-to-png',
+            'png-to-pdf'  => 'png-to-pdf',
+            'ocr'         => 'ocr-pdf',
+            'remove-pages'=> 'remove-pages',
+            'extract-pages'=> 'extract-pages',
+            'html-to-pdf' => 'html-to-pdf',
+            'optimize'    => 'optimize-pdf',
         ],
     ],
 
@@ -405,6 +434,34 @@ return [
             'html-to-pdf'   => 'HTML in PDF',
             'optimize'      => 'Ottimizzare PDF',
         ],
+        'el' => [
+            'merge'         => 'Συγχώνευση PDF',
+            'compress'      => 'Συμπίεση PDF',
+            'image-to-pdf'  => 'Εικόνα σε PDF',
+            'jpg-to-pdf'    => 'JPG σε PDF',
+            'pdf-to-word'   => 'PDF σε Word',
+            'word-to-pdf'   => 'Word σε PDF',
+            'pdf-to-jpg'    => 'PDF σε JPG',
+            'split'         => 'Διαχωρισμός PDF',
+            'edit'          => 'Επεξεργασία PDF',
+            'sign'          => 'Υπογραφή PDF',
+            'pdf-to-excel'  => 'PDF σε Excel',
+            'excel-to-pdf'  => 'Excel σε PDF',
+            'rotate'        => 'Περιστροφή PDF',
+            'protect'       => 'Προστασία PDF',
+            'unlock'        => 'Ξεκλείδωμα PDF',
+            'watermark'     => 'Προσθήκη υδατογραφήματος',
+            'page-numbers'  => 'Προσθήκη αριθμών σελίδας',
+            'pdf-to-ppt'    => 'PDF σε PowerPoint',
+            'ppt-to-pdf'    => 'PowerPoint σε PDF',
+            'pdf-to-png'    => 'PDF σε PNG',
+            'png-to-pdf'    => 'PNG σε PDF',
+            'ocr'           => 'Αναγνώριση κειμένου (OCR)',
+            'remove-pages'  => 'Αφαίρεση σελίδων',
+            'extract-pages' => 'Εξαγωγή σελίδων',
+            'html-to-pdf'   => 'HTML σε PDF',
+            'optimize'      => 'Βελτιστοποίηση PDF',
+        ],
     ],
 
     // Alias slugs per locale (slug => toolKey)
@@ -423,6 +480,7 @@ return [
         'pl' => [],
         'ro' => [],
         'it' => [],
+        'el' => [],
     ],
 
     // Auth route slugs.
@@ -437,6 +495,7 @@ return [
         'pl' => ['login' => 'login',    'logout' => 'logout',   'password_reset' => 'password-reset'],
         'ro' => ['login' => 'login',    'logout' => 'logout',   'password_reset' => 'password-reset'],
         'it' => ['login' => 'login',    'logout' => 'logout',   'password_reset' => 'reimposta-password'],
+        'el' => ['login' => 'login',    'logout' => 'logout',   'password_reset' => 'password-reset'],
     ],
 
     // Legal route slugs
@@ -448,6 +507,7 @@ return [
         'pl' => ['imprint' => 'imprint',   'privacy' => 'privacy',     'terms' => 'terms', 'cookies' => 'cookie-policy'],
         'ro' => ['imprint' => 'imprint',   'privacy' => 'privacy',     'terms' => 'terms', 'cookies' => 'cookie-policy'],
         'it' => ['imprint' => 'note-legali', 'privacy' => 'privacy',     'terms' => 'termini', 'cookies' => 'cookie-policy'],
+        'el' => ['imprint' => 'imprint',   'privacy' => 'privacy',     'terms' => 'terms', 'cookies' => 'cookie-policy'],
     ],
 
     // Contact route slug
@@ -459,6 +519,7 @@ return [
         'pl' => 'contact',
         'ro' => 'contact',
         'it' => 'contatti',
+        'el' => 'contact',
     ],
 
     // Cancellation route slug
@@ -470,5 +531,6 @@ return [
         'pl' => 'cancel',
         'ro' => 'cancel',
         'it' => 'annulla',
+        'el' => 'cancel',
     ],
 ];

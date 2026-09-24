@@ -40,6 +40,8 @@ Route::get('/', function () {
         'PL' => 'pl',
         'RO' => 'ro',
         'IT' => 'it',
+        'GR' => 'el',
+        'CY' => 'el',
     ];
 
     $detected = $default;
@@ -81,6 +83,7 @@ Route::get('/sitemap.xml', function () {
         'pl' => '1.0',
         'ro' => '1.0',
         'it' => '1.0',
+        'el' => '1.0',
         'de' => '0.7',
         'en' => '0.7',
     ];
@@ -95,9 +98,9 @@ Route::get('/sitemap.xml', function () {
     // Tool pages (only enabled) — all supported locales
     foreach ($supportedLocales as $locale) {
         $slugs = config("locales.tool_slugs.{$locale}", []);
-        // HU/CS/PL/RO/IT are the active ad + SEO markets, so their tool
+        // HU/CS/PL/RO/IT/EL are the active ad + SEO markets, so their tool
         // pages get the highest priority; DE/EN are secondary (organic only).
-        $priority = in_array($locale, ['hu', 'cs', 'pl', 'ro', 'it'], true) ? '0.9' : '0.6';
+        $priority = in_array($locale, ['hu', 'cs', 'pl', 'ro', 'it', 'el'], true) ? '0.9' : '0.6';
         foreach ($tools as $key => $tool) {
             if (empty($tool['enabled'])) continue;
             if (!isset($slugs[$key])) continue;
@@ -136,9 +139,9 @@ Route::get('/sitemap.xml', function () {
         ['priority' => '0.2', 'resolve' => fn($l) => config("locales.legal_slugs.{$l}.cookies")],
     ];
     foreach ($supportedLocales as $locale) {
-        // Nudge crawl budget toward the active markets (HU/CS/PL/RO/IT);
+        // Nudge crawl budget toward the active markets (HU/CS/PL/RO/IT/EL);
         // the now-secondary DE/EN static pages get a small penalty.
-        $priorityOffset = in_array($locale, ['hu', 'cs', 'pl', 'ro', 'it'], true) ? 0.0 : -0.1;
+        $priorityOffset = in_array($locale, ['hu', 'cs', 'pl', 'ro', 'it', 'el'], true) ? 0.0 : -0.1;
         foreach ($staticPageDefs as $page) {
             $slug = $page['resolve']($locale);
             if (!is_string($slug) || $slug === '') continue;
@@ -245,7 +248,7 @@ Route::get('/download/{token}', [DownloadController::class, 'download'])
 |--------------------------------------------------------------------------
 */
 Route::prefix('{locale}')
-     ->where(['locale' => 'de|en|hu|cs|pl|ro|it'])
+     ->where(['locale' => 'de|en|hu|cs|pl|ro|it|el'])
      ->middleware(['locale', 'resolve-vad'])
      ->group(function () {
 
@@ -470,10 +473,11 @@ Route::prefix('{locale}')
 
     /*
     |----------------------------------------------------------------------
-    | HU, CS, PL and RO reuse the English URI surface above. Because the
-    | URI prefix is `{locale}`, the same `/login`, `/contact`, `/imprint`,
-    | etc. routes already match `/hu/login`, `/ro/contact`, etc. — no
-    | extra route registrations are needed for them. IT is the exception:
+    | HU, CS, PL, RO and EL reuse the English URI surface above. Because
+    | the URI prefix is `{locale}`, the same `/login`, `/contact`,
+    | `/imprint`, etc. routes already match `/hu/login`, `/el/contact`,
+    | etc. — no extra route registrations are needed for them. IT is the
+    | exception:
     | its slugs are localized, so it gets the block above. Views build
     | action URLs
     | directly from `config('locales.*_slugs.*')` instead of relying on
