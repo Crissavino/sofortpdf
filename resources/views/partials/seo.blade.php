@@ -18,6 +18,7 @@
         'en' => 'en_US',
         'hu' => 'hu_HU',
         'cs' => 'cs_CZ',
+        'pl' => 'pl_PL',
         'ro' => 'ro_RO',
     ];
     $ogLocale = $ogLocaleMap[$locale] ?? 'en_US';
@@ -28,6 +29,7 @@
         'en' => 'Online PDF tools — merge, compress, convert and more.',
         'hu' => 'Online PDF eszközök — egyesítés, tömörítés, konvertálás és több.',
         'cs' => 'Online PDF nástroje — slučování, komprese, konverze a další.',
+        'pl' => 'Narzędzia PDF online — łączenie, kompresja, konwersja i więcej.',
         'ro' => 'Instrumente PDF online — îmbinare, comprimare, conversie și altele.',
     ];
     $orgDescription = $orgDescriptionMap[$locale] ?? $orgDescriptionMap['en'];
@@ -65,6 +67,7 @@
         'en'    => 'en',
         'hu'    => 'hu',
         'cs'    => 'cs',
+        'pl'    => 'pl',
         'ro'    => 'ro',
     ];
 @endphp
