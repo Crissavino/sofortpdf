@@ -149,7 +149,7 @@
                 $marketingNum = $isEn ? number_format($trialMarketingPrice, 2, '.', ',') : number_format($trialMarketingPrice, 2, ',', '.');
             @endphp
             <div class="spm-price-line">
-                <span class="spm-price-total-label">Total:</span>
+                <span class="spm-price-total-label">{{ __('payment.total_label') }}</span>
                 @if ($useLocalCurrency)
                     <span class="spm-price-current">{{ $trialLocalFormatted }}</span>
                     @if ($hasTrialDiscount)
