@@ -39,6 +39,7 @@ Route::get('/', function () {
         'CZ' => 'cs',
         'PL' => 'pl',
         'RO' => 'ro',
+        'IT' => 'it',
     ];
 
     $detected = $default;
@@ -79,6 +80,7 @@ Route::get('/sitemap.xml', function () {
         'cs' => '1.0',
         'pl' => '1.0',
         'ro' => '1.0',
+        'it' => '1.0',
         'de' => '0.7',
         'en' => '0.7',
     ];
@@ -93,9 +95,9 @@ Route::get('/sitemap.xml', function () {
     // Tool pages (only enabled) — all supported locales
     foreach ($supportedLocales as $locale) {
         $slugs = config("locales.tool_slugs.{$locale}", []);
-        // HU/CS/PL are the active ad + SEO markets, so their tool pages
-        // get the highest priority; DE/EN are secondary (no paid traffic).
-        $priority = in_array($locale, ['hu', 'cs', 'pl', 'ro'], true) ? '0.9' : '0.6';
+        // HU/CS/PL/RO/IT are the active ad + SEO markets, so their tool
+        // pages get the highest priority; DE/EN are secondary (organic only).
+        $priority = in_array($locale, ['hu', 'cs', 'pl', 'ro', 'it'], true) ? '0.9' : '0.6';
         foreach ($tools as $key => $tool) {
             if (empty($tool['enabled'])) continue;
             if (!isset($slugs[$key])) continue;
@@ -134,9 +136,9 @@ Route::get('/sitemap.xml', function () {
         ['priority' => '0.2', 'resolve' => fn($l) => config("locales.legal_slugs.{$l}.cookies")],
     ];
     foreach ($supportedLocales as $locale) {
-        // Nudge crawl budget toward the active markets (HU/CS/PL); the
-        // now-secondary DE/EN static pages get a small penalty.
-        $priorityOffset = in_array($locale, ['hu', 'cs', 'pl'], true) ? 0.0 : -0.1;
+        // Nudge crawl budget toward the active markets (HU/CS/PL/RO/IT);
+        // the now-secondary DE/EN static pages get a small penalty.
+        $priorityOffset = in_array($locale, ['hu', 'cs', 'pl', 'ro', 'it'], true) ? 0.0 : -0.1;
         foreach ($staticPageDefs as $page) {
             $slug = $page['resolve']($locale);
             if (!is_string($slug) || $slug === '') continue;
@@ -243,7 +245,7 @@ Route::get('/download/{token}', [DownloadController::class, 'download'])
 |--------------------------------------------------------------------------
 */
 Route::prefix('{locale}')
-     ->where(['locale' => 'de|en|hu|cs|pl|ro'])
+     ->where(['locale' => 'de|en|hu|cs|pl|ro|it'])
      ->middleware(['locale', 'resolve-vad'])
      ->group(function () {
 
@@ -324,6 +326,34 @@ Route::prefix('{locale}')
         'image-to-pdf'          => ['image-to-pdf',  'Image to PDF'],
         // EN aliases
         'reduce-pdf-size'       => ['compress',      'Reduce PDF Size'],
+        // IT slugs — Italian is the first locale with fully localized tool
+        // slugs, so unlike HU/CS/PL/RO it needs its own entries here.
+        // 'pdf-in-excel' and 'ocr-pdf' are already registered above (DE and
+        // EN respectively) and resolve to the same tool keys.
+        'unire-pdf'            => ['merge',         'Unire PDF'],
+        'comprimere-pdf'       => ['compress',      'Comprimere PDF'],
+        'immagine-in-pdf'      => ['image-to-pdf',  'Immagine in PDF'],
+        'jpg-in-pdf'           => ['jpg-to-pdf',    'JPG in PDF'],
+        'pdf-in-word'          => ['pdf-to-word',   'PDF in Word'],
+        'word-in-pdf'          => ['word-to-pdf',   'Word in PDF'],
+        'pdf-in-jpg'           => ['pdf-to-jpg',    'PDF in JPG'],
+        'dividere-pdf'         => ['split',         'Dividere PDF'],
+        'modificare-pdf'       => ['edit',          'Modificare PDF'],
+        'firmare-pdf'          => ['sign',          'Firmare PDF'],
+        'excel-in-pdf'         => ['excel-to-pdf',  'Excel in PDF'],
+        'ruotare-pdf'          => ['rotate',        'Ruotare PDF'],
+        'proteggere-pdf'       => ['protect',       'Proteggere PDF'],
+        'sbloccare-pdf'        => ['unlock',        'Sbloccare PDF'],
+        'aggiungere-filigrana' => ['watermark',     'Aggiungere filigrana'],
+        'numeri-di-pagina'     => ['page-numbers',  'Aggiungere numeri di pagina'],
+        'pdf-in-powerpoint'    => ['pdf-to-ppt',    'PDF in PowerPoint'],
+        'powerpoint-in-pdf'    => ['ppt-to-pdf',    'PowerPoint in PDF'],
+        'pdf-in-png'           => ['pdf-to-png',    'PDF in PNG'],
+        'png-in-pdf'           => ['png-to-pdf',    'PNG in PDF'],
+        'rimuovere-pagine'     => ['remove-pages',  'Rimuovere pagine'],
+        'estrarre-pagine'      => ['extract-pages', 'Estrarre pagine'],
+        'html-in-pdf'          => ['html-to-pdf',   'HTML in PDF'],
+        'ottimizzare-pdf'      => ['optimize',      'Ottimizzare PDF'],
     ];
 
     foreach ($allToolSlugs as $slug => [$toolKey, $pageTitle]) {
@@ -425,10 +455,27 @@ Route::prefix('{locale}')
 
     /*
     |----------------------------------------------------------------------
-    | HU + CS reuse the English URI surface above. Because the URI prefix
-    | is `{locale}`, the same `/login`, `/contact`, `/imprint`, etc.
-    | routes already match `/hu/login`, `/cs/contact`, etc. — no extra
-    | route registrations are needed here. Views build action URLs
+    | IT — localized slugs that don't overlap the DE/EN surface
+    |----------------------------------------------------------------------
+    */
+    Route::get('/reimposta-password', [PasswordResetController::class, 'showForm'])->name('password.request.it');
+    Route::post('/reimposta-password', [PasswordResetController::class, 'sendResetLink'])->name('password.email.it');
+    Route::get('/reimposta-password/{token}', [PasswordResetController::class, 'showResetConfirmForm'])->name('password.reset.it');
+    Route::get('/note-legali', [LegalController::class, 'imprint'])->name('impressum.it');
+    Route::get('/termini', [LegalController::class, 'terms'])->name('agb.it');
+    Route::get('/contatti',  [ContactController::class, 'show'])->name('contact.show.it');
+    Route::post('/contatti', [ContactController::class, 'send'])->name('contact.send.it');
+    Route::get('/annulla',  [\App\Http\Controllers\CancellationController::class, 'form'])->name('cancellation.form.it');
+    Route::post('/annulla', [\App\Http\Controllers\CancellationController::class, 'process'])->name('cancellation.process.it');
+
+    /*
+    |----------------------------------------------------------------------
+    | HU, CS, PL and RO reuse the English URI surface above. Because the
+    | URI prefix is `{locale}`, the same `/login`, `/contact`, `/imprint`,
+    | etc. routes already match `/hu/login`, `/ro/contact`, etc. — no
+    | extra route registrations are needed for them. IT is the exception:
+    | its slugs are localized, so it gets the block above. Views build
+    | action URLs
     | directly from `config('locales.*_slugs.*')` instead of relying on
     | locale-suffixed route names (Laravel deduplicates duplicate URIs
     | by name, so `route('contact.send.hu')` would be unreliable).
