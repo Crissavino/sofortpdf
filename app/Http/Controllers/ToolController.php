@@ -21,9 +21,15 @@ class ToolController extends Controller
 
         // Check feature flag
         if (!($toolConfig['enabled'] ?? false)) {
+            // $pageTitle comes from the route default, which is tied to the
+            // slug — so locales reusing the EN slugs (hu/cs/pl/ro/el) would
+            // show the English tool name. Prefer the localized title.
+            $toolName = config("locales.tool_titles.{$locale}.{$tool}")
+                ?: ($pageTitle ?: $toolConfig['name']);
+
             return view('tools.maintenance', [
-                'toolName' => $pageTitle ?: $toolConfig['name'],
-                'pageTitle' => ($pageTitle ?: $toolConfig['name']) . __('tool.maintenance_suffix'),
+                'toolName' => $toolName,
+                'pageTitle' => $toolName . __('tool.maintenance_suffix'),
                 'metaDescription' => $toolConfig['meta_description'] ?? '',
                 'slug' => config("locales.tool_slugs.{$locale}.{$tool}", $tool),
             ]);
