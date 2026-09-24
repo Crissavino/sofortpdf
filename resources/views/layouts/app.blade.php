@@ -115,6 +115,7 @@
                             'pl' => ['flag' => '🇵🇱', 'label' => 'Polski'],
                             'ro' => ['flag' => '🇷🇴', 'label' => 'Română'],
                             'it' => ['flag' => '🇮🇹', 'label' => 'Italiano'],
+                            'el' => ['flag' => '🇬🇷', 'label' => 'Ελληνικά'],
                         ];
                         $supportedLocales = config('locales.supported', ['en']);
                         $currentMeta = $localeMeta[$loc] ?? $localeMeta['en'];
