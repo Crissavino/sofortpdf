@@ -393,7 +393,7 @@ class ResolveVad
                 if ($refQuery) {
                     parse_str($refQuery, $refParams);
                     $captured = [];
-                    foreach (['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'gclid'] as $key) {
+                    foreach (['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'gclid'] as $key) {
                         if (isset($refParams[$key]) && $refParams[$key] !== '') {
                             $captured[$key] = $refParams[$key];
                         }

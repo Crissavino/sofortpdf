@@ -15,6 +15,7 @@ class GoogleAdsDetail extends Model
         'utm_medium',
         'utm_campaign',
         'utm_term',
+        'utm_content',
         'converted',
         'converted_at',
     ];

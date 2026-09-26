@@ -407,6 +407,7 @@ class PaymentController extends Controller
                 'utm_medium'   => $utmParams['utm_medium'] ?? '',
                 'utm_campaign' => $utmParams['utm_campaign'] ?? '',
                 'utm_term'     => $utmParams['utm_term'] ?? '',
+                'utm_content'  => $utmParams['utm_content'] ?? '',
             ]);
         } catch (\Throwable $e) {
             Log::warning('saveGoogleAdsDetails failed', ['error' => $e->getMessage()]);
