@@ -38,6 +38,7 @@
         'errGeneric'         => __('payment.err_generic'),
         'errCard'            => __('payment.err_card'),
         'errAlreadySubscribed' => __('payment.err_already_subscribed'),
+        'logInAction'        => __('payment.err_already_subscribed_action'),
         'tcRequired'         => __('payment.tc_required'),
         // Stripe decline_code / code → localized message. Keyed by the most
         // specific value Stripe gives us; localizeError() looks up
@@ -212,7 +213,12 @@
                 </div>
 
                 {{-- Error area --}}
-                <div id="spm-error" class="spm-error" hidden></div>
+                <div id="spm-error" class="spm-error" hidden>
+                    <span id="spm-error-text"></span>
+                    {{-- Recovery action (e.g. "log in") for errors that have
+                         one. Hidden unless the server ships a URL. --}}
+                    <a id="spm-error-action" class="spm-error-action" href="#" hidden></a>
+                </div>
 
                 {{-- Submit button --}}
                 <button type="submit" id="spm-submit" class="spm-submit">
@@ -491,6 +497,13 @@
         padding: 10px 12px;
         font-size: 12px; color: #b91c1c;
     }
+    .spm-error-action {
+        display: inline-block;
+        margin-top: 6px;
+        font-weight: 600;
+        color: #b91c1c;
+        text-decoration: underline;
+    }
 
     /* ── Submit button ── */
     .spm-submit {
@@ -730,6 +743,8 @@
     var previewLink    = root.querySelector('[data-spm-open-preview]');
     var form           = root.querySelector('#spm-form');
     var errorEl        = root.querySelector('#spm-error');
+    var errorTextEl    = root.querySelector('#spm-error-text');
+    var errorActionEl  = root.querySelector('#spm-error-action');
     var submitBtn      = root.querySelector('#spm-submit');
     var submitText     = root.querySelector('#spm-submit-text');
     var submitLock     = root.querySelector('#spm-submit-lock');
@@ -773,11 +788,27 @@
         });
     }
 
-    function showError(msg) {
-        errorEl.textContent = msg || __m.errGeneric;
+    function showError(msg, action) {
+        errorTextEl.textContent = msg || __m.errGeneric;
+        // An error with somewhere to go: render the link instead of leaving
+        // the user staring at a message whose only exit is a new email.
+        if (action && action.url) {
+            errorActionEl.href = action.url;
+            errorActionEl.textContent = action.label || __m.logInAction;
+            errorActionEl.hidden = false;
+        } else {
+            errorActionEl.hidden = true;
+            errorActionEl.removeAttribute('href');
+            errorActionEl.textContent = '';
+        }
         errorEl.hidden = false;
     }
-    function hideError() { errorEl.hidden = true; errorEl.textContent = ''; }
+    function hideError() {
+        errorEl.hidden = true;
+        errorTextEl.textContent = '';
+        errorActionEl.hidden = true;
+        errorActionEl.textContent = '';
+    }
 
     // Map BO/Stripe error responses to a localized user-facing message.
     // The BO returns Stripe's English message verbatim, so we never show it.
@@ -1113,10 +1144,27 @@
 
         setLoading(true);
 
-        function fail(error, msg) {
+        function fail(error, msg, action) {
             window.dataLayer.push({ event: 'payment_failed', error: error });
-            showError(msg || __m.errGeneric);
+            showError(msg || __m.errGeneric, action);
             setLoading(false);
+        }
+
+        // Close the modal and carry on with whatever the user was doing,
+        // without a charge. Used when the server tells us this session is
+        // already entitled and the modal should never have opened.
+        function resumeWithoutPaying() {
+            window.__sofortpdfTrialJustPaid = true;
+            if (window.sofortpdfPaywall) {
+                window.sofortpdfPaywall.userHasSubscription = true;
+            }
+            setLoading(false);
+            close(true);
+            if (typeof onSuccessCb === 'function') {
+                onSuccessCb();
+            } else {
+                window.location.reload();
+            }
         }
 
         try {
@@ -1146,7 +1194,25 @@
             });
             var step1Data = await step1.json();
             console.log('Step 1:', step1.status, step1Data);
-            if (!step1Data.success) { fail('create_customer', localizeError(step1Data)); return; }
+
+            // The server says this session already has an active entitlement,
+            // so there is nothing to charge: a stale page opened this modal.
+            // Dismiss it and resume the conversion rather than selling a
+            // second account to someone who already paid.
+            if (step1Data.already_entitled) {
+                window.dataLayer.push({ event: 'payment_skipped_already_entitled' });
+                resumeWithoutPaying();
+                return;
+            }
+
+            if (!step1Data.success) {
+                // already_subscribed ships a login_url: the message alone is a
+                // dead end, and the only way out a user finds on their own is
+                // a brand-new email address — which we would happily charge.
+                fail('create_customer', localizeError(step1Data),
+                     step1Data.login_url ? { url: step1Data.login_url } : null);
+                return;
+            }
 
             // GTM: signup (new customer created during payment)
             window.dataLayer.push({ event: 'signup', method: 'payment' });

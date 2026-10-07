@@ -61,6 +61,7 @@ return [
     'err_card_retry' => 'Ihre Bank konnte die Zahlung im Moment nicht verarbeiten. Bitte versuchen Sie es in ein paar Minuten erneut.',
     'err_card_auth' => 'Ihre Bank verlangt eine zusätzliche Bestätigung für diese Zahlung. Bitte versuchen Sie es erneut oder verwenden Sie eine andere Karte.',
     'err_already_subscribed' => 'Mit dieser E-Mail-Adresse besteht bereits ein aktives Abonnement. Bitte melden Sie sich mit Ihren Zugangsdaten an.',
+    'err_already_subscribed_action' => 'Bei Ihrem Konto anmelden',
     'err_generic' => 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.',
     'err_name' => 'Bitte geben Sie den Namen des Karteninhabers ein.',
     'err_email' => 'Bitte geben Sie eine gültige E-Mail-Adresse ein.',

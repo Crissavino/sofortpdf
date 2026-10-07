@@ -185,6 +185,12 @@ Route::post('/stripe/webhook-jack', [WebhookController::class, 'handleJack'])->n
 Route::prefix('api')->group(function () {
     Route::post('/upload', [UploadController::class, 'store']);
 
+    // Live paywall state for the client-side gate. Guests must be able to
+    // call this — "subscribed: false" is a valid answer — so it sits in the
+    // unguarded group.
+    Route::get('/entitlement', [\App\Http\Controllers\Api\EntitlementController::class, 'show'])
+         ->name('api.entitlement');
+
     // Payment — 3-step flow delegated to BO (same as contract-kit)
     Route::post('/payment/create-customer', [\App\Http\Controllers\Api\PaymentController::class, 'createCustomer']);
     Route::post('/payment/pay-trial', [\App\Http\Controllers\Api\PaymentController::class, 'payTrial']);

@@ -264,9 +264,35 @@
     <script>
         window.sofortpdfPaywall = {
             bypassed: {{ \App\Services\PaywallBypass::applies(request()) ? 'true' : 'false' }},
+            // Render-time snapshot. These pages are public and cacheable, so
+            // this goes stale the moment the visitor pays: they come back to
+            // the tab via bfcache / back button and the HTML still says they
+            // owe us money. Fine as a fallback and for UI copy — never gate
+            // a payment on it. Use needsPaymentLive().
             userHasSubscription: {{ (auth()->user() && auth()->user()->hasSofortpdfSubscription()) ? 'true' : 'false' }},
             needsPayment: function() {
                 return !this.bypassed && !this.userHasSubscription;
+            },
+            // Authoritative gate: asks the server at click time, so the answer
+            // cannot be older than the click. On a network failure it falls
+            // back to the snapshot — and either way POST /api/convert is
+            // behind the paywall middleware, so a wrong "false" here costs us
+            // nothing but a 402.
+            needsPaymentLive: async function() {
+                if (this.bypassed) return false;
+                try {
+                    var res = await fetch('/api/entitlement', {
+                        headers: { 'Accept': 'application/json' },
+                        cache: 'no-store',
+                        credentials: 'same-origin',
+                    });
+                    if (!res.ok) return !this.userHasSubscription;
+                    var data = await res.json();
+                    this.userHasSubscription = !!data.subscribed;
+                    return !data.subscribed;
+                } catch (e) {
+                    return !this.userHasSubscription;
+                }
             }
         };
 

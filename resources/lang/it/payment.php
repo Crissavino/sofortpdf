@@ -63,6 +63,7 @@ return [
     'err_card_retry' => 'La tua banca non è riuscita a elaborare il pagamento in questo momento. Riprova tra qualche minuto.',
     'err_card_auth' => 'La tua banca richiede una verifica aggiuntiva per questo pagamento. Riprova o usa un\'altra carta.',
     'err_already_subscribed' => 'Hai già un abbonamento attivo con questa email. Accedi con le tue credenziali.',
+    'err_already_subscribed_action' => 'Accedi al tuo account',
     'err_generic' => 'Qualcosa è andato storto. Riprova.',
     'err_name' => 'Inserisci il nome del titolare della carta.',
     'err_email' => 'Inserisci un indirizzo email valido.',

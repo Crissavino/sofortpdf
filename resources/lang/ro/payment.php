@@ -61,6 +61,7 @@ return [
     'err_card_retry'         => 'Banca ta nu a putut procesa plata acum. Te rugăm să încerci din nou în câteva minute.',
     'err_card_auth'          => 'Banca ta solicită o verificare suplimentară pentru această plată. Te rugăm să încerci din nou sau să folosești alt card.',
     'err_already_subscribed' => 'Ai deja un abonament activ cu acest email. Te rugăm să te autentifici cu datele tale.',
+    'err_already_subscribed_action' => 'Autentifică-te în contul tău',
     'err_generic'            => 'Ceva nu a mers bine. Te rugăm să încerci din nou.',
     'err_name'               => 'Te rugăm să introduci numele titularului cardului.',
     'err_email'              => 'Te rugăm să introduci o adresă de email validă.',

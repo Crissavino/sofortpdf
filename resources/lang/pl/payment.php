@@ -62,6 +62,7 @@ return [
     'err_card_retry' => 'Twój bank nie mógł teraz przetworzyć płatności. Spróbuj ponownie za kilka minut.',
     'err_card_auth' => 'Twój bank wymaga dodatkowej weryfikacji tej płatności. Spróbuj ponownie lub użyj innej karty.',
     'err_already_subscribed' => 'Z tym adresem e-mail masz już aktywną subskrypcję. Zaloguj się przy użyciu swoich danych logowania.',
+    'err_already_subscribed_action' => 'Zaloguj się na swoje konto',
     'err_generic' => 'Coś poszło nie tak. Spróbuj ponownie.',
     'err_name' => 'Wprowadź imię i nazwisko właściciela karty.',
     'err_email' => 'Wprowadź prawidłowy adres e-mail.',

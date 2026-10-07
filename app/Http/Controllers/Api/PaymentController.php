@@ -63,6 +63,18 @@ class PaymentController extends Controller
         app()->setLocale($locale);
     }
 
+    /**
+     * Login URL for the locale resolved by setLocale(), mirroring the
+     * 'login' fallback route in routes/web.php.
+     */
+    private function localizedLoginUrl(): string
+    {
+        $locale = app()->getLocale();
+        $slug   = config("locales.auth_slugs.{$locale}.login", 'login');
+
+        return url("/{$locale}/{$slug}");
+    }
+
     public function createCustomer(Request $request): JsonResponse
     {
         $this->setLocale($request);
@@ -79,10 +91,48 @@ class PaymentController extends Controller
         $email     = strtolower(trim($validated['email']));
         $websiteId = (int) config('services.bo.website_id');
 
-        // Pre-flight: if a customer already exists for this email +
-        // website AND has an active subscription, bail out with a
-        // typed error. The modal shows "you already subscribed, please
-        // log in" instead of silently re-charging (the Lenka case).
+        // Pre-flight 1: this session already owns an active entitlement, so
+        // there is nothing to sell — whatever email was typed. A stale tool
+        // page (public, cacheable, so the baked paywall flag survives the
+        // payment) asked for money the server knows is not due. Answer
+        // "already entitled" and let the modal resume the conversion it
+        // interrupted, instead of opening a second account for the same
+        // person.
+        //
+        // This is the guard that was missing on 2026-10-07: customer 72329
+        // paid a trial at 09:49, was shown the modal again at 09:51 by a
+        // cached page, and — because the per-email check below cannot fire
+        // for an address we have never seen — went on to open three more
+        // accounts with three more €0.69 trials, each with its own €39.90
+        // subscription. Keyed on the session, not the email, precisely
+        // because she used a different email every time.
+        $current = $request->user();
+        if ($current && $current->hasSofortpdfSubscription()) {
+            Log::warning('PaymentController::createCustomer — session already entitled, nothing to charge', [
+                'customer_id'  => $current->id,
+                'typed_email'  => $email,
+                'same_account' => $current->email === $email,
+                'ip'           => $request->ip(),
+            ]);
+            Log::channel('activity')->info('payment_step1_already_entitled', [
+                'customer_id' => $current->id,
+                'typed_email' => $email,
+                'ip'          => $request->ip(),
+            ]);
+
+            return response()->json([
+                'success'          => true,
+                'already_entitled' => true,
+                'customer_id'      => $current->id,
+            ]);
+        }
+
+        // Pre-flight 2: not this session, but the typed email belongs to an
+        // account that is already subscribed. Genuine stop — we must not
+        // charge a second time (the Lenka case) — but it has to be an exit,
+        // not a dead end: ship a login URL so the modal can offer the only
+        // action that actually helps. Without it the user's only way forward
+        // is inventing a new address, which is how we sell a duplicate.
         $existing = Customer::where('email', $email)
             ->where('website_id', $websiteId)
             ->first();
@@ -93,12 +143,13 @@ class PaymentController extends Controller
                 'ip'          => $request->ip(),
             ]);
             return response()->json([
-                'success' => false,
-                'message' => __('payment.err_already_subscribed'),
-                'error'   => [
+                'success'   => false,
+                'message'   => __('payment.err_already_subscribed'),
+                'error'     => [
                     'type' => 'already_subscribed',
                     'code' => 'already_subscribed',
                 ],
+                'login_url' => $this->localizedLoginUrl(),
             ], 409);
         }
 

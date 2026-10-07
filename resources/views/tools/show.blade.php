@@ -2151,8 +2151,8 @@
         // so the already-selected files + drag order stay intact. We
         // resolve the current sort order here (same logic as below, but
         // run before the upload so the modal sees the final array).
-        if (window.sofortpdfPaywall && window.sofortpdfPaywall.needsPayment()
-            && window.SofortpdfPaymentModal) {
+        if (window.sofortpdfPaywall && window.SofortpdfPaymentModal
+            && await window.sofortpdfPaywall.needsPaymentLive()) {
             var modalFiles = selectedFiles.slice();
             if (mergeMode) {
                 var cards = fileList.querySelectorAll('.merge-card');

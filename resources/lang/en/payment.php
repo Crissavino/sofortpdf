@@ -61,6 +61,7 @@ return [
     'err_card_retry' => 'Your bank could not process the payment right now. Please try again in a few minutes.',
     'err_card_auth' => 'Your bank requires additional verification for this payment. Please try again or use another card.',
     'err_already_subscribed' => 'You already have an active subscription with this email. Please log in with your credentials.',
+    'err_already_subscribed_action' => 'Log in to your account',
     'err_generic' => 'Something went wrong. Please try again.',
     'err_name' => 'Please enter the cardholder name.',
     'err_email' => 'Please enter a valid email address.',

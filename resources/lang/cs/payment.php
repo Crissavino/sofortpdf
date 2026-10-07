@@ -62,6 +62,7 @@ return [
     'err_card_retry' => 'Vaše banka nyní nemohla platbu zpracovat. Zkuste to prosím za několik minut znovu.',
     'err_card_auth' => 'Vaše banka vyžaduje pro tuto platbu dodatečné ověření. Zkuste to prosím znovu nebo použijte jinou kartu.',
     'err_already_subscribed' => 'S touto e-mailovou adresou již máte aktivní předplatné. Přihlaste se prosím svými přihlašovacími údaji.',
+    'err_already_subscribed_action' => 'Přihlaste se ke svému účtu',
     'err_generic' => 'Něco se pokazilo. Zkuste to prosím znovu.',
     'err_name' => 'Zadejte prosím jméno držitele karty.',
     'err_email' => 'Zadejte prosím platnou e-mailovou adresu.',

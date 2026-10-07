@@ -512,8 +512,8 @@
     btnSubmit.addEventListener('click', async () => {
         if (placedSignatures.length === 0 || !signatureDataUrl) return;
 
-        if (window.sofortpdfPaywall && window.sofortpdfPaywall.needsPayment()
-            && window.SofortpdfPaymentModal) {
+        if (window.sofortpdfPaywall && window.SofortpdfPaymentModal
+            && await window.sofortpdfPaywall.needsPaymentLive()) {
             window.__sofortpdfShowLoadingThenPay(
                 pdfFile ? [pdfFile] : [],
                 function() { btnSubmit.click(); },

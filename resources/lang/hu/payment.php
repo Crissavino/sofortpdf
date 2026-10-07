@@ -62,6 +62,7 @@ return [
     'err_card_retry' => 'Bankja jelenleg nem tudta feldolgozni a fizetést. Kérjük, próbálja újra néhány perc múlva.',
     'err_card_auth' => 'Bankja további megerősítést kér ehhez a fizetéshez. Kérjük, próbálja újra, vagy használjon másik kártyát.',
     'err_already_subscribed' => 'Ezzel az e-mail-címmel már van aktív előfizetés. Kérjük, jelentkezzen be a hitelesítő adataival.',
+    'err_already_subscribed_action' => 'Bejelentkezés a fiókjába',
     'err_generic' => 'Hiba történt. Kérjük, próbálja újra.',
     'err_name' => 'Kérjük, adja meg a kártyabirtokos nevét.',
     'err_email' => 'Kérjük, adjon meg egy érvényes e-mail-címet.',
