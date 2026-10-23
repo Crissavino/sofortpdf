@@ -43,7 +43,7 @@
         'watermark'    => 'droplets',
         'page-numbers' => 'hash',
         'presentation' => 'monitor',
-        'ocr'          => 'scan-text',
+        'ocr'          => 'file-scan',
         'remove-pages' => 'trash-2',
         'extract-pages'=> 'file-output',
         'code'         => 'code',
