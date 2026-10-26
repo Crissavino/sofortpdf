@@ -727,8 +727,13 @@
 
 {{-- PDF.js: needed for merge grid thumbnails, page-picker grids, and
      loading modal preview thumbnails. Loaded on every tool page so the
-     paywall loading modal has access regardless of tool. --}}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+     paywall loading modal has access regardless of tool.
+     `defer` because this push goes to <head>: measured 2026-10-26, the
+     tag sits 17% into the rendered document, before <main> and the h1,
+     so without it the parser stops for 89 KB of library first. Deferred
+     scripts still run before DOMContentLoaded, which is where the worker
+     config below waits for the global. --}}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" defer></script>
 @if ($tool === 'merge')
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 @endif
@@ -736,13 +741,17 @@
     // cdnjs's pdf.js exposes two globals: window['pdfjs-dist/build/pdf']
     // (CommonJS name) and window.pdfjsLib. Either may be present or
     // partially initialized — guard everything.
-    try {
-        var __pdfLib = window['pdfjs-dist/build/pdf'] || window.pdfjsLib;
-        if (__pdfLib && __pdfLib.GlobalWorkerOptions) {
-            __pdfLib.GlobalWorkerOptions.workerSrc =
-                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-        }
-    } catch (e) { /* ignore */ }
+    // Waits for DOMContentLoaded because the library above is deferred:
+    // an inline script would run before it and find no global at all.
+    document.addEventListener('DOMContentLoaded', function () {
+        try {
+            var __pdfLib = window['pdfjs-dist/build/pdf'] || window.pdfjsLib;
+            if (__pdfLib && __pdfLib.GlobalWorkerOptions) {
+                __pdfLib.GlobalWorkerOptions.workerSrc =
+                    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+            }
+        } catch (e) { /* ignore */ }
+    });
 </script>
 @endpush
 
