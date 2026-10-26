@@ -52,6 +52,11 @@ return [
         'website_id' => env('WEBSITE_ID'),
         'is_jack'    => env('BO_IS_JACK', 'true'),
         'is_avocode' => env('BO_IS_AVOCODE', 'false'),
+
+        // Token de ESCRITURA para POST /api/funnel/daily (el embudo de
+        // adquisicion). Distinto del de lectura de /api/kpi/*, que no vive
+        // en los sitios. Vacio = `funnel:report` no manda nada y lo dice.
+        'funnel_token' => env('BO_FUNNEL_INGEST_TOKEN'),
     ],
 
     'ipdata' => [
