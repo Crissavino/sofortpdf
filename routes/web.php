@@ -231,14 +231,25 @@ Route::post('/api/log/event', function (\Illuminate\Http\Request $request) {
     // queda: es la fuente del agregador diario hasta que `cristian-106` lo
     // pase a leer la tabla, y mientras conviven los dos no hay un dia sin
     // datos.
-    if (\App\Src\Funnel\EventRecorder::habilitado()) {
+    $canonico = \App\Src\Funnel\EventRow::canonico($event);
+
+    if (\App\Src\Funnel\EventRecorder::habilitado() && $canonico === null) {
+        // El nombre que manda el cliente no esta en el mapeo de la taxonomia.
+        // No se escribe fila y se deja constancia: un nombre nuevo tiene que
+        // aparecer como tal y no como un evento que se perdio.
+        \Illuminate\Support\Facades\Log::channel('activity')->warning('funnel_event_sin_mapeo', [
+            'event' => $event,
+        ]);
+    }
+
+    if (\App\Src\Funnel\EventRecorder::habilitado() && $canonico !== null) {
         try {
             \App\Src\Funnel\EventRecorder::record(\App\Src\Funnel\EventRow::build([
                 'session_id'   => (string) $request->attributes->get(
                     \App\Http\Middleware\AttachFunnelSession::ATRIBUTO,
                     ''
                 ),
-                'event'        => $event,
+                'event'        => $canonico,
                 'website_id'   => (int) config('services.bo.website_id'),
                 'locale'       => (string) app()->getLocale(),
                 'device'       => (string) $request->input('device', ''),

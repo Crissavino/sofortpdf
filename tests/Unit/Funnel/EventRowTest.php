@@ -142,6 +142,34 @@ class EventRowTest extends TestCase
         $this->assertSame(20, strlen($fila['variant']));
     }
 
+    public function test_traduce_los_nombres_que_manda_este_sitio()
+    {
+        // El hueco que este metodo tapa: el cliente manda
+        // `payment_modal_opened`, que NO esta en la taxonomia, asi que sin el
+        // mapeo `build()` lo rechazaba y no se escribia ninguna fila del paso
+        // 2. El embudo habria quedado con visitas y sin checkout.
+        $this->assertSame('checkout_view', EventRow::canonico('payment_modal_opened'));
+        $this->assertSame('file_uploaded', EventRow::canonico('file_uploaded'));
+        $this->assertSame('payment_attempted', EventRow::canonico('payment_attempted'));
+    }
+
+    public function test_un_nombre_del_cliente_sin_mapeo_devuelve_null()
+    {
+        // null y no una excepcion: quien llama decide, y en la ruta eso es
+        // "registrar y seguir" porque el 200 al cliente no se negocia.
+        $this->assertNull(EventRow::canonico('checkout_view'));
+        $this->assertNull(EventRow::canonico('inventado'));
+    }
+
+    public function test_todo_lo_mapeado_cae_en_la_taxonomia()
+    {
+        // Si alguien agrega un mapeo hacia un evento que no existe, la fila
+        // se rechazaria en build() y el paso desapareceria en silencio.
+        foreach (EventRow::DEL_CLIENTE as $cliente => $canonico) {
+            $this->assertContains($canonico, EventRow::EVENTOS, "$cliente -> $canonico");
+        }
+    }
+
     public function test_un_device_desconocido_no_inventa_una_categoria()
     {
         // Las tasas por dispositivo se leen por categoria: una cuarta

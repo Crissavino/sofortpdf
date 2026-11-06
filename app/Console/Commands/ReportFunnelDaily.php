@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use DateTime;
 use DateTimeZone;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -48,6 +49,18 @@ class ReportFunnelDaily extends Command
      * funnel_visits del BO, que avisa que la key no es comparable entre
      * sitios.
      */
+    /**
+     * El equivalente de PASOS para la tabla, que guarda eventos CANONICOS:
+     * `payment_modal_opened` del cliente ya se grabo como `checkout_view`
+     * (ver EventRow::DEL_CLIENTE). Son dos mapas porque las dos fuentes
+     * hablan dos vocabularios, y unificarlos exigiria reescribir el nombre
+     * en el blade del modal de pago.
+     */
+    private const PASOS_TABLA = [
+        'file_uploaded' => 'visits',
+        'checkout_view' => 'checkout_shown',
+    ];
+
     private const PASOS = [
         'file_uploaded' => 'visits',
         'payment_modal_opened' => 'checkout_shown',
@@ -63,9 +76,36 @@ class ReportFunnelDaily extends Command
             return self::FAILURE;
         }
 
-        $pasos = $this->contar($fecha);
+        $delArchivo = $this->contar($fecha);
 
-        $this->info("funnel {$fecha} (dia de Europe/Bucharest): " . json_encode($pasos));
+        // CUAL ES LA FUENTE, y por que no se cambia de golpe: con el flag
+        // apagado `funnel_events` esta vacia, asi que leer la tabla mandaria
+        // CERO en un sitio que venia reportando -- una regresion silenciosa,
+        // que es justo la clase de falla que este proyecto vino a arreglar.
+        // Mientras el flag este apagado, la fuente sigue siendo el archivo y
+        // este comando se comporta igual que antes.
+        $usaTabla = (bool) config('funnel.enabled');
+        $pasos = $usaTabla ? $this->contarDeLaTabla($fecha) : $delArchivo;
+
+        $this->info("funnel {$fecha} (dia de Europe/Bucharest, fuente "
+            . ($usaTabla ? 'tabla' : 'archivo') . '): ' . json_encode($pasos));
+
+        // LAS DOS FUENTES SE INFORMAN SIEMPRE que la tabla este en uso, y es
+        // deliberado: el primer dia despues del flip la tabla tiene el dia a
+        // medias (arranco cuando se prendio) y el archivo lo tiene completo.
+        // Ver la diferencia es la unica forma de saber si hay que reportar ese
+        // dia con --partial, y despues de ese dia es el chequeo de que la
+        // tabla dice lo mismo que el archivo.
+        if ($usaTabla) {
+            $this->info('comparacion con el archivo: ' . json_encode($delArchivo));
+
+            foreach ($delArchivo as $paso => $cuantos) {
+                $deLaTabla = $pasos[$paso] ?? 0;
+                if ($cuantos > 0 && abs($deLaTabla - $cuantos) / $cuantos > 0.2) {
+                    $this->warn("ATENCION: {$paso} difiere mas del 20% entre tabla ({$deLaTabla}) y archivo ({$cuantos})");
+                }
+            }
+        }
 
         if ($pasos === []) {
             // Sin eventos no se manda nada. Mandar ceros seria peor que no
@@ -132,6 +172,58 @@ class ReportFunnelDaily extends Command
             }
 
             fclose($fp);
+        }
+
+        return $cuentas;
+    }
+
+    /**
+     * Lo mismo que `contar()` pero leyendo `funnel_events`.
+     *
+     * LOS PASOS CUENTAN OCURRENCIAS, NO SESIONES DISTINTAS, y eso no es un
+     * descuido: el archivo cuenta una linea por evento, asi que contar
+     * sesiones distintas bajaria `funnel_visits` y `funnel_checkout_shown` de
+     * golpe y partiria la serie historica sin que haya pasado nada en el
+     * negocio. Si algun dia se quiere la version por sesion, es una key nueva
+     * con su propio nombre, no esta.
+     *
+     * `paid_session` SI cuenta sesiones distintas, porque es su definicion: el
+     * denominador de la metrica norte son sesiones, no pageviews. Por eso no
+     * sale del archivo -- el archivo no tiene id de sesion.
+     *
+     * @return array<string,int>
+     */
+    private function contarDeLaTabla(string $fecha): array
+    {
+        // `ventanaUtc()` devuelve DateTime, no timestamps -- el camino del
+        // archivo los compara contra el `getTimestamp()` de cada linea. Aca se
+        // formatean directo, que es lo que espera la columna `occurred_at`
+        // (datetime en UTC, igual que la app).
+        [$desde, $hasta] = $this->ventanaUtc($fecha);
+        $desdeSql = $desde->format('Y-m-d H:i:s');
+        $hastaSql = $hasta->format('Y-m-d H:i:s');
+
+        $base = DB::table('funnel_events')
+            ->where('is_internal', false)
+            ->where('occurred_at', '>=', $desdeSql)
+            ->where('occurred_at', '<', $hastaSql);
+
+        $cuentas = [];
+
+        foreach (self::PASOS_TABLA as $evento => $paso) {
+            $n = (clone $base)->where('event', $evento)->count();
+            if ($n > 0) {
+                $cuentas[$paso] = $n;
+            }
+        }
+
+        $sesionesPagas = (clone $base)
+            ->where('has_gclid', true)
+            ->distinct()
+            ->count('session_id');
+
+        if ($sesionesPagas > 0) {
+            $cuentas['paid_session'] = $sesionesPagas;
         }
 
         return $cuentas;

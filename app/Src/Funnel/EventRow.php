@@ -58,6 +58,24 @@ final class EventRow
         'error_shown',
     ];
 
+    /**
+     * Lo que ESTE sitio emite hoy -> el evento canonico.
+     *
+     * Existe porque los nombres del cliente son anteriores a la taxonomia y
+     * cambiarlos en el front seria tocar el blade del modal de pago por una
+     * cuestion de nombres. La tabla de mapeo es la del documento de taxonomia
+     * (repo del BO, docs/taxonomia-eventos.md): el rollout a los otros cuatro
+     * sitios es completar su columna de esa tabla, no reinterpretar nada.
+     *
+     * Un evento del cliente que no este aca NO se escribe, y se registra: es
+     * la misma regla que el 422 del BO ante un step desconocido.
+     */
+    public const DEL_CLIENTE = [
+        'file_uploaded' => 'file_uploaded',
+        'payment_modal_opened' => 'checkout_view',
+        'payment_attempted' => 'payment_attempted',
+    ];
+
     /** Los unicos dos eventos que pueden llevar `customer_id`. */
     public const EVENTOS_CON_CLIENTE = ['trial_started', 'payment_succeeded'];
 
@@ -73,6 +91,15 @@ final class EventRow
         'utm_medium' => 100,
         'utm_campaign' => 100,
     ];
+
+    /**
+     * Traduce el nombre que manda el cliente al evento canonico, o null si
+     * ese nombre no esta mapeado.
+     */
+    public static function canonico(string $delCliente): ?string
+    {
+        return self::DEL_CLIENTE[$delCliente] ?? null;
+    }
 
     /**
      * @param array<string,mixed> $entrada
