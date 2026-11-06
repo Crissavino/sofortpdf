@@ -9,11 +9,21 @@ use Illuminate\Support\Facades\Schema;
  * variante de experimento.
  *
  * DONDE VIVE, y por que importa: este sitio tiene UNA sola conexion `mysql`,
- * apuntada a `avocode_production` -- la base COMPARTIDA del BO. No hay una
- * base "del sitio" donde ponerla. El 2026-11-03 un SELECT largo sobre
- * `invoices` de ese mismo esquema trabo la tabla 85 minutos y tiro el
- * checkout de cuatro sitios, asi que esta tabla se agrega con tres
- * restricciones duras:
+ * apuntada al esquema `avocode` -- la base COMPARTIDA del BO. No hay una
+ * base "del sitio" donde ponerla.
+ *
+ * EL ESQUEMA SE LLAMA `avocode`, NO `avocode_production`. Este docblock decia
+ * `avocode_production` y era falso: ese nombre sale de `.env.example`, que
+ * miente, mientras el `CLAUDE.md` de este repo tiene el correcto ("Shared
+ * MySQL `avocode` DB"). Importa porque el grant del usuario del sitio es
+ * exactamente `ALL PRIVILEGES ON `avocode`.*`: si el `DB_DATABASE` del server
+ * apunta a cualquier otro nombre, el `migrate` falla POR PERMISOS y no por la
+ * migracion -- y se busca una hora en el lugar equivocado. Medido en el server
+ * el 2026-11-06.
+ *
+ * El 2026-11-03 un SELECT largo sobre `invoices` de ese mismo esquema trabo
+ * la tabla 85 minutos y tiro el checkout de cuatro sitios, asi que esta tabla
+ * se agrega con tres restricciones duras:
  *
  *   1. Es SOLO-AGREGAR. Ningun UPDATE. El unico DELETE es `funnel:sweep`.
  *   2. NINGUN JOIN contra `invoices` o `payments` en el camino del request.
