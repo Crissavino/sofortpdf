@@ -166,6 +166,70 @@ those mailboxes.
 
 ---
 
+## El scheduler del server, y cómo correr artisan ahí
+
+**`php artisan` NO corre como `ubuntu` en este server.** `ubuntu` no puede
+escribir `storage/logs/laravel.log` ni `~/.config/psysh`, así que cualquier
+comando estalla con un error de log que no tiene nada que ver con lo que se
+preguntó — y `tinker` ni arranca. La forma que funciona:
+
+```
+ssh sofortpdf 'cd /var/www/sofortpdf && sudo -u www-data env HOME=/tmp php artisan <cmd>'
+```
+
+El `env HOME=/tmp` es por psysh. Perder diez minutos con esto es gratis si
+está escrito, y carísimo si no.
+
+**El scheduler existe desde el 2026-11-05 y antes NO existía.**
+`/etc/cron.d/sofortpdf-scheduler`, cada minuto, **como `www-data`** por lo de
+arriba:
+
+```
+* * * * * www-data cd /var/www/sofortpdf && /usr/bin/php artisan schedule:run \
+    >> /var/www/sofortpdf/storage/logs/scheduler.log 2>&1
+```
+
+Tres cosas que no son obvias:
+
+- **La salida va a un archivo y NO a `/dev/null`.** Es la lección del caso que
+  lo motivó: `funnel:report` reporta sus errores por `stdout`, así que con
+  `/dev/null` el embudo estuvo **once días** roto sin una sola línea en ningún
+  log. Un cron silencioso es un cron que no se puede diagnosticar.
+- **Al instalarlo se despertó todo lo que estaba en `schedule()` y nunca había
+  corrido.** A las 03:00 del día siguiente `sofortpdf:sync-subscriptions` tiró
+  una `PDOException`: consultaba tres columnas que la tabla compartida
+  `subscriptions` no tiene, o sea no podía haber funcionado nunca. Se quitó
+  (`tests/Unit/Console/ScheduledCommandsTest.php` fija ahora el conjunto exacto
+  de agendados, justamente para que esto no vuelva a pasar).
+- **Falta el `logrotate`.** Ese log crece ~58 KB/día para siempre, porque
+  `schedule:run` imprime una línea por minuto aunque no haya nada que correr.
+  En este grupo ya hubo un `laravel.log` de 273 MB. Pendiente, a mano.
+
+## El embudo por sesión (`funnel_events`)
+
+**El flag arranca apagado y eso es deliberado.** Con
+`FUNNEL_EVENTS_ENABLED=false` no se setea cookie, no se escribe una fila y el
+camino del request es idéntico al de antes de que el código existiera — hay un
+test que lo asevera. El riesgo está concentrado en el flip, que es una variable
+y se revierte con otra.
+
+El orden para prenderlo: deployar apagado → smoke de los cinco locales →
+`FUNNEL_EVENTS_ENABLED=true` en el `.env` del server → `config:clear` → smoke
+otra vez → mirar el p95 del checkout y el contador de descartes que
+`funnel:report` informa en cada corrida.
+
+Variables: `FUNNEL_EVENTS_ENABLED`, `FUNNEL_EVENTS_RETENTION_DAYS` (90, ver
+`config/funnel.php`), `FUNNEL_EVENTS_COOKIE`, `FUNNEL_EVENTS_EXPERIMENT`,
+`FUNNEL_EVENTS_ARMS`. **El `.env` no está en git**: se edita por ssh.
+
+**`.env.example` dice `DB_DATABASE=avocode_production` y está MAL** — el server
+usa `avocode`, como dice la sección de arriba. El grant del usuario es
+exactamente `ALL PRIVILEGES ON \`avocode\`.*`, así que con cualquier otro
+nombre de esquema un `migrate` falla **por permisos** y el error no dice nada
+del esquema.
+
+---
+
 ## Logging conventions
 
 - `.env` has `LOG_LEVEL=error` — `Log::info()` and `Log::warning()`
