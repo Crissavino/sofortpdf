@@ -24,10 +24,16 @@ class ConfigDefaultsTest extends TestCase
 
     public function test_la_retencion_y_la_vida_de_la_cookie_salen_del_mismo_valor()
     {
-        // 180 es el [REVISAR] del Anexo B. Lo que este test fija no es el
-        // numero sino que haya UNO: el barrido y la cookie leen de aca, y dos
-        // numeros distintos dejarian una cookie viva sin datos detras.
-        $this->assertSame(180, (int) config('funnel.retention_days'));
+        // 90, derivado el 2026-11-06 (ver el comentario de config/funnel.php):
+        // cubre el techo de 45 dias del backfill del BO y el analisis de un
+        // experimento --2 semanas mas los 32 dias de madurez maxima medidos
+        // sobre 6.213 rebills-- con el doble de margen, y es la mitad de
+        // exposicion que el 180 del placeholder.
+        //
+        // Lo que este test fija no es tanto el numero como que haya UNO: el
+        // barrido y la cookie leen de aca, y dos numeros distintos dejarian
+        // una cookie viva sin datos detras.
+        $this->assertSame(90, (int) config('funnel.retention_days'));
     }
 
     public function test_el_nombre_de_la_cookie_esta_declarado()
