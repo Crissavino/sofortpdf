@@ -34,12 +34,36 @@ return [
     | Dias que vive una fila, y tambien la vida de la cookie: una cookie de
     | medicion que dura mas que los datos que mide no tiene para que existir.
     |
-    | 180 es el valor que el Anexo B dejo marcado [REVISAR] desde septiembre.
-    | SIGUE PENDIENTE de Cristian; cuando se confirme, se cambia ACA y en
-    | ningun otro lado -- el barrido de retencion y la cookie leen los dos de
-    | este valor, asi que no puede haber dos numeros distintos.
+    | 90 DIAS, DERIVADO Y NO ELEGIDO. El Anexo B traia 180 marcado [REVISAR]
+    | desde septiembre; se reemplazo el 2026-11-06 midiendo cuanto necesita de
+    | verdad el consumidor mas exigente. La regla es: la retencion tiene que
+    | cubrir la ventana mas larga que alguien use, y nada mas -- es una tabla
+    | PSEUDONIMA (guarda customer_id en dos eventos), asi que cada dia de mas
+    | es exposicion sin contraparte.
+    |
+    | Las ventanas que la acotan, de menor a mayor:
+    |
+    |   2 dias   el agregador diario, que lee el dia de ayer.
+    |   45 dias  el techo para RE-mandar un dia con `--date`: pasado eso el BO
+    |            rechaza la fecha (`kpi.funnel.max_backfill_days` = 45), asi
+    |            que una fila mas vieja ya no sirve para eso.
+    |   ~46 dias el analisis de un experimento: su duracion (minimo 2 semanas
+    |            por el brief de Ryan) mas la madurez de sus guardias. Medido
+    |            el 2026-11-06 sobre 6.213 primeros rebills desde junio-2026:
+    |            promedio 5,3 dias desde el trial, MAXIMO 32, el 100% dentro
+    |            de 45. Y `dispute_rate_30d` suma su ventana de 30.
+    |
+    | 90 deja el doble de margen sobre esos 46 para un experimento mas largo
+    | --que la calculadora de tamaño de muestra probablemente pida, con 3,9
+    | conversiones por dia en este sitio-- y a la vez MITAD de exposicion que
+    | los 180 del placeholder. No es un numero nuevo en el sistema:
+    | `kpi.survival_m3_days` ya es 90.
+    |
+    | Se cambia ACA y en ningun otro lado: el barrido y la vida de la cookie
+    | leen los dos de este valor, asi que no puede haber dos numeros
+    | distintos.
     */
-    'retention_days' => (int) env('FUNNEL_EVENTS_RETENTION_DAYS', 180),
+    'retention_days' => (int) env('FUNNEL_EVENTS_RETENTION_DAYS', 90),
 
     /*
     | La cookie de la sesion anonima. LA SETEA EL SERVIDOR, nunca un script
