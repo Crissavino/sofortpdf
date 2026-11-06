@@ -42,4 +42,46 @@ class EventRecorderTest extends TestCase
 
         EventRecorder::escribir(['event' => 'checkout_view']);
     }
+
+    /**
+     * La etiqueta del contador es el DIA DE BUCAREST, que es el unico corte que
+     * su lector (`funnel:report`) conoce. Con la etiqueta en UTC, un descarte de
+     * esta banda de dos horas se le sumaba al dia anterior y el reporte del dia
+     * al que pertenece informaba 0.
+     *
+     * Las dos filas de verano son las que hacen que un offset fijo no alcance:
+     * en noviembre Bucarest es UTC+2 y en julio UTC+3, asi que la banda que
+     * cruza el dia no es la misma.
+     *
+     * @dataProvider instantesQueCruzanElDia
+     */
+    public function test_la_clave_del_contador_usa_el_dia_de_bucarest(string $utc, string $diaEsperado)
+    {
+        $this->assertSame(
+            EventRecorder::CACHE_DESCARTES . $diaEsperado,
+            EventRecorder::claveDelDia(new \DateTimeImmutable($utc, new \DateTimeZone('UTC')))
+        );
+    }
+
+    public static function instantesQueCruzanElDia(): array
+    {
+        return [
+            // Invierno, UTC+2: 22:00 UTC ya es el dia siguiente en Bucarest.
+            'invierno, dentro del dia' => ['2026-11-05 12:00:00', '2026-11-05'],
+            'invierno, borde justo antes' => ['2026-11-05 21:59:59', '2026-11-05'],
+            'invierno, cruza el dia' => ['2026-11-05 22:00:00', '2026-11-06'],
+            'invierno, fin del dia UTC' => ['2026-11-05 23:30:00', '2026-11-06'],
+            // Verano, UTC+3: la banda arranca una hora antes.
+            'verano, borde justo antes' => ['2026-07-05 20:59:59', '2026-07-05'],
+            'verano, cruza el dia' => ['2026-07-05 21:00:00', '2026-07-06'],
+        ];
+    }
+
+    public function test_sin_argumento_la_clave_es_la_de_ahora_en_bucarest()
+    {
+        $esperado = EventRecorder::CACHE_DESCARTES
+            . now()->copy()->setTimezone(EventRecorder::TZ_CORTE)->format('Y-m-d');
+
+        $this->assertSame($esperado, EventRecorder::claveDelDia());
+    }
 }

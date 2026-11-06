@@ -2,6 +2,8 @@
 
 namespace App\Src\Funnel;
 
+use Carbon\Carbon;
+use DateTimeInterface;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -37,6 +39,23 @@ final class EventRecorder
     /** Prefijo del contador de descartes, por dia. */
     public const CACHE_DESCARTES = 'funnel:descartes:';
 
+    /**
+     * EL CORTE DEL DIA ES EUROPE/BUCHAREST, NO UTC, Y EL QUE MANDA ES EL LECTOR.
+     *
+     * La app corre en UTC (`config/app.php`), asi que `now()->format('Y-m-d')`
+     * da el dia UTC. Pero el unico lector de este contador es
+     * `ReportFunnelDaily::informarDescartes()`, y la fecha que le llega es un
+     * dia de Europe/Bucharest -- el mismo corte que `ventanaUtc()` usa para los
+     * contadores del embudo. Con la etiqueta en UTC, los descartes de la banda
+     * 22:00-24:00 UTC (23:00-01:00 o 00:00-02:00 en Bucarest, segun el horario
+     * de verano) se le sumaban al dia ANTERIOR y el reporte del dia al que
+     * pertenecen los informaba como 0.
+     *
+     * No es la hora lo que se alinea, es la ETIQUETA: el contador sigue siendo
+     * por dia y el TTL sigue contando desde el instante real.
+     */
+    public const TZ_CORTE = 'Europe/Bucharest';
+
     /** Con el flag apagado no se escribe nada y no se agenda nada. */
     public static function habilitado(): bool
     {
@@ -70,9 +89,24 @@ final class EventRecorder
         }
     }
 
+    /**
+     * La clave del contador de un instante dado, con el corte de Bucarest.
+     *
+     * Publica a proposito: es lo que un test puede aseverar sin forzar un
+     * descarte, y es la forma de que un segundo lector no vuelva a armar la
+     * clave a mano con otro criterio.
+     */
+    public static function claveDelDia(?DateTimeInterface $instante = null): string
+    {
+        $momento = $instante === null ? now() : Carbon::instance($instante);
+
+        return self::CACHE_DESCARTES
+            . $momento->copy()->setTimezone(self::TZ_CORTE)->format('Y-m-d');
+    }
+
     private static function descartar(array $fila, string $motivo): void
     {
-        $clave = self::CACHE_DESCARTES . now()->format('Y-m-d');
+        $clave = self::claveDelDia();
 
         try {
             Cache::add($clave, 0, now()->addDays(30));
