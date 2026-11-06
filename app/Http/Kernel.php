@@ -38,6 +38,9 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\ActivityLogger::class,
+            // Embudo por sesion (B3). No hace NADA con funnel.enabled en
+            // false: ni cookie, ni header, ni un atributo en el request.
+            \App\Http\Middleware\AttachFunnelSession::class,
         ],
 
         'api' => [
