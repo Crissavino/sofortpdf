@@ -242,7 +242,19 @@ Route::post('/api/log/event', function (\Illuminate\Http\Request $request) {
                 'website_id'   => (int) config('services.bo.website_id'),
                 'locale'       => (string) app()->getLocale(),
                 'device'       => (string) $request->input('device', ''),
-                'variant'      => $request->input('variant'),
+                // LA VARIANTE LA DECIDE EL SERVIDOR, no el cliente. Dos
+                // razones: el cliente no sabe en que brazo esta (la
+                // asignacion sale del id de sesion, que es HttpOnly), y si se
+                // le creyera, cualquiera podria elegir su brazo y ensuciar el
+                // denominador del experimento.
+                'variant'      => \App\Src\Funnel\VariantAssigner::for(
+                    (string) $request->attributes->get(
+                        \App\Http\Middleware\AttachFunnelSession::ATRIBUTO,
+                        ''
+                    ),
+                    (string) config('funnel.experiment'),
+                    (array) config('funnel.arms')
+                ),
                 'utm_source'   => $request->input('utm_source'),
                 'utm_medium'   => $request->input('utm_medium'),
                 'utm_campaign' => $request->input('utm_campaign'),
