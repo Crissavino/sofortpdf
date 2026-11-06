@@ -215,13 +215,53 @@ Route::post('/api/log/event', function (\Illuminate\Http\Request $request) {
     )));
     $isInternal = !empty($internalIps) && in_array($request->ip(), $internalIps, true);
 
+    // LA IP YA NO SE LOGUEA. Se calcula `is_internal` con ella arriba y se
+    // descarta: un log rotado que guarda IPs en claro por meses es PII, y la
+    // exencion de consentimiento de la cookie del embudo se apoya en que este
+    // sitio no guarde nada de eso. `is_internal` conserva lo unico para lo
+    // que la IP se usaba.
     \Illuminate\Support\Facades\Log::channel('activity')->info("client_event", [
         'event'       => $event,
-        'ip'          => $request->ip(),
         'user'        => $request->user() ? $request->user()->id : null,
         'path'        => $request->headers->get('referer', ''),
         'is_internal' => $isInternal,
     ]);
+
+    // Y la fila por sesion, si el flag esta prendido. El log de arriba se
+    // queda: es la fuente del agregador diario hasta que `cristian-106` lo
+    // pase a leer la tabla, y mientras conviven los dos no hay un dia sin
+    // datos.
+    if (\App\Src\Funnel\EventRecorder::habilitado()) {
+        try {
+            \App\Src\Funnel\EventRecorder::record(\App\Src\Funnel\EventRow::build([
+                'session_id'   => (string) $request->attributes->get(
+                    \App\Http\Middleware\AttachFunnelSession::ATRIBUTO,
+                    ''
+                ),
+                'event'        => $event,
+                'website_id'   => (int) config('services.bo.website_id'),
+                'locale'       => (string) app()->getLocale(),
+                'device'       => (string) $request->input('device', ''),
+                'variant'      => $request->input('variant'),
+                'utm_source'   => $request->input('utm_source'),
+                'utm_medium'   => $request->input('utm_medium'),
+                'utm_campaign' => $request->input('utm_campaign'),
+                'has_gclid'    => (bool) $request->input('has_gclid', false),
+                'is_internal'  => $isInternal,
+                'customer_id'  => $request->user() ? $request->user()->id : null,
+                'occurred_at'  => now()->format('Y-m-d H:i:s'),
+            ]));
+        } catch (\Throwable $e) {
+            // Un evento fuera de la taxonomia tira (a proposito, para que un
+            // typo no cree un paso nuevo). Pero aca estamos en el camino del
+            // request: se registra y se sigue. El 200 de abajo no se negocia.
+            \Illuminate\Support\Facades\Log::channel('activity')->warning('funnel_event_rechazado', [
+                'event' => $event,
+                'motivo' => mb_substr($e->getMessage(), 0, 300),
+            ]);
+        }
+    }
+
     return response()->json(['ok' => true]);
 });
 
