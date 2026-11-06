@@ -4,6 +4,7 @@ namespace App\Console;
 
 use App\Console\Commands\CleanTempFiles;
 use App\Console\Commands\ReportFunnelDaily;
+use App\Console\Commands\SweepFunnelEvents;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -12,6 +13,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         CleanTempFiles::class,
         ReportFunnelDaily::class,
+        SweepFunnelEvents::class,
     ];
 
     protected function schedule(Schedule $schedule)
@@ -46,6 +48,22 @@ class Kernel extends ConsoleKernel
             ->dailyAt('03:10')
             ->timezone('Europe/Bucharest')
             ->withoutOverlapping();
+
+        // La retencion de funnel_events. DESPUES del report del dia a
+        // proposito: si corriera antes y el corte estuviera mal, se llevaria
+        // filas que el report todavia no mando. Con media hora de margen
+        // alcanza -- el report tarda segundos.
+        //
+        // LA SALIDA VA A UN ARCHIVO Y NO A /dev/null: es la leccion del
+        // 2026-11-05, cuando el embudo estuvo roto once dias porque los
+        // errores salian por stdout y el cron los descartaba. Un borrado que
+        // falla en silencio es peor que uno que no corre.
+        $schedule
+            ->command('funnel:sweep')
+            ->dailyAt('03:40')
+            ->timezone('Europe/Bucharest')
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path('logs/funnel_sweep.log'));
     }
 
     /**

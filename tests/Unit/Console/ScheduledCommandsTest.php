@@ -40,7 +40,13 @@ class ScheduledCommandsTest extends TestCase
 
         sort($agendados);
 
-        $this->assertSame(['funnel:report', 'sofortpdf:clean-temp'], $agendados);
+        // `funnel:sweep` entro con cristian-107: la retencion de
+        // funnel_events. Agregar un agendado tiene que romper este test a
+        // proposito -- un comando que se agenda sin que nadie lo note es
+        // codigo que se ejecuta el dia que alguien arregla la infra, cuando ya
+        // nadie se acuerda de que estaba ahi (pasado el 2026-11-06 con
+        // sync-subscriptions).
+        $this->assertSame(['funnel:report', 'funnel:sweep', 'sofortpdf:clean-temp'], $agendados);
     }
 
     public function test_sync_subscriptions_no_vuelve_a_agendarse()
