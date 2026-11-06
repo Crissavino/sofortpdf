@@ -5,6 +5,8 @@ namespace App\Console\Commands;
 use DateTime;
 use DateTimeZone;
 use Illuminate\Console\Command;
+use App\Src\Funnel\EventRecorder;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -98,6 +100,7 @@ class ReportFunnelDaily extends Command
         // tabla dice lo mismo que el archivo.
         if ($usaTabla) {
             $this->info('comparacion con el archivo: ' . json_encode($delArchivo));
+            $this->informarDescartes($fecha);
 
             foreach ($delArchivo as $paso => $cuantos) {
                 $deLaTabla = $pasos[$paso] ?? 0;
@@ -175,6 +178,33 @@ class ReportFunnelDaily extends Command
         }
 
         return $cuentas;
+    }
+
+    /**
+     * EL LECTOR DEL CONTADOR DE DESCARTES, y existe por una razon que este
+     * sistema ya documento siete veces: un contador que nadie lee no es un
+     * mecanismo, es un artefacto. `EventRecorder` sube ese contador cada vez
+     * que una escritura falla y se captura -- sin este renglon, "no falla el
+     * pedido" volveria a significar "no se entera nadie", que es exactamente
+     * lo que dejo el embudo roto once dias en noviembre de 2026.
+     *
+     * Va acá y no en un comando propio porque este ya corre todos los dias
+     * por cron con la salida a un archivo. Un segundo job seria una pieza mas
+     * que instalar en la maquina nueva.
+     */
+    private function informarDescartes(string $fecha): void
+    {
+        $n = (int) Cache::get(EventRecorder::CACHE_DESCARTES . $fecha, 0);
+
+        if ($n > 0) {
+            // warn y no info: si se descarto algo, los contadores de ese dia
+            // son una cota inferior y quien los lea tiene que saberlo.
+            $this->warn("ATENCION: {$n} evento(s) descartado(s) el {$fecha}: los contadores de ese dia son un piso");
+
+            return;
+        }
+
+        $this->info("descartes del {$fecha}: 0");
     }
 
     /**
