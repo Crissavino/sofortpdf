@@ -47,7 +47,18 @@ class Kernel extends ConsoleKernel
             ->command('funnel:report')
             ->dailyAt('03:10')
             ->timezone('Europe/Bucharest')
-            ->withoutOverlapping();
+            // EL MUTEX CON VENCIMIENTO CORTO, y no el default. `withoutOverlapping()`
+            // sin argumento usa 1440 minutos = EXACTAMENTE 24 h, y en un comando
+            // `dailyAt` eso es una bomba de relojeria: si una corrida muere sin
+            // liberar el candado (deploy que reinicia php-fpm, OOM, reboot), el
+            // candado vence justo en el minuto de la corrida del dia siguiente y
+            // que se saltee o no es una carrera por segundos. Peor: el salteo no
+            // imprime nada, asi que se pierde en silencio.
+            //
+            // 30 minutos: mas que de sobra para un comando que tarda segundos, y
+            // lo bastante corto para que un candado huerfano se cure solo antes
+            // de la proxima corrida.
+            ->withoutOverlapping(30);
 
         // La retencion de funnel_events. DESPUES del report del dia a
         // proposito: si corriera antes y el corte estuviera mal, se llevaria
@@ -62,7 +73,7 @@ class Kernel extends ConsoleKernel
             ->command('funnel:sweep')
             ->dailyAt('03:40')
             ->timezone('Europe/Bucharest')
-            ->withoutOverlapping()
+            ->withoutOverlapping(30)
             ->appendOutputTo(storage_path('logs/funnel_sweep.log'));
     }
 
