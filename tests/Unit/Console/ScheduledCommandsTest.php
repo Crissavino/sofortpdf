@@ -49,6 +49,34 @@ class ScheduledCommandsTest extends TestCase
         $this->assertSame(['funnel:report', 'funnel:sweep', 'sofortpdf:clean-temp'], $agendados);
     }
 
+    public function test_ningun_agendado_manda_su_salida_a_dev_null()
+    {
+        // LA OTRA MITAD DE LA LECCION, y hasta el 2026-11-07 no la aseveraba
+        // nadie -- el docblock de arriba la nombraba y ya. `funnel:report`
+        // corrio desde el 11-05 con la salida en /dev/null: cuando el flag del
+        // embudo se prendio, la corrida de las 01:10 posteo un dia PARCIAL como
+        // completo y los dos `ATENCION: ... difiere mas del 20%` que lo
+        // delataban se escribieron en /dev/null. Hubo que ir a preguntarle al
+        // BO que habia hecho.
+        //
+        // Se asevera sobre TODOS los agendados y no sobre uno: el agujero no
+        // fue de `funnel:report`, fue de que agendar sin destino de salida es
+        // el default de Laravel. El proximo comando que se agregue nace con el
+        // mismo bug si nadie lo obliga.
+        foreach (app(Schedule::class)->events() as $evento) {
+            $this->assertNotSame(
+                $evento->getDefaultOutput(),
+                $evento->output,
+                "el agendado `{$evento->command}` manda su salida al default (/dev/null)"
+            );
+            $this->assertStringContainsString(
+                'storage/logs/',
+                (string) $evento->output,
+                "el agendado `{$evento->command}` no escribe en storage/logs"
+            );
+        }
+    }
+
     public function test_sync_subscriptions_no_vuelve_a_agendarse()
     {
         // Explicito y aparte del test de arriba para que el motivo quede en el

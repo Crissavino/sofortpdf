@@ -18,7 +18,14 @@ class Kernel extends ConsoleKernel
 
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('sofortpdf:clean-temp')->hourly();
+        // LA SALIDA DE TODO AGENDADO VA A UN ARCHIVO. Sin `appendOutputTo`
+        // Laravel manda stdout a /dev/null, que es el mecanismo exacto por el
+        // que el embudo estuvo roto once dias (2026-11-05). Vale igual para un
+        // borrado de temporales: el dia que falle, el sintoma va a ser el disco
+        // lleno y no una linea de log.
+        $schedule->command('sofortpdf:clean-temp')
+            ->hourly()
+            ->appendOutputTo(storage_path('logs/clean_temp.log'));
 
         // `sofortpdf:sync-subscriptions` SE QUITO el 2026-11-06, y no por un
         // bug de una columna: usaba `stripe_price_id`, `stripe_subscription_id`
@@ -58,7 +65,16 @@ class Kernel extends ConsoleKernel
             // 30 minutos: mas que de sobra para un comando que tarda segundos, y
             // lo bastante corto para que un candado huerfano se cure solo antes
             // de la proxima corrida.
-            ->withoutOverlapping(30);
+            ->withoutOverlapping(30)
+            // LA SALIDA VA A UN ARCHIVO, por lo mismo que `funnel:sweep` --
+            // pero aca el costo ya se pago: este comando corrio desde el 11-05
+            // con la salida en /dev/null, y el 11-07 posteo el dia del flip
+            // PARCIAL como si fuera completo. Los dos avisos
+            // `ATENCION: ... difiere mas del 20%` que lo delataban --que son el
+            // chequeo de que la tabla dice lo mismo que el archivo, o sea el
+            // criterio de salida de B3-- se escribieron en /dev/null. Hubo que
+            // ir a preguntarle al BO que habia hecho la corrida.
+            ->appendOutputTo(storage_path('logs/funnel_report.log'));
 
         // La retencion de funnel_events. DESPUES del report del dia a
         // proposito: si corriera antes y el corte estuviera mal, se llevaria
