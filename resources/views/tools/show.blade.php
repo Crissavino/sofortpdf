@@ -1462,6 +1462,9 @@
         // next paywall trigger. (Set BEFORE validation early-returns so
         // a rejected upload doesn't poison the next valid one's flag.)
         window.__sofortpdfLoadingShown = false;
+        // Same scope, same reason: the step-2 funnel beacon fires once per
+        // upload, and this is the only place that says "a new upload began".
+        window.__sofortpdfFunnelModalBeaconSent = false;
 
         if (!allowMultiple && arr.length > 1) {
             showError(__t.onlyOneFile);
