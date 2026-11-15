@@ -425,9 +425,9 @@ class ConversionController extends Controller
             'pdf-to-ppt'   => ['pdf'],
             'pdf-to-jpg'   => ['pdf'],
             'pdf-to-png'   => ['pdf'],
-            'word-to-pdf'  => ['doc', 'docx'],
-            'excel-to-pdf' => ['xls', 'xlsx'],
-            'ppt-to-pdf'   => ['ppt', 'pptx'],
+            'word-to-pdf'  => ['doc', 'docx', 'odt', 'rtf'],
+            'excel-to-pdf' => ['xls', 'xlsx', 'ods'],
+            'ppt-to-pdf'   => ['ppt', 'pptx', 'odp'],
             'jpg-to-pdf'   => ['jpg', 'jpeg'],
             'png-to-pdf'   => ['png'],
             'compress'     => ['pdf'],
@@ -447,6 +447,14 @@ class ConversionController extends Controller
         $extToTool = [
             'doc'  => 'word-to-pdf',
             'docx' => 'word-to-pdf',
+            // OpenDocument + RTF go through the same office-to-pdf operation.
+            // Without these, a .odt uploaded on "PDF to Word" stayed on
+            // pdf-to-word and reached CloudConvert as input_format=pdf,
+            // which fails the conversion outright.
+            'odt'  => 'word-to-pdf',
+            'rtf'  => 'word-to-pdf',
+            'ods'  => 'excel-to-pdf',
+            'odp'  => 'ppt-to-pdf',
             'xls'  => 'excel-to-pdf',
             'xlsx' => 'excel-to-pdf',
             'ppt'  => 'ppt-to-pdf',
