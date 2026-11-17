@@ -2,9 +2,22 @@
 
 @php
     $trialDays = (int) config('services.stripe.trial_days', 2);
+    // La tabla `subscriptions` es compartida entre marcas y su esquema es
+    // agnostico de Stripe (ver el docblock de App\Models\Subscription): no
+    // existen `stripe_price_id` ni `status`. `status` es un accessor, asi que
+    // tampoco sirve en un where. Las dos clausulas anteriores consultaban
+    // columnas inexistentes y el render tiraba `Unknown column`, que
+    // EmailService::sendTrialStarted captura y loguea: el mail no le llegaba a
+    // nadie, en silencio.
+    //
+    // La marca se filtra por `website_id` (el idiom del repo:
+    // Customer::resolveCancellation, DashboardController) y "trialing" es
+    // exactamente `is_trial_active` = true, porque la rama 'canceled' del
+    // accessor exige !is_trial_active.
     $trialEndsAt = $user->subscriptions()
-        ->where('stripe_price_id', 'like', '%sofortpdf_%')
-        ->where('status', 'trialing')
+        ->where('website_id', config('services.bo.website_id'))
+        ->where('is_trial_active', true)
+        ->orderBy('id', 'desc')
         ->first()?->trial_ends_at;
     $trialEndsFormatted = $trialEndsAt
         ? (app()->getLocale() === 'en' ? $trialEndsAt->format('Y-m-d') : $trialEndsAt->format('d.m.Y'))
