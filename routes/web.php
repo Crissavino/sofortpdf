@@ -253,7 +253,12 @@ Route::post('/api/log/event', function (\Illuminate\Http\Request $request) {
                     'event'        => $canonico,
                     'website_id'   => (int) config('services.bo.website_id'),
                     'locale'       => (string) app()->getLocale(),
-                    'device'       => (string) $request->input('device', ''),
+                    // EL DISPOSITIVO TAMBIEN SALE DEL SERVIDOR. Salia de
+                    // `$request->input('device')`, que ningun beacon manda,
+                    // asi que la columna decia `other` en el 100 % de las
+                    // 2.082 filas. `Device` documenta por que va a mano (no
+                    // hay `composer install` en el deploy) y que no puede.
+                    'device'       => \App\Src\Funnel\Device::desdeUserAgent($request->userAgent()),
                     // LA VARIANTE LA DECIDE EL SERVIDOR, no el cliente. Dos
                     // razones: el cliente no sabe en que brazo esta (la
                     // asignacion sale del id de sesion, que es HttpOnly), y si se

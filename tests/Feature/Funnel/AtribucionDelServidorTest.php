@@ -58,13 +58,18 @@ class AtribucionDelServidorTest extends TestCase
      * `$filas[$antes]` devuelve la fila del post ANTERIOR, o sea un caso que
      * pasa o falla midiendo el request equivocado.
      */
-    private function filaEscritaPor(array $sesion, array $body): array
+    private function filaEscritaPor(array $sesion, array $body, ?string $ua = null): array
     {
         $antes = count($this->filas);
 
-        $this->withSession($sesion)
-             ->postJson('/api/log/event', $body + ['event' => 'payment_modal_opened'])
-             ->assertOk();
+        $peticion = $this->withSession($sesion);
+
+        if ($ua !== null) {
+            $peticion = $peticion->withHeaders(['User-Agent' => $ua]);
+        }
+
+        $peticion->postJson('/api/log/event', $body + ['event' => 'payment_modal_opened'])
+                 ->assertOk();
 
         $this->assertGreaterThan($antes, count($this->filas), 'el route no escribio una fila nueva');
 
@@ -154,5 +159,37 @@ class AtribucionDelServidorTest extends TestCase
 
         $this->assertTrue($real['has_gclid'], 'el body apago una sesion paga');
         $this->assertSame('google', $real['utm_source']);
+    }
+
+    /**
+     * `device` sale del User-Agent y NO del body, igual que la atribucion.
+     *
+     * Este caso existe porque `DeviceTest` prueba el clasificador en el
+     * vacio: sin esto, borrar la llamada del route deja la columna en
+     * `other` para siempre y los 11 asertos de `DeviceTest` siguen verdes.
+     * Lo que se fija aca es el CABLE, no la regla.
+     */
+    public function test_el_device_sale_del_user_agent_y_no_del_body()
+    {
+        $this->capturarFilas();
+
+        $movil = $this->filaEscritaPor(
+            [],
+            // El body se declara escritorio sobre un UA de telefono.
+            ['device' => 'desktop'],
+            'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/157.0.0.0 Mobile Safari/537.36'
+        );
+
+        $this->assertSame('mobile', $movil['device'], 'el device salio del body');
+
+        // Y la mitad de arriba: con un UA de escritorio da escritorio, asi
+        // que el aserto anterior no lo cumple un `mobile` fijo.
+        $escritorio = $this->filaEscritaPor(
+            [],
+            ['device' => 'mobile'],
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/157.0.0.0 Safari/537.36'
+        );
+
+        $this->assertSame('desktop', $escritorio['device'], 'el device salio del body');
     }
 }
