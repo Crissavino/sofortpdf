@@ -1350,13 +1350,30 @@
         window.dataLayer = window.dataLayer || [];
         window.dataLayer.push({ event: 'payment_form_opened' });
 
-        // Log to backend
-        var _csrf = document.querySelector('meta[name="csrf-token"]');
-        fetch('/api/log/event', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': _csrf ? _csrf.content : '' },
-            body: JSON.stringify({ event: 'payment_modal_opened' })
-        }).catch(function() {});
+        // Log to backend — ONCE PER UPLOAD, not once per open().
+        //
+        // Reopening the modal for the same upload is a DESIGNED flow (see
+        // __sofortpdfShowLoadingThenPay in layouts/app.blade.php: it skips the
+        // fake loading animation precisely because the user already saw it for
+        // this upload). With no guard, one upload produced N step-2 events and
+        // the funnel showed checkout_shown > visits — measured 79 vs 71 on
+        // 2026-11-07 and 107 vs 91 on 2026-11-05, the only one of the five
+        // sites like that.
+        //
+        // The flag is UPLOAD-SESSION scoped, the same scope as
+        // window.__sofortpdfLoadingShown: handleFiles() in tools/show.blade.php
+        // and loadPdf() in tools/sign.blade.php clear it when a new file comes
+        // in. The GTM push above is deliberately left unguarded: it feeds Ads
+        // tags, and changing when those fire is not this ticket's scope.
+        if (!window.__sofortpdfFunnelModalBeaconSent) {
+            window.__sofortpdfFunnelModalBeaconSent = true;
+            var _csrf = document.querySelector('meta[name="csrf-token"]');
+            fetch('/api/log/event', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': _csrf ? _csrf.content : '' },
+                body: JSON.stringify({ event: 'payment_modal_opened' })
+            }).catch(function() {});
+        }
 
         initStripe().catch(function(e) { console.error('initStripe error:', e); showError(__m.errGeneric); });
     }
