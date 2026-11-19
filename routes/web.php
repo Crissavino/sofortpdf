@@ -244,36 +244,47 @@ Route::post('/api/log/event', function (\Illuminate\Http\Request $request) {
 
     if (\App\Src\Funnel\EventRecorder::habilitado() && $canonico !== null) {
         try {
-            \App\Src\Funnel\EventRecorder::record(\App\Src\Funnel\EventRow::build([
-                'session_id'   => (string) $request->attributes->get(
-                    \App\Http\Middleware\AttachFunnelSession::ATRIBUTO,
-                    ''
-                ),
-                'event'        => $canonico,
-                'website_id'   => (int) config('services.bo.website_id'),
-                'locale'       => (string) app()->getLocale(),
-                'device'       => (string) $request->input('device', ''),
-                // LA VARIANTE LA DECIDE EL SERVIDOR, no el cliente. Dos
-                // razones: el cliente no sabe en que brazo esta (la
-                // asignacion sale del id de sesion, que es HttpOnly), y si se
-                // le creyera, cualquiera podria elegir su brazo y ensuciar el
-                // denominador del experimento.
-                'variant'      => \App\Src\Funnel\VariantAssigner::for(
-                    (string) $request->attributes->get(
+            \App\Src\Funnel\EventRecorder::record(\App\Src\Funnel\EventRow::build(
+                \App\Src\Funnel\Attribution::desdeSesion($request) + [
+                    'session_id'   => (string) $request->attributes->get(
                         \App\Http\Middleware\AttachFunnelSession::ATRIBUTO,
                         ''
                     ),
-                    (string) config('funnel.experiment'),
-                    (array) config('funnel.arms')
-                ),
-                'utm_source'   => $request->input('utm_source'),
-                'utm_medium'   => $request->input('utm_medium'),
-                'utm_campaign' => $request->input('utm_campaign'),
-                'has_gclid'    => (bool) $request->input('has_gclid', false),
-                'is_internal'  => $isInternal,
-                'customer_id'  => $request->user() ? $request->user()->id : null,
-                'occurred_at'  => now()->format('Y-m-d H:i:s'),
-            ]));
+                    'event'        => $canonico,
+                    'website_id'   => (int) config('services.bo.website_id'),
+                    'locale'       => (string) app()->getLocale(),
+                    // EL DISPOSITIVO TAMBIEN SALE DEL SERVIDOR. Salia de
+                    // `$request->input('device')`, que ningun beacon manda,
+                    // asi que la columna decia `other` en el 100 % de las
+                    // 2.082 filas. `Device` documenta por que va a mano (no
+                    // hay `composer install` en el deploy) y que no puede.
+                    'device'       => \App\Src\Funnel\Device::desdeUserAgent($request->userAgent()),
+                    // LA VARIANTE LA DECIDE EL SERVIDOR, no el cliente. Dos
+                    // razones: el cliente no sabe en que brazo esta (la
+                    // asignacion sale del id de sesion, que es HttpOnly), y si se
+                    // le creyera, cualquiera podria elegir su brazo y ensuciar el
+                    // denominador del experimento.
+                    'variant'      => \App\Src\Funnel\VariantAssigner::for(
+                        (string) $request->attributes->get(
+                            \App\Http\Middleware\AttachFunnelSession::ATRIBUTO,
+                            ''
+                        ),
+                        (string) config('funnel.experiment'),
+                        (array) config('funnel.arms')
+                    ),
+                    // LA ATRIBUCION TAMBIEN LA DECIDE EL SERVIDOR, por la
+                    // misma razon que la variante de arriba, y en una sola copia
+                    // (`Attribution`, que documenta por que y a que costo).
+                    // Hasta el 2026-11-17 estos cuatro campos salian del body
+                    // con `$request->input()` y NINGUNO de los tres beacons del
+                    // repo los manda: quedaban en 0/NULL en las 2.082 filas de
+                    // once dias, y los dos consumidores filtran `has_gclid`, asi
+                    // que `paid_session` --el denominador de la metrica norte--
+                    // era cero por construccion.
+                    'is_internal'  => $isInternal,
+                    'customer_id'  => $request->user() ? $request->user()->id : null,
+                    'occurred_at'  => now()->format('Y-m-d H:i:s'),
+                ]));
         } catch (\Throwable $e) {
             // Un evento fuera de la taxonomia tira (a proposito, para que un
             // typo no cree un paso nuevo). Pero aca estamos en el camino del
