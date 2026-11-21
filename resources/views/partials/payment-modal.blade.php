@@ -1122,6 +1122,24 @@
         e.preventDefault();
         hideError();
 
+        // EL CLICK DEL BOTON DE PAGO, antes de cualquier validacion. Va aca y
+        // no abajo con `payment_attempted` justamente por eso: los `return` de
+        // las tres validaciones que siguen son el caso "apreto y no paso
+        // nada", y si el beacon estuviera despues de ellos ese caso no dejaria
+        // ninguna fila -- o sea, seria indistinguible de "no apreto", que es el
+        // hueco que este paso viene a tapar. El form es `novalidate`, asi que
+        // el submit llega al handler con los campos vacios tambien.
+        //
+        // NO va al dataLayer: los tags de conversion de Ads se disparan con
+        // ese conjunto de eventos y agregarle uno cambia la señal. Esto es
+        // solo el embudo propio.
+        var _csrfClick = document.querySelector('meta[name="csrf-token"]');
+        fetch('/api/log/event', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': _csrfClick ? _csrfClick.content : '' },
+            body: JSON.stringify({ event: 'pay_clicked' })
+        }).catch(function() {});
+
         if (!tcCheckbox.checked) { showError(__m.tcRequired); return; }
 
         var fullName = nameInput ? nameInput.value.trim() : '';
