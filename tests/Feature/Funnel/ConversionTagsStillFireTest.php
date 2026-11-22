@@ -40,8 +40,22 @@ class ConversionTagsStillFireTest extends TestCase
     /**
      * Los eventos del modal de pago, medidos el 2026-11-06 ANTES de tocar
      * nada. Si este conjunto cambia, cambio la señal que recibe Google Ads.
+     *
+     * OJO, Y ES LO QUE HAY QUE SABER ANTES DE EDITAR ESTA LISTA: el regex de
+     * `eventosDe()` machea `event: '...'` sin distinguir de donde sale, asi
+     * que la lista NO es solo el dataLayer. Tres de los doce son beacons al
+     * backend (`/api/log/event`) y NO viajan a Ads: `pay_clicked`,
+     * `payment_attempted` y `payment_modal_opened`. Los otros nueve si son
+     * `dataLayer.push`.
+     *
+     * `pay_clicked` se agrego el 2026-11-20 (darryl-253) y es de los que no
+     * van a Ads: el embudo gano un paso, la señal de conversion no cambio. Si
+     * algun dia esta distincion importa de verdad, lo que corresponde es
+     * partir el test en dos --dataLayer y beacons-- y no ensanchar esta lista;
+     * eso es un ticket, no un cambio al pasar.
      */
     private const EVENTOS_DEL_MODAL = [
+        'pay_clicked',
         'payment_attempted',
         'payment_failed',
         'payment_form_opened',

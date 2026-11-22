@@ -37,7 +37,7 @@ use Illuminate\Support\Facades\Schema;
  * `customer_id` NO ES FK a proposito. `app/Models/Payment.php` se describe a
  * si mismo como "read-only mirror of the shared payments table": una FK
  * ataria el esquema de este sitio al del BO, y el dia que el BO renombre algo
- * la migracion de aca se rompe. Ademas solo viene en dos de los once eventos.
+ * la migracion de aca se rompe. Ademas solo viene en dos de los doce eventos.
  *
  * Taxonomia (en el repo del BO): docs/taxonomia-eventos.md
  */
@@ -61,7 +61,7 @@ return new class extends Migration
             // consentimiento.
             $table->char('session_id', 32);
 
-            // Uno de los once eventos canonicos de la taxonomia. String y no
+            // Uno de los doce eventos canonicos de la taxonomia. String y no
             // enum: un evento nuevo no deberia necesitar una migracion, igual
             // que el `step` de bo_funnel_daily en el BO. El universo valido lo
             // valida el codigo y un evento fuera de la lista se rechaza.
