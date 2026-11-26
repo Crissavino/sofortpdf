@@ -46,13 +46,26 @@ use Tests\TestCase;
  * EL CONTEO MEDIDO, Y POR QUE NO SON 9 Y 3
  * ========================================================================
  *
- * Medido el 2026-11-24 sobre el fuente de este taller: 8 eventos de dataLayer
- * y 2 de beacon. El ticket `stanley-294` dice 9 y 3 porque describe el estado
- * CON `darryl-253` adentro, y la base de este taller es anterior a esa rama
- * (`pay_clicked` no aparece en ninguna linea del repo). Cuando `darryl-253`
- * entre, `pay_clicked` suma uno a CADA lista -- esta en los dos caminos -- y
- * ahi los conteos pasan a ser 9 y 3. No se agrego por adelantado: una lista
- * con un evento que el fuente todavia no emite da rojo el dia que se escribe.
+ * Medido sobre el fuente YA MERGEADO con `darryl-253` (2026-11-26): 11 eventos
+ * distintos = 8 de dataLayer + 3 de beacon.
+ *
+ * El ticket `stanley-294` dice 9 y 3, y NO es eso. Antes de mergear habia dos
+ * numeros escritos a mano que el fuente no respalda, y los dos se corrigieron
+ * midiendo:
+ *
+ *   - este bloque decia que al entrar `darryl-253` su evento `pay_clicked`
+ *     sumaba uno a CADA lista porque estaba en los dos caminos. No esta:
+ *     `pay_clicked` sale unicamente dentro de un `JSON.stringify` hacia
+ *     `/api/log/event`, nunca en un `dataLayer.push`. Entra solo a la lista de
+ *     beacons, que pasa de 2 a 3, y la del dataLayer se queda en 8;
+ *   - y el comentario de la lista unica que habia en `main` decia "tres de los
+ *     DOCE son beacons ... los otros NUEVE si son dataLayer.push". La lista
+ *     tenia once entradas, no doce. Eran 3 y 8.
+ *
+ * O sea que el 9 del ticket nunca existio en el fuente. Lo que lo sostiene no
+ * es este comentario: es el tercer test, que exige que las dos listas cubran
+ * todos los `event:` del fuente. Si manana aparece un noveno `dataLayer.push`,
+ * ese test se pone rojo; este parrafo, si queda viejo, no.
  *
  * ========================================================================
  * POR QUE ESTE TEST ARRANCA EN VERDE, Y ESO ESTA BIEN
@@ -113,6 +126,7 @@ class ConversionTagsStillFireTest extends TestCase
      * subasta, y por eso tienen lista aparte.
      */
     private const EVENTOS_DE_BEACON = [
+        'pay_clicked',
         'payment_attempted',
         'payment_modal_opened',
     ];

@@ -253,6 +253,14 @@
     });
 
     async function loadPdf(file) {
+        // New upload session — the step-2 funnel beacon in
+        // partials/payment-modal.blade.php fires once per upload, and this is
+        // the only place in this view that says "a new upload began". Set
+        // BEFORE the validation early-returns, like handleFiles() in
+        // tools/show.blade.php, so a rejected file doesn't poison the next
+        // valid one's flag.
+        window.__sofortpdfFunnelModalBeaconSent = false;
+
         const maxSize = __maxUploadMb * 1024 * 1024;
         if (file.size > maxSize) {
             showError(__t.errFileTooLarge);
@@ -274,6 +282,23 @@
         uploadZone.classList.add('hidden');
         signWorkspace.classList.remove('hidden');
         errorState.classList.add('hidden');
+
+        // Funnel step 1. This view never sent it, so every signature was a
+        // step 2 with no step 1 behind it: `sign` opens the payment modal from
+        // btnSubmit but has its own view (ToolController.php:63), so it never
+        // went through handleFiles() in tools/show.blade.php, which is where
+        // the only `file_uploaded` beacon lived.
+        //
+        // It goes HERE and not next to the validations: at this point the PDF
+        // parsed and the workspace is up, which is the same moment
+        // tools/show.blade.php uses (after the file list rendered). Only the
+        // backend beacon is sent — no dataLayer push, because that feeds Ads
+        // tags and changing when those fire is not this ticket's scope.
+        fetch('/api/log/event', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+            body: JSON.stringify({ event: 'file_uploaded', tool: '{{ $toolKey }}' })
+        }).catch(function() {});
 
         // Nudge the user toward "Create signature" until they make one
         btnCreateSig.classList.add('sign-cta-pulse');

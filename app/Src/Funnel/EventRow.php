@@ -41,8 +41,14 @@ use InvalidArgumentException;
 final class EventRow
 {
     /**
-     * Los once eventos canonicos, en el orden del embudo. El orden importa
+     * Los doce eventos canonicos, en el orden del embudo. El orden importa
      * para leerlos, no para la validacion.
+     *
+     * `pay_clicked` va ENTRE `checkout_view` y `payment_attempted` porque eso
+     * es lo que separa: el modal abierto, el boton apretado, y el intento de
+     * cobro de verdad. Sin el paso del medio, "apreto y no paso nada" --una
+     * validacion que rebota, un Stripe que no carga-- es indistinguible de
+     * "no apreto".
      */
     public const EVENTOS = [
         'landing_view',
@@ -51,6 +57,7 @@ final class EventRow
         'processing_completed',
         'paywall_view',
         'checkout_view',
+        'pay_clicked',
         'payment_attempted',
         'payment_succeeded',
         'payment_failed',
@@ -73,6 +80,7 @@ final class EventRow
     public const DEL_CLIENTE = [
         'file_uploaded' => 'file_uploaded',
         'payment_modal_opened' => 'checkout_view',
+        'pay_clicked' => 'pay_clicked',
         'payment_attempted' => 'payment_attempted',
     ];
 

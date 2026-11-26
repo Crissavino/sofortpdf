@@ -57,15 +57,24 @@ class ReportFunnelDaily extends Command
      * (ver EventRow::DEL_CLIENTE). Son dos mapas porque las dos fuentes
      * hablan dos vocabularios, y unificarlos exigiria reescribir el nombre
      * en el blade del modal de pago.
+     *
+     * `pay_clicked` entra en LOS DOS, y no por simetria: el dia del flip la
+     * tabla pasa a ser la fuente, asi que un paso que solo este en `PASOS`
+     * desaparece sin error y sin alarma -- la misma falla muda que dejo el
+     * embudo once dias roto. Es el unico paso que se llama igual en los dos
+     * vocabularios porque nacio despues de la taxonomia: el beacon manda
+     * `pay_clicked` y el evento canonico es `pay_clicked`.
      */
     private const PASOS_TABLA = [
         'file_uploaded' => 'visits',
         'checkout_view' => 'checkout_shown',
+        'pay_clicked' => 'pay_clicked',
     ];
 
     private const PASOS = [
         'file_uploaded' => 'visits',
         'payment_modal_opened' => 'checkout_shown',
+        'pay_clicked' => 'pay_clicked',
     ];
 
     public function handle(): int

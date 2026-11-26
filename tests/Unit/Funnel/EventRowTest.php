@@ -96,6 +96,7 @@ class EventRowTest extends TestCase
             'processing_completed',
             'paywall_view',
             'checkout_view',
+            'pay_clicked',
             'payment_attempted',
             'payment_succeeded',
             'payment_failed',
@@ -151,6 +152,30 @@ class EventRowTest extends TestCase
         $this->assertSame('checkout_view', EventRow::canonico('payment_modal_opened'));
         $this->assertSame('file_uploaded', EventRow::canonico('file_uploaded'));
         $this->assertSame('payment_attempted', EventRow::canonico('payment_attempted'));
+        $this->assertSame('pay_clicked', EventRow::canonico('pay_clicked'));
+    }
+
+    public function test_pay_clicked_se_escribe_como_fila_valida()
+    {
+        // El paso nuevo no sirve de nada si `build()` lo rechaza: la ruta
+        // captura la excepcion y sigue, asi que el sintoma seria cero filas
+        // `pay_clicked` sin un solo error visible -- falla muda, la misma
+        // clase que dejo el embudo once dias roto.
+        $fila = EventRow::build($this->entrada(['event' => 'pay_clicked']));
+
+        $this->assertSame('pay_clicked', $fila['event']);
+    }
+
+    public function test_pay_clicked_no_lleva_customer_id()
+    {
+        // Es un click anonimo: en ese momento todavia no hay cliente, y la
+        // columna solo la pueden llevar `trial_started` y `payment_succeeded`.
+        $fila = EventRow::build($this->entrada([
+            'event' => 'pay_clicked',
+            'customer_id' => 77,
+        ]));
+
+        $this->assertNull($fila['customer_id']);
     }
 
     public function test_un_nombre_del_cliente_sin_mapeo_devuelve_null()
