@@ -240,7 +240,25 @@ del esquema.
 - `client_event` entries there: `file_uploaded`,
   `payment_modal_opened`, `payment_attempted`, `webhook_received`.
 - nginx access log: `/var/log/nginx/access.log` (need `sudo`).
-  Useful response sizes: `pay-trial 1505` = success, `357` = error.
+  El tamaño de la respuesta de `pay-trial` dice el desenlace, porque
+  el status es 200 en los dos casos. **Medido el 2026-11-26 sobre 14
+  días: `1688` = alta, y los rechazos son cortos (`150`, `184`,
+  `221`).** Un cuerpo de ~6900 aparece suelto (2 casos en 14 días) y
+  no está identificado.
+
+  **Este número caduca con cualquier cambio del JSON de respuesta, y
+  nada avisa** — el `1505`/`357` que decía acá antes ya no existía y
+  hacía que el grep no encontrara ni un pago. Volver a derivarlo así,
+  que no depende de ningún tamaño: contar los rechazos de un día en
+  `laravel.log` (son el único error que escribe, `payTrial failed`) y
+  buscar qué tamaño aparece ese día esa cantidad de veces. El resto
+  de los `pay-trial` del día son las altas.
+
+  ```
+  sudo zgrep -h pay-trial /var/log/nginx/access.log* \
+    | awk '{split($4,a,":"); print substr(a[1],2), $9, $10}' \
+    | sort | uniq -c
+  ```
 
 To temporarily bump visibility, set `LOG_LEVEL=warning` in `.env` —
 catches lock_timeout retries and idempotency guard fires.
